@@ -748,7 +748,8 @@ criarAssistente = function() {
       if(!email||!password)return show('registerResult',false,'Preencha e-mail e senha.');
       if(password.length<8)return show('registerResult',false,'A senha precisa ter pelo menos 8 caracteres.');
       if(password!==confirm)return show('registerResult',false,'As senhas não coincidem.');
-      const {data,error}=await c.auth.signUp({email,password});
+      const redirectTo = window.location.origin + '/';
+      const {data,error}=await c.auth.signUp({email,password,options:{emailRedirectTo:redirectTo}});
       if(error)return show('registerResult',false,traduzAuthError(error));
       pendingSignupEmail = email;
       if(data.user && !data.session){
@@ -757,7 +758,7 @@ criarAssistente = function() {
         show('registerResult',true,'Código enviado! Confira sua caixa de entrada e digite o código abaixo. 💜');
         setTimeout(()=>drawer.querySelector('#signupCode')?.focus(),80);
       } else {
-        show('registerResult',true,'Conta criada e login realizado! 💜');
+        show('registerResult',true,'Conta criada! Seu e-mail já está confirmado. Você já pode entrar. 💜');
         setTimeout(close,700);
       }
     };
@@ -780,7 +781,8 @@ criarAssistente = function() {
       const c=ensureClient(); if(!c)return show('registerResult',false,'Não foi possível reenviar o código.');
       const email=pendingSignupEmail || drawer.querySelector('#registerEmail').value.trim();
       if(!email)return show('registerResult',false,'Informe o e-mail da conta.');
-      const {error}=await c.auth.resend({type:'signup',email});
+      const redirectTo = window.location.origin + '/';
+      const {error}=await c.auth.resend({type:'signup',email,options:{emailRedirectTo:redirectTo}});
       if(error)return show('registerResult',false,traduzAuthError(error));
       show('registerResult',true,'Novo código enviado! Confira seu e-mail. ✉️');
     };
