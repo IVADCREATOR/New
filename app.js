@@ -768,7 +768,7 @@ criarAssistente = function() {
       const token=drawer.querySelector('#signupCode').value.trim();
       if(!email)return show('registerResult',false,'Não encontramos o e-mail da criação da conta.');
       if(!/^\d{6}$/.test(token))return show('registerResult',false,'Digite o código de 6 dígitos recebido por e-mail.');
-      const {data,error}=await c.auth.verifyOtp({email,token,type:'signup'});
+      const {data,error}=await c.auth.verifyOtp({email,token,type:'email'});
       if(error)return show('registerResult',false,'Código inválido ou expirado. Peça um novo código e tente novamente.');
       currentUser = data?.session?.user || data?.user || null;
       updateAuthUI();
