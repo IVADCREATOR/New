@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://ponte-m7br.onrender.com https://xwrsjfxsmpuqneriptfw.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests" />
+<meta http-equiv="X-Content-Type-Options" content="nosniff" />
+<meta name="referrer" content="strict-origin-when-cross-origin" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Erros — Sorasaki</title>
+<link rel="stylesheet" href="style.css?v=20260907c" />
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <span class="dot" id="dotStatus"></span>
+    <div>Sorasaki<small>Central Sorasaki</small></div>
+  </div>
+  <nav>
+    <a href="grupos.html">Grupos</a>
+    <a href="index.html">Resumo</a>
+    <a href="estatisticas.html">Estatísticas</a>
+    <a href="status.html">Status</a>
+    <a href="erros.html" class="active">Ocorrências</a>
+    <a href="uptime.html">Disponibilidade</a>
+    <a href="sobre.html">Sobre</a>
+    <a href="suporte.html">Suporte</a>
+  </nav>
+</div>
+
+<main>
+  <div class="aviso" id="avisoConexao"></div>
+
+  <h1>Log de erros</h1>
+  <p class="subtitle">Acompanhe ocorrências recentes e o funcionamento do Sorasaki.</p>
+
+  <div class="grid">
+    <div class="card"><div class="label">Erros hoje</div><div class="value" id="valErrosHoje">—</div></div>
+    <div class="card"><div class="label">Erros no total</div><div class="value" id="valErrosTotal">—</div></div>
+    <div class="card"><div class="label">Taxa de erro em comandos</div><div class="value" id="valTaxaErro">—</div></div>
+    <div class="card"><div class="label">Último erro</div><div class="value small" id="valUltimoErro">—</div></div>
+  </div>
+
+  <div class="panel">
+    <h2>Erros mais recentes</h2>
+    <table>
+      <thead><tr><th>Quando</th><th>Comando</th><th>Mensagem</th></tr></thead>
+      <tbody id="tabelaErrosRecentes"></tbody>
+    </table>
+  </div>
+
+  <div class="panel">
+    <h2>Comandos que mais falham</h2>
+    <table>
+      <thead><tr><th>Comando</th><th>Total de erros</th></tr></thead>
+      <tbody id="tabelaErrosPorComando"></tbody>
+    </table>
+  </div>
+</main>
+
+<div class="footer">Sorasaki — informações atualizadas automaticamente</div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js?v=20260907c"></script>
+<script>
+  onConnection((c) => {
+    const dot = document.getElementById("dotStatus");
+    if (!dot) return;
+    dot.style.background = !c.bridgeOnline ? "var(--danger)" : !c.botDataReceived ? "var(--warn)" : "var(--ok)";
+    dot.title = !c.bridgeOnline ? "Serviço indisponível" : !c.botDataReceived ? "Aguardando atualização" : "Tudo funcionando normalmente";
+  });
+</script>
+<script>
+  onStats((s) => {
+    document.getElementById("valErrosHoje").textContent = fmtNumero(s.erros?.hoje);
+    document.getElementById("valErrosTotal").textContent = fmtNumero(s.erros?.total);
+    document.getElementById("valUltimoErro").textContent = fmtHora(s.erros?.ultimoErro);
+
+    const taxaErro = s.comandos?.totalGeral > 0
+      ? (s.comandos.comErroGeral / s.comandos.totalGeral) * 100
+      : 0;
+    document.getElementById("valTaxaErro").textContent = `${taxaErro.toFixed(1)}%`;
+
+    const recentes = document.getElementById("tabelaErrosRecentes");
+    recentes.innerHTML = "";
+    const listaRecentes = s.erros?.recentes || [];
+    if (!listaRecentes.length) {
+      recentes.innerHTML = `<tr><td colspan="3" class="empty">Nenhum erro registrado 🎉</td></tr>`;
+    } else {
+      for (const e of listaRecentes) {
+        recentes.innerHTML += `<tr>
+          <td>${fmtHora(e.ts)}</td>
+          <td>${e.comando ? `!${escapeHtml(e.comando)}` : "—"}</td>
+          <td>${e.mensagem ? escapeHtml(e.mensagem) : "—"}</td>
+        </tr>`;
+      }
+    }
+
+    const porComando = document.getElementById("tabelaErrosPorComando");
+    porComando.innerHTML = "";
+    const ranking = s.erros?.porComando || [];
+    if (!ranking.length) {
+      porComando.innerHTML = `<tr><td colspan="2" class="empty">Sem dados suficientes ainda</td></tr>`;
+    } else {
+      for (const c of ranking) {
+        porComando.innerHTML += `<tr><td>!${escapeHtml(c.comando)}</td><td>${fmtNumero(c.total)}</td></tr>`;
+      }
+    }
+  });
+</script>
+
+</body>
+</html>

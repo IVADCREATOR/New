@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://ponte-m7br.onrender.com https://xwrsjfxsmpuqneriptfw.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests" />
+<meta http-equiv="X-Content-Type-Options" content="nosniff" />
+<meta name="referrer" content="strict-origin-when-cross-origin" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Grupos — Sorasaki</title>
+<link rel="stylesheet" href="style.css?v=20260907c" />
+</head>
+<body>
+<div class="topbar">
+  <div class="brand"><span class="dot" id="dotStatus"></span><div>Sorasaki<small>Comunidades recomendadas pelo Sorasaki</small></div></div>
+  <nav>
+    <a href="index.html">Resumo</a>
+    <a href="grupos.html" class="active">Grupos</a>
+    <a href="estatisticas.html">Estatísticas</a>
+    <a href="status.html">Status</a>
+    <a href="erros.html">Erros</a>
+    <a href="uptime.html">Uptime</a>
+    <a href="sobre.html">Sobre</a>
+    <a href="suporte.html">Suporte</a>
+  </nav>
+</div>
+
+<main>
+  <section class="groups-hero">
+    <div>
+      <span class="eyebrow">✦ CENTRAL DE COMUNIDADES</span>
+      <h1>Encontre um grupo para <span>entrar e participar.</span></h1>
+      <p>Os grupos ficam organizados por categoria para você encontrar rapidamente a comunidade que combina com o que procura.</p>
+      <div class="groups-hero-stats">
+        <div><strong id="groupCount">2</strong><span>grupos disponíveis</span></div>
+        <div><strong id="memberCount">900+</strong><span>membros somados</span></div>
+        <div><strong>100%</strong><span>entrada por convite</span></div>
+      </div>
+    </div>
+    <div class="groups-mascot" aria-hidden="true"><span>✦</span><span>♡</span><span>✧</span><div>💜</div></div>
+  </section>
+
+  <section class="sorasaki-group-feature panel">
+    <div class="sorasaki-group-feature-copy">
+      <span class="eyebrow">✦ UM CANTINHO ESPECIAL</span>
+      <h2>Bem-vindo às comunidades do <span>Sorasaki.</span></h2>
+      <p>Escolha uma comunidade, conheça o ambiente e entre quando estiver pronto. A Sorasaki fica por aqui para ajudar a manter tudo mais seguro, organizado e agradável.</p>
+      <div class="sorasaki-feature-pills">
+        <span>🛡️ Comunidades organizadas</span>
+        <span>💜 Ambiente ativo</span>
+        <span>✨ Convites oficiais</span>
+      </div>
+    </div>
+    <div class="sorasaki-feature-character">
+      <div class="sorasaki-feature-glow"></div>
+      <img src="sorasaki-grupos.png" alt="Sorasaki dando tchau e apresentando as comunidades">
+      <div class="sorasaki-feature-caption">Oi! Eu sou a Sorasaki! 💜</div>
+    </div>
+  </section>
+
+  <section id="vendas" class="groups-toolbar panel" style="scroll-margin-top:90px">
+    <div class="group-search-wrap"><span>⌕</span><input id="groupSearch" type="search" placeholder="Pesquisar grupo..." autocomplete="off" /></div>
+    <div class="group-filters" role="group" aria-label="Filtrar grupos">
+      <button class="group-filter active" data-filter="todos">Todos</button>
+      <button class="group-filter" data-filter="vendas">Vendas</button>
+      <button class="group-filter" data-filter="comunidade">Comunidade</button>
+    </div>
+    <select id="groupSort" aria-label="Ordenar grupos">
+      <option value="members-desc">Mais membros</option>
+      <option value="members-asc">Menos membros</option>
+      <option value="name">Nome</option>
+    </select>
+  </section>
+
+  <div id="groupsGrid" class="groups-grid"></div>
+  <div id="groupsEmpty" class="groups-empty" hidden>
+    <div>⌕</div><strong>Nenhum grupo encontrado</strong><span>Tente outro nome ou altere o filtro.</span>
+  </div>
+
+  <section class="groups-note panel">
+    <div class="groups-note-icon">🛡️</div>
+    <div><strong>Uma área feita para crescer</strong><p>Novos grupos podem ser adicionados depois sem mudar o visual da página. A ideia é manter tudo organizado, bonito e fácil de explorar.</p></div>
+  </section>
+</main>
+
+<div class="footer">Sorasaki — comunidades organizadas em um só lugar</div>
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js?v=20260907c"></script>
+<script>
+const GROUPS = [
+  { id: 1, name: 'Grupo de Vendas #1', category: 'vendas', categoryLabel: 'Vendas', members: 600, icon: '🛍️', description: 'Espaço para divulgação, negociações e oportunidades de compra e venda.', link: 'https://chat.whatsapp.com/IFik3VExTg9FZMP5yZqCIH?s=cl&p=a&mlu=4&ilr=4', featured: true },
+  { id: 2, name: 'Grupo de Vendas #2', category: 'vendas', categoryLabel: 'Vendas', members: 300, icon: '💜', description: 'Uma comunidade para acompanhar ofertas, divulgar produtos e fazer negócios.', link: 'https://chat.whatsapp.com/BC4WaUcmeAKIgDZrbwWCbW?s=cl&p=a&mlu=4&ilr=4', featured: false }
+];
+
+const grid = document.getElementById('groupsGrid');
+const empty = document.getElementById('groupsEmpty');
+const search = document.getElementById('groupSearch');
+const sort = document.getElementById('groupSort');
+let filter = 'todos';
+
+function escapeHtml(value) { return String(value).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+function renderGroups() {
+  const q = search.value.trim().toLowerCase();
+  let list = GROUPS.filter(g => (filter === 'todos' || g.category === filter) && (!q || `${g.name} ${g.categoryLabel} ${g.description}`.toLowerCase().includes(q)));
+  list.sort((a,b) => sort.value === 'name' ? a.name.localeCompare(b.name, 'pt-BR') : sort.value === 'members-asc' ? a.members-b.members : b.members-a.members);
+  grid.innerHTML = list.map(g => `
+    <article class="group-card ${g.featured ? 'featured' : ''}">
+      <div class="group-card-top"><div class="group-icon">${g.icon}</div><span class="group-category">${escapeHtml(g.categoryLabel)}</span>${g.featured ? '<span class="group-featured">★ Destaque</span>' : ''}</div>
+      <h2>${escapeHtml(g.name)}</h2>
+      <p>${escapeHtml(g.description)}</p>
+      <div class="group-meta"><span>👥 <strong>${g.members.toLocaleString('pt-BR')}</strong> membros</span><span>🟢 Ativo</span></div>
+      <div class="group-card-actions"><button class="group-copy" data-link="${encodeURIComponent(g.link)}" type="button">Copiar convite</button><a class="group-join" href="${g.link}" target="_blank" rel="noopener noreferrer">Entrar no grupo <span>↗</span></a></div>
+    </article>`).join('');
+  empty.hidden = list.length !== 0;
+  document.getElementById('groupCount').textContent = GROUPS.length;
+  document.getElementById('memberCount').textContent = GROUPS.reduce((sum,g)=>sum+g.members,0).toLocaleString('pt-BR') + '+';
+  grid.querySelectorAll('.group-copy').forEach(btn => btn.addEventListener('click', async () => {
+    const link = decodeURIComponent(btn.dataset.link);
+    try { await navigator.clipboard.writeText(link); btn.textContent = '✓ Convite copiado'; setTimeout(() => btn.textContent = 'Copiar convite', 1800); }
+    catch { btn.textContent = 'Copie pelo botão Entrar'; setTimeout(() => btn.textContent = 'Copiar convite', 1800); }
+  }));
+}
+
+document.querySelectorAll('.group-filter').forEach(btn => btn.addEventListener('click', () => { document.querySelectorAll('.group-filter').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); filter=btn.dataset.filter; renderGroups(); }));
+search.addEventListener('input', renderGroups);
+sort.addEventListener('change', renderGroups);
+renderGroups();
+</script>
+</body>
+</html>

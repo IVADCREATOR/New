@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://ponte-m7br.onrender.com https://xwrsjfxsmpuqneriptfw.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests" />
+<meta http-equiv="X-Content-Type-Options" content="nosniff" />
+<meta name="referrer" content="strict-origin-when-cross-origin" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sorasaki — Painel</title>
+<link rel="stylesheet" href="style.css?v=20260907c" />
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <span class="dot" id="dotStatus"></span>
+    <div>Sorasaki<small>Central Sorasaki</small></div>
+  </div>
+  <nav>
+    <a href="grupos.html">Grupos</a>
+    <a href="index.html" class="active">Resumo</a>
+    <a href="estatisticas.html">Estatísticas</a>
+    <a href="status.html">Status</a>
+    <a href="erros.html">Ocorrências</a>
+    <a href="uptime.html">Disponibilidade</a>
+    <a href="sobre.html">Sobre</a>
+    <a href="suporte.html">Suporte</a>
+  </nav>
+</div>
+
+<main>
+  <div class="aviso" id="avisoConexao"></div>
+
+  <section class="hero-panel">
+    <div class="hero-copy">
+      <span class="eyebrow">✦ CENTRAL DO SORASAKI</span>
+      <div class="hero-status"><span class="hero-status-dot"></span><span id="heroStatusText">Monitorando agora</span></div>
+      <h1>Seu grupo, <span>mais seguro</span> e fácil de acompanhar.</h1>
+      <p class="hero-subtitle">Uma central compacta para acompanhar conexão, atividade, desempenho e estabilidade do Sorasaki.</p>
+      <div class="hero-actions">
+        <a class="hero-btn primary" href="status.html">Ver status <span>→</span></a>
+        <a class="hero-btn" href="estatisticas.html">Explorar dados <span>↗</span></a>
+      </div>
+      <div class="hero-mini-stats">
+        <div><strong id="heroPing">—</strong><span>ping atual</span></div>
+        <div><strong id="heroAvailability">—</strong><span>disponibilidade</span></div>
+        <div><strong id="heroCommands">—</strong><span>comandos hoje</span></div>
+      </div>
+    </div>
+    <div class="hero-character-wrap">
+      <div class="hero-orbit orbit-one"></div><div class="hero-orbit orbit-two"></div>
+      <span class="hero-spark spark-a">✦</span><span class="hero-spark spark-b">♡</span>
+      <img src="assistente-cafe.png" alt="Sorasaki segurando uma xícara" class="hero-character" draggable="false">
+      <div class="hero-note">☕ <span>Um café e um painel em dia. ☕</span></div>
+    </div>
+  </section>
+
+  <div class="section-heading">
+    <div><span class="eyebrow">VISÃO RÁPIDA</span><h2>Resumo geral</h2></div>
+    <span class="pill" id="pillStatus">🔴 Carregando...</span>
+  </div>
+  <p class="subtitle">Os números abaixo são atualizados automaticamente.</p>
+
+  <div class="grid">
+    <div class="card"><div class="label">Uptime da sessão</div><div class="value" id="valUptimeSessao">—</div></div>
+    <div class="card"><div class="label">Disponibilidade</div><div class="value" id="valDisponibilidade">—</div></div>
+    <div class="card"><div class="label">Mensagens hoje</div><div class="value" id="valMensagensHoje">—</div></div>
+    <div class="card"><div class="label">Comandos hoje</div><div class="value" id="valComandosHoje">—</div></div>
+    <div class="card"><div class="label">Erros hoje</div><div class="value" id="valErrosHoje">—</div></div>
+    <div class="card"><div class="label">Ping atual</div><div class="value" id="valPing">—</div></div>
+  </div>
+
+  <section class="groups-promo">
+    <div><span class="eyebrow">✦ COMUNIDADES</span><h2>Seus grupos, do jeito certo.</h2><p>Explore as comunidades disponíveis, veja informações rápidas e entre com um clique.</p></div>
+    <a class="hero-btn primary" href="grupos.html">Explorar grupos <span>→</span></a>
+  </section>
+
+  <div class="panel">
+    <h2>Últimos acontecimentos</h2>
+    <table>
+      <thead><tr><th>Quando</th><th>Evento</th></tr></thead>
+      <tbody id="tabelaEventos"></tbody>
+    </table>
+  </div>
+</main>
+
+<div class="footer">Sorasaki — informações atualizadas automaticamente</div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js?v=20260907c"></script>
+<script>
+  onConnection((c) => {
+    const dot = document.getElementById("dotStatus");
+    if (!dot) return;
+    dot.style.background = !c.bridgeOnline ? "var(--danger)" : !c.botDataReceived ? "var(--warn)" : "var(--ok)";
+    dot.title = !c.bridgeOnline ? "Serviço indisponível" : !c.botDataReceived ? "Aguardando atualização" : "Tudo funcionando normalmente";
+  });
+</script>
+<script>
+  onStats((s) => {
+    const status = statusEfetivo(s);
+    const info = statusInfo(status);
+    document.getElementById("pillStatus").textContent = `${info.emoji} ${info.texto}`;
+    document.getElementById("pillStatus").className = `pill ${info.classe}`;
+    document.getElementById("dotStatus").style.background =
+      info.classe === "online" ? "var(--ok)" : (info.classe === "instavel" || info.classe === "reconectando") ? "var(--warn)" : info.classe === "conectando" ? "var(--accent)" : "var(--danger)";
+
+    document.getElementById("valUptimeSessao").textContent = fmtUptime(s.uptime?.uptimeSessaoMs);
+    document.getElementById("valDisponibilidade").textContent = s.uptime?.disponibilidadePercentual != null ? `${s.uptime.disponibilidadePercentual}%` : "—";
+    document.getElementById("valMensagensHoje").textContent = fmtNumero(s.mensagens?.hoje?.mensagensProcessadas);
+    document.getElementById("valComandosHoje").textContent = fmtNumero(s.comandos?.totalHoje);
+    document.getElementById("valErrosHoje").textContent = fmtNumero(s.erros?.hoje);
+    document.getElementById("valPing").textContent = s.ping?.atual != null ? `${s.ping.atual}ms` : "—";
+    document.getElementById("heroPing").textContent = s.ping?.atual != null ? `${s.ping.atual}ms` : "—";
+    document.getElementById("heroAvailability").textContent = s.uptime?.disponibilidadePercentual != null ? `${s.uptime.disponibilidadePercentual}%` : "—";
+    document.getElementById("heroCommands").textContent = fmtNumero(s.comandos?.totalHoje);
+    document.getElementById("heroStatusText").textContent = info.texto;
+
+    const eventos = [];
+
+    if (s.uptime?.ultimaReconexao) {
+      eventos.push({ ts: s.uptime.ultimaReconexao, texto: "Última reconexão bem-sucedida" });
+    }
+    if (s.uptime?.ultimaDesconexao) {
+      eventos.push({ ts: s.uptime.ultimaDesconexao, texto: "Última queda de conexão" });
+    }
+    if (s.erros?.ultimoErro) {
+      eventos.push({ ts: s.erros.ultimoErro, texto: `Último erro: ${escapeHtml(s.erros.ultimaMensagem || "sem detalhe")}` });
+    }
+    if (s.autodisparo?.proximoDisparoEm) {
+      eventos.push({ ts: s.autodisparo.proximoDisparoEm, texto: "Próximo disparo de divulgação agendado" });
+    }
+
+    eventos.sort((a, b) => (b.ts || 0) - (a.ts || 0));
+
+    const corpo = document.getElementById("tabelaEventos");
+    corpo.innerHTML = "";
+    if (!eventos.length) {
+      corpo.innerHTML = `<tr><td colspan="2" class="empty">Nada registrado ainda</td></tr>`;
+    } else {
+      for (const e of eventos) {
+        corpo.innerHTML += `<tr><td>${fmtHora(e.ts)}</td><td>${e.texto}</td></tr>`;
+      }
+    }
+  });
+</script>
+
+</body>
+</html>

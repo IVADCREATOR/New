@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://ponte-m7br.onrender.com https://xwrsjfxsmpuqneriptfw.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests" />
+<meta http-equiv="X-Content-Type-Options" content="nosniff" />
+<meta name="referrer" content="strict-origin-when-cross-origin" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Uptime — Sorasaki</title>
+<link rel="stylesheet" href="style.css?v=20260907c" />
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <span class="dot" id="dotStatus"></span>
+    <div>Sorasaki<small>Central Sorasaki</small></div>
+  </div>
+  <nav>
+    <a href="grupos.html">Grupos</a>
+    <a href="index.html">Resumo</a>
+    <a href="estatisticas.html">Estatísticas</a>
+    <a href="status.html">Status</a>
+    <a href="erros.html">Ocorrências</a>
+    <a href="uptime.html" class="active">Uptime</a>
+    <a href="sobre.html">Sobre</a>
+    <a href="suporte.html">Suporte</a>
+  </nav>
+</div>
+
+<main>
+  <div class="aviso" id="avisoConexao"></div>
+
+  <h1>Uptime e histórico</h1>
+  <p class="subtitle">Disponibilidade desde o último reinício do processo e histórico de quedas de conexão.</p>
+
+  <div class="grid">
+    <div class="card"><div class="label">Uptime da sessão atual</div><div class="value" id="valUptimeSessao">—</div></div>
+    <div class="card"><div class="label">Uptime do processo</div><div class="value" id="valUptimeProcesso">—</div></div>
+    <div class="card"><div class="label">Disponibilidade</div><div class="value" id="valDisponibilidade">—</div></div>
+    <div class="card"><div class="label">Total de quedas</div><div class="value" id="valQuedas">—</div></div>
+    <div class="card"><div class="label">Total de reconexões</div><div class="value" id="valReconexoes">—</div></div>
+    <div class="card"><div class="label">Tempo offline acumulado</div><div class="value" id="valOfflineAcumulado">—</div></div>
+  </div>
+
+  <div class="panel">
+    <h2>Últimas conexões</h2>
+    <table>
+      <thead><tr><th>Evento</th><th>Quando</th></tr></thead>
+      <tbody id="tabelaUltimasConexoes"></tbody>
+    </table>
+  </div>
+
+  <div class="panel">
+    <h2>Histórico de quedas</h2>
+    <table>
+      <thead><tr><th>Início</th><th>Motivo</th><th>Duração</th></tr></thead>
+      <tbody id="tabelaQuedas"></tbody>
+    </table>
+  </div>
+</main>
+
+<div class="footer">Sorasaki — monitoramento atualizado automaticamente</div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js?v=20260907c"></script>
+<script>
+  onConnection((c) => {
+    const dot = document.getElementById("dotStatus");
+    if (!dot) return;
+    dot.style.background = !c.bridgeOnline ? "var(--danger)" : !c.botDataReceived ? "var(--warn)" : "var(--ok)";
+    dot.title = !c.bridgeOnline ? "Serviço indisponível" : !c.botDataReceived ? "Aguardando atualização" : "Tudo funcionando normalmente";
+  });
+</script>
+<script>
+  const MOTIVOS_LEGIVEIS = {
+    loggedOut: "Sessão desconectada pelo celular",
+    unauthorized: "Falha de autorização",
+    badSession: "Sessão corrompida",
+    conflict: "Conflito de sessão (outra instância ativa)",
+    connectionFailure405: "Rejeição do servidor (405)",
+    connectionRequired: "Nova conexão solicitada pelo servidor",
+    connectionLost: "Conexão de rede perdida",
+    connectionClosed: "WebSocket encerrado",
+    restartRequired: "Reinicialização de handshake exigida",
+    timedOut: "Tempo de ping excedido",
+    other: "Instabilidade genérica",
+    desconhecido: "Motivo não identificado"
+  };
+
+  onStats((s) => {
+    document.getElementById("valUptimeSessao").textContent = fmtUptime(s.uptime?.uptimeSessaoMs);
+    document.getElementById("valUptimeProcesso").textContent = fmtUptime(s.uptime?.uptimeProcessoMs);
+    document.getElementById("valDisponibilidade").textContent = s.uptime?.disponibilidadePercentual != null ? `${s.uptime.disponibilidadePercentual}%` : "—";
+    document.getElementById("valQuedas").textContent = fmtNumero(s.uptime?.totalQuedas);
+    document.getElementById("valReconexoes").textContent = fmtNumero(s.uptime?.totalReconexoes);
+    document.getElementById("valOfflineAcumulado").textContent = fmtUptime(s.uptime?.tempoTotalOfflineMs);
+
+    const ultimas = document.getElementById("tabelaUltimasConexoes");
+    ultimas.innerHTML = `
+      <tr><td>Última conexão</td><td>${fmtHora(s.uptime?.ultimaConexao)}</td></tr>
+      <tr><td>Última reconexão</td><td>${fmtHora(s.uptime?.ultimaReconexao)}</td></tr>
+      <tr><td>Última desconexão</td><td>${fmtHora(s.uptime?.ultimaDesconexao)}</td></tr>
+    `;
+
+    const quedas = document.getElementById("tabelaQuedas");
+    quedas.innerHTML = "";
+    const listaQuedas = s.historico?.quedas || [];
+    if (!listaQuedas.length) {
+      quedas.innerHTML = `<tr><td colspan="3" class="empty">Nenhuma queda registrada 🎉</td></tr>`;
+    } else {
+      for (const q of listaQuedas) {
+        const duracao = q.duracaoMs != null ? fmtUptime(q.duracaoMs) : "em aberto";
+        const motivo = MOTIVOS_LEGIVEIS[q.motivo] || escapeHtml(q.motivo || "—");
+        quedas.innerHTML += `<tr><td>${fmtHora(q.inicio)}</td><td>${motivo}</td><td>${duracao}</td></tr>`;
+      }
+    }
+  });
+</script>
+
+</body>
+</html>

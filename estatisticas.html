@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://ponte-m7br.onrender.com https://xwrsjfxsmpuqneriptfw.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests" />
+<meta http-equiv="X-Content-Type-Options" content="nosniff" />
+<meta name="referrer" content="strict-origin-when-cross-origin" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Estatísticas — Sorasaki</title>
+<link rel="stylesheet" href="style.css?v=20260907c" />
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <span class="dot" id="dotStatus"></span>
+    <div>Sorasaki<small>Central Sorasaki</small></div>
+  </div>
+  <nav>
+    <a href="grupos.html">Grupos</a>
+    <a href="index.html">Resumo</a>
+    <a href="estatisticas.html" class="active">Estatísticas</a>
+    <a href="status.html">Status</a>
+    <a href="erros.html">Ocorrências</a>
+    <a href="uptime.html">Disponibilidade</a>
+    <a href="sobre.html">Sobre</a>
+    <a href="suporte.html">Suporte</a>
+  </nav>
+</div>
+
+<main>
+  <div class="aviso" id="avisoConexao"></div>
+
+  <h1>Estatísticas</h1>
+  <p class="subtitle">Volume de uso desde sempre, comandos e horários de maior movimento.</p>
+
+  <div class="grid">
+    <div class="card"><div class="label">Mensagens recebidas (total)</div><div class="value" id="valRecebidas">—</div></div>
+    <div class="card"><div class="label">Mensagens enviadas (total)</div><div class="value" id="valEnviadas">—</div></div>
+    <div class="card"><div class="label">Comandos executados (total)</div><div class="value" id="valComandos">—</div></div>
+    <div class="card"><div class="label">Comandos hoje</div><div class="value" id="valComandosHoje">—</div></div>
+    <div class="card"><div class="label">Usuários únicos (total)</div><div class="value" id="valUsuarios">—</div></div>
+    <div class="card"><div class="label">Tempo médio de resposta</div><div class="value" id="valTempoResposta">—</div></div>
+  </div>
+
+  <div class="panel">
+    <h2>Atividade por dia (últimos 30 dias)</h2>
+    <canvas id="graficoDiario" height="90"></canvas>
+  </div>
+
+  <div class="panel">
+    <h2>Mensagens de hoje, por hora</h2>
+    <canvas id="graficoHoje" height="80"></canvas>
+  </div>
+
+  <div class="panel">
+    <h2>Comandos mais usados</h2>
+    <table>
+      <thead><tr><th>Comando</th><th>Execuções</th><th>Taxa de sucesso</th><th>Tempo médio</th></tr></thead>
+      <tbody id="tabelaComandos"></tbody>
+    </table>
+  </div>
+</main>
+
+<div class="footer">Sorasaki — informações atualizadas automaticamente</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js?v=20260907c"></script>
+<script>
+  onConnection((c) => {
+    const dot = document.getElementById("dotStatus");
+    if (!dot) return;
+    dot.style.background = !c.bridgeOnline ? "var(--danger)" : !c.botDataReceived ? "var(--warn)" : "var(--ok)";
+    dot.title = !c.bridgeOnline ? "Serviço indisponível" : !c.botDataReceived ? "Aguardando atualização" : "Tudo funcionando normalmente";
+  });
+</script>
+<script>
+  let chartDiario, chartHoje;
+
+  onStats((s) => {
+    document.getElementById("valRecebidas").textContent = fmtNumero(s.mensagens?.totalGeral?.recebidas);
+    document.getElementById("valEnviadas").textContent = fmtNumero(s.mensagens?.totalGeral?.enviadas);
+    document.getElementById("valComandos").textContent = fmtNumero(s.comandos?.totalGeral);
+    document.getElementById("valComandosHoje").textContent = fmtNumero(s.comandos?.totalHoje);
+    document.getElementById("valUsuarios").textContent = fmtNumero(s.usuarios?.unicosTotal);
+
+    const ranking = s.comandos?.ranking || [];
+    const totalUsos = ranking.reduce((acc, c) => acc + c.usos, 0);
+    const somaTempo = ranking.reduce((acc, c) => acc + c.tempoMedioMs * c.usos, 0);
+    const tempoMedioGeral = totalUsos > 0 ? Math.round(somaTempo / totalUsos) : 0;
+    document.getElementById("valTempoResposta").textContent = `${fmtNumero(tempoMedioGeral)}ms`;
+
+    const corpo = document.getElementById("tabelaComandos");
+    corpo.innerHTML = "";
+    if (!ranking.length) {
+      corpo.innerHTML = `<tr><td colspan="4" class="empty">Sem execuções registradas ainda</td></tr>`;
+    } else {
+      for (const c of ranking) {
+        corpo.innerHTML += `<tr><td>${escapeHtml(c.nome)}</td><td>${fmtNumero(c.usos)}</td><td>${c.taxaSucesso}%</td><td>${fmtNumero(c.tempoMedioMs)}ms</td></tr>`;
+      }
+    }
+
+    const porHora = s.mensagens?.hoje?.porHora || new Array(24).fill(0);
+    const labelsHora = porHora.map((_, h) => `${h}h`);
+    if (!chartHoje) {
+      chartHoje = new Chart(document.getElementById("graficoHoje"), {
+        type: "bar",
+        data: { labels: labelsHora, datasets: [{ label: "Mensagens", data: porHora, backgroundColor: "#22d3ee" }] },
+        options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: "#22293a" } }, x: { grid: { display: false } } } }
+      });
+    } else {
+      chartHoje.data.datasets[0].data = porHora;
+      chartHoje.update();
+    }
+  });
+
+  async function carregarHistoricoDiario() {
+    onStats((s) => {
+      const diario = s.historico?.diario || [];
+      const labels = diario.map((d) => d.dia.slice(5));
+
+      if (!chartDiario) {
+        chartDiario = new Chart(document.getElementById("graficoDiario"), {
+          type: "line",
+          data: {
+            labels,
+            datasets: [
+              { label: "Mensagens processadas", data: diario.map((d) => d.mensagensProcessadas), borderColor: "#7c5cff", backgroundColor: "transparent", tension: 0.3 },
+              { label: "Comandos", data: diario.map((d) => d.comandosExecutados), borderColor: "#22d3ee", backgroundColor: "transparent", tension: 0.3 }
+            ]
+          },
+          options: { scales: { y: { beginAtZero: true, grid: { color: "#22293a" } }, x: { grid: { display: false } } } }
+        });
+      } else {
+        chartDiario.data.labels = labels;
+        chartDiario.data.datasets[0].data = diario.map((d) => d.mensagensProcessadas);
+        chartDiario.data.datasets[1].data = diario.map((d) => d.comandosExecutados);
+        chartDiario.update();
+      }
+    });
+  }
+  carregarHistoricoDiario();
+</script>
+
+</body>
+</html>
