@@ -25,3 +25,6 @@ O template usa:
 `Seu código de confirmação — SORASAKI SYSTEM ✦`
 
 > Importante: o HTML do e-mail precisa ser colado no template do Supabase. Colocar esse arquivo no GitHub/Vercel não altera automaticamente os e-mails enviados pelo Supabase.
+
+
+Cadastro do site: o fluxo atual usa link de confirmação. O template de confirmação deve manter {{ .ConfirmationURL }} e o Site URL deve ser https://sorasakiplatform.store.

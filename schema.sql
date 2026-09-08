@@ -109,7 +109,9 @@ create table if not exists public.profiles (
   user_id uuid primary key references auth.users(id) on delete cascade,
   role text not null default 'user' check (role in ('user','admin')),
   display_name text,
-  created_at timestamptz not null default now()
+  username text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
 );
 
 create or replace function public.is_admin()
@@ -135,8 +137,8 @@ security definer
 set search_path = public
 as $$
 begin
-  insert into public.profiles (user_id, display_name)
-  values (new.id, coalesce(new.raw_user_meta_data->>'display_name', split_part(new.email, '@', 1)))
+  insert into public.profiles (user_id, display_name, username)
+  values (new.id, coalesce(new.raw_user_meta_data->>'display_name', new.raw_user_meta_data->>'username', split_part(new.email, '@', 1)), coalesce(new.raw_user_meta_data->>'username', split_part(new.email, '@', 1)))
   on conflict (user_id) do nothing;
   return new;
 end;
@@ -147,8 +149,8 @@ create trigger on_auth_user_created
 after insert on auth.users
 for each row execute function public.handle_new_user();
 
-insert into public.profiles (user_id, display_name)
-select id, coalesce(raw_user_meta_data->>'display_name', split_part(email, '@', 1))
+insert into public.profiles (user_id, display_name, username)
+select id, coalesce(raw_user_meta_data->>'display_name', raw_user_meta_data->>'username', split_part(email, '@', 1)), coalesce(raw_user_meta_data->>'username', split_part(email, '@', 1))
 from auth.users
 on conflict (user_id) do nothing;
 
@@ -271,6 +273,12 @@ alter table public.promotions enable row level security;
 
 drop policy if exists "profiles own read" on public.profiles;
 create policy "profiles own read" on public.profiles for select to authenticated using (auth.uid() = user_id or public.is_admin());
+
+alter table public.profiles add constraint profiles_username_format check (username is null or username ~ '^[A-Za-z0-9_]{3,24}$');
+create unique index if not exists uq_profiles_username on public.profiles(lower(username)) where username is not null;
+
+drop policy if exists "profiles own update" on public.profiles;
+create policy "profiles own update" on public.profiles for update to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 drop policy if exists "public approved groups read" on public.groups;
 create policy "public approved groups read" on public.groups for select to anon, authenticated using (status = 'approved');

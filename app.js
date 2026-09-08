@@ -482,7 +482,7 @@ function criarMenuSorasaki() {
     ['suporte.html', '💬', 'Suporte', 'Fale com a equipe'],
     ['feedback.html', '📝', 'Avaliações & Bugs', 'Avalie, sugira e relate problemas'],
     ['configuracoes.html', '⚙️', 'Configurações', 'Preferências do painel'],
-    ['#sorasaki-login', '🔐', 'Entrar / Minha conta', 'Login opcional para o painel']
+    ['#sorasaki-login', '👤', 'Perfil / Entrar', 'Acesse sua conta e seu perfil']
   ];
 
   const trigger = document.createElement('button');
@@ -554,7 +554,7 @@ function criarMenuSorasaki() {
   loginTrigger.className = 'sora-login-trigger';
   loginTrigger.type = 'button';
   loginTrigger.innerHTML = '<span class="login-dot"></span><span class="login-trigger-label">Entrar</span>';
-  loginTrigger.setAttribute('aria-label', 'Abrir login');
+  loginTrigger.setAttribute('aria-label', 'Abrir conta ou perfil');
   topbar.appendChild(loginTrigger);
   document.body.appendChild(overlay);
   document.body.appendChild(drawer);
@@ -608,7 +608,7 @@ function criarMenuSorasaki() {
     const href = link.getAttribute('href') || '';
     if (href === '#sorasaki-login') {
       event.preventDefault();
-      window.SorasakiAuth?.open();
+      if(window.SorasakiAuth?.getUser()) window.SorasakiAuth.openProfile(); else window.SorasakiAuth?.open();
       return;
     }
     const [page, hash] = href.split('#');
@@ -689,18 +689,17 @@ criarAssistente = function() {
         <div class="auth-result" id="authResult" aria-live="polite"></div>
       </div>
       <div class="auth-panel hidden" data-auth-panel="register">
-        <div class="login-intro"><b>Crie sua conta ✨</b><span>Use um e-mail válido e uma senha com pelo menos 8 caracteres. Depois, confirme seu e-mail com o código enviado pelo Sorasaki.</span></div>
+        <div class="login-intro"><b>Crie sua conta ✨</b><span>Escolha um nome de usuário, use um e-mail válido e uma senha com pelo menos 8 caracteres. Depois, confirme seu e-mail pelo link enviado pelo Sorasaki.</span></div>
         <div id="registerFormFields">
+          <label>Nome de usuário<input id="registerUsername" type="text" autocomplete="username" maxlength="24" placeholder="ex.: sorasakifan"></label>
           <label>E-mail<input id="registerEmail" type="email" autocomplete="email" placeholder="voce@exemplo.com"></label>
           <label>Senha<input id="registerPassword" type="password" autocomplete="new-password" placeholder="Mínimo de 8 caracteres"></label>
           <label>Confirmar senha<input id="registerConfirm" type="password" autocomplete="new-password" placeholder="Digite novamente"></label>
           <button class="auth-primary" id="authRegister" type="button">Criar conta <span>✦</span></button>
         </div>
         <div class="auth-code-area hidden" id="signupCodeArea">
-          <div class="code-title"><span>✦</span><div><b>Quase lá.</b><small>Digite o código recebido no seu e-mail.</small></div></div>
-          <label>Código de confirmação<input id="signupCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000"></label>
-          <button class="auth-primary" id="authVerifySignup" type="button">Confirmar e entrar <span>✓</span></button>
-          <button class="auth-link auth-resend" id="authResendSignup" type="button">Não recebeu? Reenviar código</button>
+          <div class="code-title"><span>✉</span><div><b>Confirme seu e-mail.</b><small>Abra o e-mail do Sorasaki e clique no botão de confirmação. Depois você voltará ao site já conectado.</small></div></div>
+          <button class="auth-primary" id="authResendSignup" type="button">Reenviar e-mail <span>↻</span></button>
         </div>
         <div class="auth-result" id="registerResult" aria-live="polite"></div>
       </div>
@@ -744,48 +743,27 @@ criarAssistente = function() {
 
     drawer.querySelector('#authRegister').onclick=async()=>{
       const c=ensureClient(); if(!c)return show('registerResult',false,'Não foi possível acessar sua conta. Tente novamente.');
-      const email=drawer.querySelector('#registerEmail').value.trim(),password=drawer.querySelector('#registerPassword').value,confirm=drawer.querySelector('#registerConfirm').value;
-      if(!email||!password)return show('registerResult',false,'Preencha e-mail e senha.');
+      const username=drawer.querySelector('#registerUsername').value.trim(), email=drawer.querySelector('#registerEmail').value.trim(),password=drawer.querySelector('#registerPassword').value,confirm=drawer.querySelector('#registerConfirm').value;
+      if(!username||!email||!password)return show('registerResult',false,'Preencha nome de usuário, e-mail e senha.');
+      if(!/^[a-zA-Z0-9_]{3,24}$/.test(username))return show('registerResult',false,'O nome de usuário deve ter 3 a 24 caracteres, usando letras, números ou _.');
       if(password.length<8)return show('registerResult',false,'A senha precisa ter pelo menos 8 caracteres.');
       if(password!==confirm)return show('registerResult',false,'As senhas não coincidem.');
       const redirectTo = window.location.origin + '/';
-      const {data,error}=await c.auth.signUp({email,password,options:{emailRedirectTo:redirectTo}});
+      const {data,error}=await c.auth.signUp({email,password,options:{emailRedirectTo:redirectTo,data:{username,display_name:username}}});
       if(error)return show('registerResult',false,traduzAuthError(error));
       pendingSignupEmail = email;
       if(data.user && !data.session){
         drawer.querySelector('#signupCodeArea').classList.remove('hidden');
         drawer.querySelector('#registerFormFields').classList.add('hidden');
-        show('registerResult',true,'Código enviado! Confira sua caixa de entrada e digite o código abaixo. 💜');
-        setTimeout(()=>drawer.querySelector('#signupCode')?.focus(),80);
+        show('registerResult',true,'Conta criada! Enviamos um e-mail de confirmação. Clique no link para voltar ao Sorasaki já conectado. 💜');
       } else {
-        show('registerResult',true,'Conta criada! Seu e-mail já está confirmado. Você já pode entrar. 💜');
+        currentUser=data?.session?.user||data?.user||null;
+        updateAuthUI();
+        show('registerResult',true,'Conta criada e sessão iniciada! Bem-vindo ao Sorasaki. 💜');
         setTimeout(close,700);
       }
     };
 
-    drawer.querySelector('#authVerifySignup').onclick=async()=>{
-      const c=ensureClient(); if(!c)return show('registerResult',false,'Não foi possível confirmar sua conta. Tente novamente.');
-      const email=pendingSignupEmail || drawer.querySelector('#registerEmail').value.trim();
-      const token=drawer.querySelector('#signupCode').value.trim();
-      if(!email)return show('registerResult',false,'Não encontramos o e-mail da criação da conta.');
-      if(!/^\d{6}$/.test(token))return show('registerResult',false,'Digite o código de 6 dígitos recebido por e-mail.');
-      const {data,error}=await c.auth.verifyOtp({email,token,type:'email'});
-      if(error)return show('registerResult',false,'Código inválido ou expirado. Peça um novo código e tente novamente.');
-      currentUser = data?.session?.user || data?.user || null;
-      updateAuthUI();
-      show('registerResult',true,'E-mail confirmado! Sua conta está pronta. Bem-vindo ao Sorasaki. 💜');
-      setTimeout(close,900);
-    };
-
-    drawer.querySelector('#authResendSignup').onclick=async()=>{
-      const c=ensureClient(); if(!c)return show('registerResult',false,'Não foi possível reenviar o código.');
-      const email=pendingSignupEmail || drawer.querySelector('#registerEmail').value.trim();
-      if(!email)return show('registerResult',false,'Informe o e-mail da conta.');
-      const redirectTo = window.location.origin + '/';
-      const {error}=await c.auth.resend({type:'signup',email,options:{emailRedirectTo:redirectTo}});
-      if(error)return show('registerResult',false,traduzAuthError(error));
-      show('registerResult',true,'Novo código enviado! Confira seu e-mail. ✉️');
-    };
     drawer.querySelector('#authSendCode').onclick=async()=>{
       const c=ensureClient(); if(!c)return show('forgotResult',false,'Não foi possível acessar sua conta. Tente novamente.');
       const email=drawer.querySelector('#forgotEmail').value.trim(); if(!email)return show('forgotResult',false,'Informe o e-mail da conta.');
@@ -815,13 +793,94 @@ criarAssistente = function() {
     if(m.includes('rate limit'))return 'Muitas tentativas. Aguarde um pouco e tente novamente.';
     return 'Não foi possível concluir a operação. Tente novamente em alguns instantes.';
   }
+  function fmtDataHora(ts){
+    if(!ts)return 'Ainda não disponível';
+    try{return new Intl.DateTimeFormat('pt-BR',{dateStyle:'short',timeStyle:'short'}).format(new Date(ts));}catch{return '—';}
+  }
+  async function loadProfile(){
+    const c=ensureClient(), user=getUser();
+    if(!c||!user)return null;
+    const {data,error}=await c.from('profiles').select('username,display_name,created_at,updated_at').eq('user_id',user.id).maybeSingle();
+    if(error){console.warn('[SORASAKI] Perfil:',error);return null;}
+    return data||{};
+  }
+  function createProfileUI(){
+    if(document.querySelector('.sora-profile-modal'))return;
+    const overlay=document.createElement('div'); overlay.className='sora-profile-overlay'; overlay.setAttribute('aria-hidden','true');
+    const modal=document.createElement('section'); modal.className='sora-profile-modal'; modal.innerHTML=`
+      <div class="profile-head"><div><span class="profile-kicker">CONTA SORASAKI</span><h2>👤 Meu perfil</h2><p>Gerencie suas informações e a segurança da conta.</p></div><button class="profile-close" type="button" aria-label="Fechar perfil">×</button></div>
+      <div class="profile-card-main"><div class="profile-avatar" id="profileAvatar">@</div><div><strong id="profileUsername">@usuario</strong><span id="profileEmail">email</span><span class="profile-status" id="profileStatus">● Verificando…</span></div></div>
+      <div class="profile-grid">
+        <div class="profile-info"><small>Nome de usuário</small><b id="profileUsernameInfo">—</b></div>
+        <div class="profile-info"><small>E-mail</small><b id="profileEmailInfo">—</b></div>
+        <div class="profile-info"><small>Status</small><b id="profileStatusInfo">—</b></div>
+        <div class="profile-info"><small>Último login</small><b id="profileLastLogin">—</b></div>
+      </div>
+      <div class="profile-section-title">SEGURANÇA</div>
+      <button class="profile-action" id="profilePasswordBtn" type="button"><span>🔐</span><div><strong>Alterar senha</strong><small>Atualize sua senha com segurança</small></div><b>›</b></button>
+      <form class="profile-password-form hidden" id="profilePasswordForm">
+        <label>Senha atual<input id="profileCurrentPassword" type="password" autocomplete="current-password" required></label>
+        <label>Nova senha<input id="profileNewPassword" type="password" autocomplete="new-password" minlength="8" required></label>
+        <label>Confirmar nova senha<input id="profileNewPassword2" type="password" autocomplete="new-password" minlength="8" required></label>
+        <div class="profile-form-actions"><button class="auth-secondary" id="profilePasswordCancel" type="button">Cancelar</button><button class="auth-primary" type="submit">Salvar senha</button></div>
+        <div class="auth-result" id="profilePasswordResult" aria-live="polite"></div>
+      </form>
+      <div class="profile-section-title">CONTA</div>
+      <button class="profile-action" id="profileInfoBtn" type="button"><span>✏️</span><div><strong>Informações do perfil</strong><small>Altere seu nome de usuário</small></div><b>›</b></button>
+      <form class="profile-edit-form hidden" id="profileEditForm">
+        <label>Nome de usuário<input id="profileEditUsername" type="text" maxlength="24" autocomplete="username"></label>
+        <div class="profile-form-actions"><button class="auth-secondary" id="profileEditCancel" type="button">Cancelar</button><button class="auth-primary" type="submit">Salvar perfil</button></div>
+        <div class="auth-result" id="profileEditResult" aria-live="polite"></div>
+      </form>
+      <button class="profile-logout" id="profileLogout" type="button">🚪 Sair da conta</button>
+      <div class="profile-note">🔒 Sua senha nunca é enviada para o Sorasaki. A autenticação e a sessão são gerenciadas pelo Supabase.</div>`;
+    document.body.append(overlay,modal);
+    const close=()=>{modal.classList.remove('is-open');overlay.classList.remove('is-open');overlay.setAttribute('aria-hidden','true');document.body.classList.remove('profile-open');};
+    const open=async()=>{if(!getUser()){window.SorasakiAuth.open();return;} modal.classList.add('is-open');overlay.classList.add('is-open');overlay.setAttribute('aria-hidden','false');document.body.classList.add('profile-open'); await renderProfile();};
+    window.SorasakiAuth.openProfile=open;
+    modal.querySelector('.profile-close').onclick=close; overlay.onclick=close;
+    modal.querySelector('#profilePasswordBtn').onclick=()=>modal.querySelector('#profilePasswordForm').classList.toggle('hidden');
+    modal.querySelector('#profilePasswordCancel').onclick=()=>{modal.querySelector('#profilePasswordForm').classList.add('hidden');};
+    modal.querySelector('#profileInfoBtn').onclick=()=>{modal.querySelector('#profileEditForm').classList.toggle('hidden');};
+    modal.querySelector('#profileEditCancel').onclick=()=>modal.querySelector('#profileEditForm').classList.add('hidden');
+    modal.querySelector('#profilePasswordForm').onsubmit=async e=>{
+      e.preventDefault(); const c=ensureClient(),user=getUser(),res=modal.querySelector('#profilePasswordResult');
+      const current=modal.querySelector('#profileCurrentPassword').value,newPass=modal.querySelector('#profileNewPassword').value,newPass2=modal.querySelector('#profileNewPassword2').value;
+      const setRes=(ok,msg)=>{res.className='auth-result '+(ok?'ok':'error');res.textContent=msg;};
+      if(!current||!newPass||!newPass2)return setRes(false,'Preencha todos os campos.');
+      if(newPass.length<8)return setRes(false,'A nova senha precisa ter pelo menos 8 caracteres.');
+      if(newPass!==newPass2)return setRes(false,'As novas senhas não coincidem.');
+      const {error:loginError}=await c.auth.signInWithPassword({email:user.email,password:current});
+      if(loginError)return setRes(false,'A senha atual está incorreta.');
+      const {error}=await c.auth.updateUser({password:newPass});
+      if(error)return setRes(false,traduzAuthError(error));
+      modal.querySelector('#profilePasswordForm').reset(); setRes(true,'Senha alterada com sucesso! 💜');
+      setTimeout(()=>modal.querySelector('#profilePasswordForm').classList.add('hidden'),1100);
+    };
+    modal.querySelector('#profileEditForm').onsubmit=async e=>{
+      e.preventDefault(); const c=ensureClient(),user=getUser(),res=modal.querySelector('#profileEditResult'),username=modal.querySelector('#profileEditUsername').value.trim();
+      const setRes=(ok,msg)=>{res.className='auth-result '+(ok?'ok':'error');res.textContent=msg;};
+      if(!/^[a-zA-Z0-9_]{3,24}$/.test(username))return setRes(false,'Use 3 a 24 caracteres: letras, números ou _.');
+      const {error}=await c.from('profiles').update({username,display_name:username,updated_at:new Date().toISOString()}).eq('user_id',user.id);
+      if(error)return setRes(false,error.code==='23505'?'Esse nome de usuário já está em uso.':'Não foi possível salvar o perfil.');
+      setRes(true,'Perfil atualizado! 💜'); await renderProfile(); setTimeout(()=>modal.querySelector('#profileEditForm').classList.add('hidden'),800);
+    };
+    modal.querySelector('#profileLogout').onclick=async()=>{if(!confirm('Tem certeza que deseja sair da sua conta?'))return; await logout(); close();};
+    async function renderProfile(){
+      const user=getUser(); if(!user)return; const p=await loadProfile(); const username=p?.username||p?.display_name||user.user_metadata?.username||user.email?.split('@')[0]||'usuario';
+      const confirmed=Boolean(user.email_confirmed_at);
+      modal.querySelector('#profileAvatar').textContent='@'; modal.querySelector('#profileUsername').textContent='@'+username; modal.querySelector('#profileEmail').textContent=user.email||'—';
+      modal.querySelector('#profileUsernameInfo').textContent='@'+username; modal.querySelector('#profileEmailInfo').textContent=user.email||'—'; modal.querySelector('#profileStatus').textContent=confirmed?'● E-mail confirmado':'● E-mail pendente'; modal.querySelector('#profileStatus').classList.toggle('pending',!confirmed); modal.querySelector('#profileStatusInfo').textContent=confirmed?'E-mail confirmado':'E-mail pendente'; modal.querySelector('#profileLastLogin').textContent=fmtDataHora(user.last_sign_in_at); modal.querySelector('#profileEditUsername').value=username;
+    }
+  }
   function updateAuthUI(){
     const user=getUser(),btn=document.querySelector('.sora-login-trigger');
-    if(btn){btn.classList.toggle('logged',!!user);const label=btn.querySelector('.login-trigger-label');if(label)label.textContent=user?'Minha conta':'Entrar';}
+    if(btn){btn.classList.toggle('logged',!!user);const label=btn.querySelector('.login-trigger-label');if(label)label.textContent=user?'Perfil':'Entrar';btn.setAttribute('aria-label',user?'Abrir meu perfil':'Entrar ou criar conta');}
     const logout=document.querySelector('#authLogout');if(logout)logout.classList.toggle('hidden',!user);
     document.querySelectorAll('[data-auth-required]').forEach(el=>el.classList.toggle('auth-locked',!user));
+    const profileModal=document.querySelector('.sora-profile-modal'); if(profileModal&&user) { const status=profileModal.querySelector('#profileStatus'); if(status) status.textContent=user.email_confirmed_at?'● E-mail confirmado':'● E-mail pendente'; }
   }
-  window.SorasakiAuth={getUser,getToken,ready,open:()=>{},logout,clear:logout,requireLogin:(msg='Faça login para continuar.')=>{if(getUser())return true;createLoginUI();window.SorasakiAuth.open();const r=document.querySelector('#authResult');if(r){r.className='auth-result error';r.textContent=msg;}return false;},getClient:ensureClient};
-  function init(){createLoginUI();const btn=document.querySelector('.sora-login-trigger');if(btn)btn.onclick=()=>window.SorasakiAuth.open();syncSession();document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelector('.sora-login-drawer')?.classList.remove('is-open');document.querySelector('.sora-login-overlay')?.classList.remove('is-open');document.body.classList.remove('login-open');}});}
+  window.SorasakiAuth={getUser,getToken,ready,open:()=>{},openProfile:()=>{},logout,clear:logout,requireLogin:(msg='Faça login para continuar.')=>{if(getUser())return true;createLoginUI();window.SorasakiAuth.open();const r=document.querySelector('#authResult');if(r){r.className='auth-result error';r.textContent=msg;}return false;},getClient:ensureClient};
+  function init(){createLoginUI();createProfileUI();const btn=document.querySelector('.sora-login-trigger');if(btn)btn.onclick=()=>getUser()?window.SorasakiAuth.openProfile():window.SorasakiAuth.open();syncSession();document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelector('.sora-login-drawer')?.classList.remove('is-open');document.querySelector('.sora-login-overlay')?.classList.remove('is-open');document.querySelector('.sora-profile-modal')?.classList.remove('is-open');document.querySelector('.sora-profile-overlay')?.classList.remove('is-open');document.body.classList.remove('login-open','profile-open');}});}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
