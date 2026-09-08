@@ -32,6 +32,18 @@
 
 <div class="group-modal" id="groupGate" hidden><div class="group-modal-backdrop" data-close-gate></div><section class="group-modal-card group-gate-card" role="dialog" aria-modal="true"><button class="group-modal-close" type="button" data-close-gate>×</button><div class="group-gate-icon">🔐</div><span class="eyebrow">CONTA NECESSÁRIA</span><h2>Entre na sua conta</h2><p>Para divulgar seu grupo no SORASAKI, você precisa estar conectado a uma conta.</p><div class="gate-actions"><button id="gateLogin" class="auth-primary" type="button">Criar conta ou fazer login, clique aqui <span>→</span></button><button id="gateBack" class="auth-secondary" type="button">← Voltar</button></div></section></div>
 
+<div class="group-modal" id="loginGate" hidden>
+  <div class="group-modal-backdrop" data-close-login-gate></div>
+  <section class="group-modal-card" role="dialog" aria-modal="true" aria-labelledby="loginGateTitle">
+    <button class="group-modal-close" type="button" aria-label="Fechar" data-close-login-gate>×</button>
+    <span class="eyebrow">🔐 CONTA NECESSÁRIA</span>
+    <h2 id="loginGateTitle">Entre na sua conta</h2>
+    <p>Para divulgar seu grupo no SORASAKI, você precisa estar conectado a uma conta.</p>
+    <button class="auth-primary" id="loginGateLink" type="button">Criar conta ou fazer login, clique aqui <span>→</span></button>
+    <button class="auth-secondary" id="loginGateBack" type="button">← Voltar</button>
+  </section>
+</div>
+
 <div class="group-modal" id="groupModal" hidden>
   <div class="group-modal-backdrop" data-close-group-modal></div>
   <section class="group-modal-card group-submit-card" role="dialog" aria-modal="true" aria-labelledby="groupModalTitle">
@@ -183,6 +195,7 @@
   $('submitGroupBtn').onclick=()=>auth.getUser()?openGroupModal():openLoginGate();
   document.querySelectorAll('[data-close-login-gate]').forEach(x=>x.onclick=closeLoginGate);
   $('loginGateLink').onclick=()=>{closeLoginGate();auth.open();};
+  $('loginGateBack').onclick=closeLoginGate;
   document.querySelectorAll('[data-close-group-modal]').forEach(x=>x.onclick=closeGroupModal);
   ['groupName','groupCategory','groupDescription','groupMembers','groupLink','groupAvatar','groupTags','groupContact','groupHighlight'].forEach(id=>$(id)?.addEventListener('input',updatePreview));
   $('groupForm').onsubmit=async e=>{
