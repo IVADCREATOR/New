@@ -2,12 +2,12 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://ponte-m7br.onrender.com https://xwrsjfxsmpuqneriptfw.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://xwrsjfxsmpuqneriptfw.supabase.co https://ponte-m7br.onrender.com; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests" />
 <meta http-equiv="X-Content-Type-Options" content="nosniff" />
 <meta name="referrer" content="strict-origin-when-cross-origin" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Grupos — Sorasaki</title>
-<link rel="stylesheet" href="style.css?v=20260907c" />
+<link rel="stylesheet" href="style.css?v=20260908a" />
 </head>
 <body>
 <div class="topbar">
@@ -29,10 +29,10 @@
     <div>
       <span class="eyebrow">✦ CENTRAL DE COMUNIDADES</span>
       <h1>Encontre um grupo para <span>entrar e participar.</span></h1>
-      <p>Os grupos ficam organizados por categoria para você encontrar rapidamente a comunidade que combina com o que procura.</p>
+      <p>Explore comunidades organizadas por categoria e encontre um espaço que combine com você.</p>
       <div class="groups-hero-stats">
-        <div><strong id="groupCount">2</strong><span>grupos disponíveis</span></div>
-        <div><strong id="memberCount">900+</strong><span>membros somados</span></div>
+        <div><strong id="groupCount">—</strong><span>grupos disponíveis</span></div>
+        <div><strong id="memberCount">—</strong><span>membros somados</span></div>
         <div><strong>100%</strong><span>entrada por convite</span></div>
       </div>
     </div>
@@ -43,88 +43,112 @@
     <div class="sorasaki-group-feature-copy">
       <span class="eyebrow">✦ UM CANTINHO ESPECIAL</span>
       <h2>Bem-vindo às comunidades do <span>Sorasaki.</span></h2>
-      <p>Escolha uma comunidade, conheça o ambiente e entre quando estiver pronto. A Sorasaki fica por aqui para ajudar a manter tudo mais seguro, organizado e agradável.</p>
+      <p>Escolha uma comunidade, conheça o ambiente e entre quando estiver pronto. Tudo passa por uma análise antes de aparecer no catálogo.</p>
       <div class="sorasaki-feature-pills">
         <span>🛡️ Comunidades organizadas</span>
         <span>💜 Ambiente ativo</span>
-        <span>✨ Convites oficiais</span>
+        <span>✨ Convites analisados</span>
       </div>
     </div>
     <div class="sorasaki-feature-character">
       <div class="sorasaki-feature-glow"></div>
-      <img src="sorasaki-grupos.png" alt="Sorasaki dando tchau e apresentando as comunidades">
+      <img src="sorasaki-grupos.png" alt="Sorasaki apresentando as comunidades" draggable="false">
       <div class="sorasaki-feature-caption">Oi! Eu sou a Sorasaki! 💜</div>
     </div>
   </section>
 
-  <section id="vendas" class="groups-toolbar panel" style="scroll-margin-top:90px">
+  <section class="groups-actions panel">
+    <div><strong>Tem um grupo para divulgar?</strong><span>Envie gratuitamente e acompanhe a análise pela sua conta.</span></div>
+    <button id="submitGroupBtn" class="auth-primary" type="button">Divulgar meu grupo <span>→</span></button>
+  </section>
+
+  <section class="groups-toolbar panel" style="scroll-margin-top:90px">
     <div class="group-search-wrap"><span>⌕</span><input id="groupSearch" type="search" placeholder="Pesquisar grupo..." autocomplete="off" /></div>
     <div class="group-filters" role="group" aria-label="Filtrar grupos">
-      <button class="group-filter active" data-filter="todos">Todos</button>
-      <button class="group-filter" data-filter="vendas">Vendas</button>
-      <button class="group-filter" data-filter="comunidade">Comunidade</button>
+      <button class="group-filter active" data-filter="todos" type="button">Todos</button>
+      <button class="group-filter" data-filter="vendas" type="button">Vendas</button>
+      <button class="group-filter" data-filter="comunidade" type="button">Comunidade</button>
+      <button class="group-filter" data-filter="jogos" type="button">Jogos</button>
+      <button class="group-filter" data-filter="estudos" type="button">Estudos</button>
     </div>
     <select id="groupSort" aria-label="Ordenar grupos">
-      <option value="members-desc">Mais membros</option>
-      <option value="members-asc">Menos membros</option>
+      <option value="newest">Mais recentes</option>
+      <option value="rating">Melhor avaliados</option>
       <option value="name">Nome</option>
     </select>
   </section>
 
-  <div id="groupsGrid" class="groups-grid"></div>
-  <div id="groupsEmpty" class="groups-empty" hidden>
-    <div>⌕</div><strong>Nenhum grupo encontrado</strong><span>Tente outro nome ou altere o filtro.</span>
-  </div>
+  <section class="groups-recommended" id="recommendedSection" hidden>
+    <div class="section-heading"><div><span class="eyebrow">👑 SELEÇÃO DO SORASAKI</span><h2>Grupos indicados</h2></div><span>Recomendações da administração</span></div>
+    <div id="recommendedGrid" class="groups-grid"></div>
+  </section>
+
+  <div id="groupsLoading" class="groups-empty"><div>◌</div><strong>Carregando comunidades</strong><span>Um instante...</span></div>
+  <div id="groupsGrid" class="groups-grid" hidden></div>
+  <div id="groupsEmpty" class="groups-empty" hidden><div>⌕</div><strong>Nenhum grupo encontrado</strong><span>Tente outro nome ou altere o filtro.</span></div>
+
+  <section id="myGroupsSection" class="my-groups panel" hidden>
+    <div class="section-heading"><div><span class="eyebrow">✦ SUA CONTA</span><h2>Meus envios</h2></div></div>
+    <div id="myGroupsList"></div>
+  </section>
 
   <section class="groups-note panel">
     <div class="groups-note-icon">🛡️</div>
-    <div><strong>Uma área feita para crescer</strong><p>Novos grupos podem ser adicionados depois sem mudar o visual da página. A ideia é manter tudo organizado, bonito e fácil de explorar.</p></div>
+    <div><strong>Uma área feita para crescer</strong><p>Todo grupo enviado passa por análise antes de ser publicado. Assim o catálogo continua organizado para todos.</p></div>
   </section>
 </main>
 
 <div class="footer">Sorasaki — comunidades organizadas em um só lugar</div>
+
+<div class="group-modal" id="groupModal" hidden>
+  <div class="group-modal-backdrop" data-close-group-modal></div>
+  <section class="group-modal-card" role="dialog" aria-modal="true" aria-labelledby="groupModalTitle">
+    <button class="group-modal-close" type="button" aria-label="Fechar" data-close-group-modal>×</button>
+    <span class="eyebrow">✦ NOVA DIVULGAÇÃO</span>
+    <h2 id="groupModalTitle">Envie seu grupo</h2>
+    <p>O envio é gratuito. A publicação depende da análise da administração.</p>
+    <form id="groupForm">
+      <label>Nome do grupo<input id="groupName" maxlength="100" required placeholder="Ex.: Comunidade Sorasaki"></label>
+      <label>Categoria<select id="groupCategory" required><option value="vendas">Vendas</option><option value="comunidade">Comunidade</option><option value="jogos">Jogos</option><option value="estudos">Estudos</option><option value="outros">Outros</option></select></label>
+      <label>Descrição<textarea id="groupDescription" maxlength="800" minlength="10" required placeholder="Conte um pouco sobre o grupo..."></textarea></label>
+      <label>Quantidade aproximada de membros <span class="field-optional">opcional</span><input id="groupMembers" type="number" min="0" max="10000000" inputmode="numeric" placeholder="Ex.: 250"></label><label>Link de convite<input id="groupLink" type="url" maxlength="1000" required placeholder="https://chat.whatsapp.com/..."></label>
+      <label>Imagem do grupo <span class="field-optional">opcional</span><input id="groupAvatar" type="url" maxlength="1000" placeholder="Link da imagem"></label>
+      <div class="group-form-note">🔐 Seu envio fica associado à sua conta e permanece em análise até uma decisão.</div>
+      <button class="auth-primary" type="submit">Enviar para análise <span>→</span></button>
+      <div id="groupFormResult" class="auth-result" aria-live="polite"></div>
+    </form>
+  </section>
+</div>
+
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="app.js?v=20260907c"></script>
+<script src="app.js?v=20260908a"></script>
 <script>
-const GROUPS = [
-  { id: 1, name: 'Grupo de Vendas #1', category: 'vendas', categoryLabel: 'Vendas', members: 600, icon: '🛍️', description: 'Espaço para divulgação, negociações e oportunidades de compra e venda.', link: 'https://chat.whatsapp.com/IFik3VExTg9FZMP5yZqCIH?s=cl&p=a&mlu=4&ilr=4', featured: true },
-  { id: 2, name: 'Grupo de Vendas #2', category: 'vendas', categoryLabel: 'Vendas', members: 300, icon: '💜', description: 'Uma comunidade para acompanhar ofertas, divulgar produtos e fazer negócios.', link: 'https://chat.whatsapp.com/BC4WaUcmeAKIgDZrbwWCbW?s=cl&p=a&mlu=4&ilr=4', featured: false }
-];
+(function(){
+  const client = window.SorasakiAuth?.getClient?.();
+  if(!client) return;
+  const grid=document.getElementById('groupsGrid'), loading=document.getElementById('groupsLoading'), empty=document.getElementById('groupsEmpty');
+  const recommendedSection=document.getElementById('recommendedSection'), recommendedGrid=document.getElementById('recommendedGrid');
+  const search=document.getElementById('groupSearch'), sort=document.getElementById('groupSort');
+  const modal=document.getElementById('groupModal'), form=document.getElementById('groupForm'), result=document.getElementById('groupFormResult');
+  const submitBtn=document.getElementById('submitGroupBtn');
+  let groups=[], filter='todos';
 
-const grid = document.getElementById('groupsGrid');
-const empty = document.getElementById('groupsEmpty');
-const search = document.getElementById('groupSearch');
-const sort = document.getElementById('groupSort');
-let filter = 'todos';
-
-function escapeHtml(value) { return String(value).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
-function renderGroups() {
-  const q = search.value.trim().toLowerCase();
-  let list = GROUPS.filter(g => (filter === 'todos' || g.category === filter) && (!q || `${g.name} ${g.categoryLabel} ${g.description}`.toLowerCase().includes(q)));
-  list.sort((a,b) => sort.value === 'name' ? a.name.localeCompare(b.name, 'pt-BR') : sort.value === 'members-asc' ? a.members-b.members : b.members-a.members);
-  grid.innerHTML = list.map(g => `
-    <article class="group-card ${g.featured ? 'featured' : ''}">
-      <div class="group-card-top"><div class="group-icon">${g.icon}</div><span class="group-category">${escapeHtml(g.categoryLabel)}</span>${g.featured ? '<span class="group-featured">★ Destaque</span>' : ''}</div>
-      <h2>${escapeHtml(g.name)}</h2>
-      <p>${escapeHtml(g.description)}</p>
-      <div class="group-meta"><span>👥 <strong>${g.members.toLocaleString('pt-BR')}</strong> membros</span><span>🟢 Ativo</span></div>
-      <div class="group-card-actions"><button class="group-copy" data-link="${encodeURIComponent(g.link)}" type="button">Copiar convite</button><a class="group-join" href="${g.link}" target="_blank" rel="noopener noreferrer">Entrar no grupo <span>↗</span></a></div>
-    </article>`).join('');
-  empty.hidden = list.length !== 0;
-  document.getElementById('groupCount').textContent = GROUPS.length;
-  document.getElementById('memberCount').textContent = GROUPS.reduce((sum,g)=>sum+g.members,0).toLocaleString('pt-BR') + '+';
-  grid.querySelectorAll('.group-copy').forEach(btn => btn.addEventListener('click', async () => {
-    const link = decodeURIComponent(btn.dataset.link);
-    try { await navigator.clipboard.writeText(link); btn.textContent = '✓ Convite copiado'; setTimeout(() => btn.textContent = 'Copiar convite', 1800); }
-    catch { btn.textContent = 'Copie pelo botão Entrar'; setTimeout(() => btn.textContent = 'Copiar convite', 1800); }
-  }));
-}
-
-document.querySelectorAll('.group-filter').forEach(btn => btn.addEventListener('click', () => { document.querySelectorAll('.group-filter').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); filter=btn.dataset.filter; renderGroups(); }));
-search.addEventListener('input', renderGroups);
-sort.addEventListener('change', renderGroups);
-renderGroups();
+  const esc=v=>String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  const categoryLabel={vendas:'Vendas',comunidade:'Comunidade',jogos:'Jogos',estudos:'Estudos',outros:'Outros'};
+  const iconFor={vendas:'🛍️',comunidade:'💜',jogos:'🎮',estudos:'📚',outros:'✨'};
+  const average=(id)=>{const r=groups.find(g=>g.id===id)?.reviews||[];if(!r.length)return {score:0,count:0};const score=r.reduce((s,x)=>s+x.rating,0)/r.length;return {score,count:r.length};};
+  function card(g){const r=average(g.id);const badge=g.admin_badge?`<span class="group-featured">${g.admin_badge==='oficial'?'★ Oficial':g.admin_badge==='parceiro'?'◆ Parceiro':'★ Indicado'}</span>`:'';return `<article class="group-card ${g.featured_by_admin?'featured':''}"><div class="group-card-top"><div class="group-icon">${g.avatar_url?'🖼️':iconFor[g.category]||'✨'}</div><span class="group-category">${esc(categoryLabel[g.category]||g.category)}</span>${badge}</div><h2>${esc(g.name)}</h2><p>${esc(g.description)}</p><div class="group-meta"><span>⭐ <strong>${r.count?r.score.toFixed(1):'Novo'}</strong>${r.count?` (${r.count})`:''}</span><span>👥 ${Number(g.member_count||0).toLocaleString('pt-BR')} membros</span></div><div class="group-card-actions"><button class="group-copy" data-link="${encodeURIComponent(g.invite_url)}" type="button">Copiar convite</button><a class="group-join" href="${esc(g.invite_url)}" target="_blank" rel="noopener noreferrer">Entrar no grupo <span>↗</span></a></div></article>`}
+  function render(){let list=groups.filter(g=>filter==='todos'||g.category===filter);const q=search.value.trim().toLowerCase();if(q)list=list.filter(g=>`${g.name} ${g.category} ${g.description}`.toLowerCase().includes(q));list.sort((a,b)=>sort.value==='name'?a.name.localeCompare(b.name,'pt-BR'):sort.value==='rating'?average(b.id).score-average(a.id).score:new Date(b.created_at)-new Date(a.created_at));grid.innerHTML=list.map(card).join('');grid.hidden=false;empty.hidden=list.length>0||groups.length===0;grid.querySelectorAll('.group-copy').forEach(b=>b.onclick=async()=>{try{await navigator.clipboard.writeText(decodeURIComponent(b.dataset.link));b.textContent='✓ Convite copiado';setTimeout(()=>b.textContent='Copiar convite',1600)}catch{b.textContent='Não foi possível copiar';setTimeout(()=>b.textContent='Copiar convite',1600)}})}
+  async function load(){loading.hidden=false;grid.hidden=true;const {data,error}=await client.from('groups').select('id,owner_id,name,description,category,avatar_url,member_count,invite_url,status,featured_by_admin,admin_badge,created_at').eq('status','approved').order('created_at',{ascending:false});if(error){loading.innerHTML='<div>!</div><strong>Não foi possível carregar as comunidades</strong><span>Tente novamente em alguns instantes.</span>';return}groups=(data||[]).map(g=>({...g,reviews:[]}));document.getElementById('groupCount').textContent=groups.length;document.getElementById('memberCount').textContent=groups.reduce((sum,g)=>sum+(Number(g.member_count)||0),0).toLocaleString('pt-BR')+'+';const ids=groups.map(g=>g.id);if(ids.length){const rr=await client.from('reviews').select('group_id,rating').in('group_id',ids).eq('status','visible');(rr.data||[]).forEach(r=>{const g=groups.find(x=>x.id===r.group_id);if(g)g.reviews.push(r)});}const recommended=groups.filter(g=>g.featured_by_admin);recommendedSection.hidden=!recommended.length;recommendedGrid.innerHTML=recommended.map(card).join('');loading.hidden=true;render()}
+  async function loadMine(){const user=window.SorasakiAuth?.getUser?.();if(!user)return;const {data}=await client.from('groups').select('id,name,category,status,admin_note,created_at').eq('owner_id',user.id).order('created_at',{ascending:false});if(!data?.length)return;const labels={pending:'🟡 Em análise',approved:'🟢 Aprovado',rejected:'🔴 Recusado',removed:'⚫ Removido'};document.getElementById('myGroupsSection').hidden=false;document.getElementById('myGroupsList').innerHTML=data.map(g=>`<div class="my-group-row"><div><strong>${esc(g.name)}</strong><span>${esc(categoryLabel[g.category]||g.category)} · ${new Date(g.created_at).toLocaleDateString('pt-BR')}</span></div><div><b>${labels[g.status]||g.status}</b>${g.admin_note?`<small>${esc(g.admin_note)}</small>`:''}</div></div>`).join('')}
+  function open(){if(!window.SorasakiAuth.requireLogin('Você precisa estar conectado para enviar um grupo.'))return;modal.hidden=false;document.body.classList.add('group-modal-open');setTimeout(()=>document.getElementById('groupName').focus(),50)}
+  function close(){modal.hidden=true;document.body.classList.remove('group-modal-open');result.textContent='';result.className='auth-result'}
+  submitBtn.onclick=open;modal.querySelectorAll('[data-close-group-modal]').forEach(x=>x.onclick=close);
+  form.onsubmit=async e=>{e.preventDefault();if(!window.SorasakiAuth.requireLogin('Você precisa estar conectado para enviar um grupo.'))return;const user=window.SorasakiAuth.getUser();const name=document.getElementById('groupName').value.trim(),member_count=Math.max(0,Math.min(10000000,Number(document.getElementById('groupMembers').value)||0)),description=document.getElementById('groupDescription').value.trim(),category=document.getElementById('groupCategory').value,invite_url=document.getElementById('groupLink').value.trim(),avatar_url=document.getElementById('groupAvatar').value.trim()||null;if(!/^https?:\/\//i.test(invite_url)){result.className='auth-result error';result.textContent='Informe um link de convite válido.';return}result.className='auth-result';result.textContent='Enviando...';const {error}=await client.from('groups').insert({owner_id:user.id,name,description,category,member_count,invite_url,avatar_url,status:'pending'});if(error){result.className='auth-result error';result.textContent='Não foi possível enviar o grupo. Tente novamente em alguns instantes.';return}result.className='auth-result ok';result.textContent='Grupo enviado! Ele ficará em análise antes de aparecer no catálogo.';form.reset();await loadMine();setTimeout(close,1100)};
+  document.querySelectorAll('.group-filter').forEach(b=>b.onclick=()=>{document.querySelectorAll('.group-filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');filter=b.dataset.filter;render()});search.oninput=render;sort.onchange=render;
+  window.SorasakiAuth.ready?.then(()=>{load();loadMine()});
+})();
 </script>
 </body>
 </html>
