@@ -678,10 +678,10 @@ criarAssistente = function() {
     const drawer = document.createElement('aside');
     drawer.className = 'sora-login-drawer'; drawer.id = 'sorasaki-login';
     drawer.innerHTML = `
-      <div class="login-head"><div class="login-brand"><span>🔐</span><div><strong>Conta Sorasaki</strong><small>Login opcional para navegar</small></div></div><div class="login-head-actions"><button class="auth-logout hidden" id="authLogout" type="button">Sair</button><button class="login-close" type="button" aria-label="Fechar login">×</button></div></div>
+      <div class="login-head"><div class="login-brand"><span>🔐</span><div><strong>Conta Sorasaki</strong><small>Login para recursos da conta</small></div></div><div class="login-head-actions"><button class="auth-logout hidden" id="authLogout" type="button">Sair</button><button class="login-close" type="button" aria-label="Fechar login">×</button></div></div>
       <div class="login-tabs"><button type="button" class="login-tab active" data-auth-tab="login">Entrar</button><button type="button" class="login-tab" data-auth-tab="register">Criar conta</button></div>
       <div class="auth-panel" data-auth-panel="login">
-        <div class="login-intro"><b>Bem-vindo de volta 💜</b><span>Você pode navegar pelo site sem conta. O login só é necessário para enviar avaliações e relatos de bugs.</span></div>
+        <div class="login-intro"><b>Bem-vindo de volta 💜</b><span>Você pode navegar pelo catálogo sem conta. Para enviar grupos, avaliar, relatar ou comprar, é necessário estar conectado.</span></div>
         <label>E-mail<input id="authEmail" type="email" autocomplete="email" placeholder="voce@exemplo.com"></label>
         <label>Senha<div class="password-wrap"><input id="authPassword" type="password" autocomplete="current-password" placeholder="Sua senha"><button type="button" class="password-toggle" aria-label="Mostrar senha">◉</button></div></label>
         <button class="auth-primary" id="authLogin" type="button">Entrar <span>→</span></button>
@@ -708,7 +708,7 @@ criarAssistente = function() {
         <button class="auth-link back-login" id="authBackLogin" type="button">← Voltar para o login</button>
         <div class="auth-result" id="forgotResult" aria-live="polite"></div>
       </div>
-      <div class="login-character-tip"><div><strong>Ei! 👀</strong><span>Quer avaliar ou relatar um bug?</span><small>Faça login primeiro!</small></div><img src="sorasaki-login.png" alt="Sorasaki apontando para o login" draggable="false"></div>
+      <div class="login-character-tip"><div><strong>Ei! 👀</strong><span>Quer divulgar um grupo ou participar da comunidade?</span><small>Faça login para continuar!</small></div><img src="sorasaki-login.png" alt="Sorasaki apontando para o login" draggable="false"></div>
       <div class="login-privacy">🔒 Sua senha é protegida e não fica visível para o Sorasaki.</div>`;
     document.body.appendChild(overlay); document.body.appendChild(drawer);
     const open=()=>{drawer.classList.add('is-open');overlay.classList.add('is-open');overlay.setAttribute('aria-hidden','false');document.body.classList.add('login-open');};

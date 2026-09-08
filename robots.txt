@@ -1,0 +1,2 @@
+User-agent: *
+Disallow: /controle-8f4c2e91.html

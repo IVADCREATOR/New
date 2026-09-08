@@ -327,3 +327,22 @@ revoke all on public.profiles from anon;
 revoke all on public.orders from anon;
 revoke all on public.reports from anon;
 revoke all on public.promotions from anon;
+
+
+-- ===== Complementos para a integração de pagamentos e moderação =====
+-- Estes índices tornam operações repetidas mais seguras e rápidas.
+create unique index if not exists uq_orders_payment_id
+  on public.orders(payment_id)
+  where payment_id is not null;
+
+create unique index if not exists uq_reports_group_reporter
+  on public.reports(group_id, reporter_id);
+
+-- Planos iniciais ficam inativos até que a administração defina os valores.
+-- Assim nenhum preço comercial é inventado ou publicado por padrão.
+insert into public.promotion_plans (name, description, price, duration_days, active)
+values
+  ('IMPULSIONAR', 'Maior visibilidade durante o período contratado.', 0, 7, false),
+  ('PLUS', 'Mais destaque e benefícios adicionais durante o período contratado.', 0, 15, false),
+  ('VIP', 'Maior nível de exposição durante o período contratado.', 0, 30, false)
+on conflict (name) do nothing;

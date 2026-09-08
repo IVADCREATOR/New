@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta http-equiv="X-Content-Type-Options" content="nosniff"><meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<title>Área restrita — Sorasaki</title><link rel="stylesheet" href="style.css?v=20260908b">
+</head>
+<body>
+<div class="topbar"><div class="brand"><span class="dot"></span><div>Sorasaki<small>Administração</small></div></div><nav><a href="/grupos">Grupos</a><a href="/">Voltar ao site</a></nav></div>
+<main>
+<section class="panel" style="margin-top:30px"><span class="eyebrow">👑 ÁREA RESTRITA</span><h1>Painel administrativo</h1><p class="subtitle" style="margin-bottom:0">Gerencie publicações, avaliações, relatos, planos e pagamentos.</p></section>
+<div id="adminMessage" class="groups-empty"><div>◌</div><strong>Verificando acesso</strong><span>Um instante...</span></div>
+<section id="adminContent" hidden>
+  <div id="adminStats" class="groups-hero-stats panel"></div>
+  <div class="admin-tabs panel">
+    <button class="admin-tab active" data-tab="groups">Grupos</button>
+    <button class="admin-tab" data-tab="reports">Relatos</button>
+    <button class="admin-tab" data-tab="reviews">Avaliações</button>
+    <button class="admin-tab" data-tab="plans">Planos</button>
+    <button class="admin-tab" data-tab="orders">Pagamentos</button>
+  </div>
+
+  <section class="admin-view active" data-view="groups">
+    <div class="groups-toolbar panel"><div class="group-search-wrap"><span>⌕</span><input id="adminSearch" type="search" placeholder="Pesquisar grupo..." autocomplete="off"></div><select id="adminStatus"><option value="all">Todos</option><option value="pending">Em análise</option><option value="approved">Aprovados</option><option value="rejected">Recusados</option><option value="removed">Removidos</option></select></div>
+    <div id="adminGroups" class="groups-grid"></div>
+  </section>
+
+  <section class="admin-view" data-view="reports">
+    <div class="panel admin-section-head"><div><span class="eyebrow">⚑ MODERAÇÃO</span><h2>Relatos recebidos</h2></div><button class="auth-secondary" id="refreshReports">Atualizar</button></div>
+    <div id="adminReports" class="admin-list"></div>
+  </section>
+
+  <section class="admin-view" data-view="reviews">
+    <div class="panel admin-section-head"><div><span class="eyebrow">⭐ MODERAÇÃO</span><h2>Avaliações</h2></div><button class="auth-secondary" id="refreshReviews">Atualizar</button></div>
+    <div id="adminReviews" class="admin-list"></div>
+  </section>
+
+  <section class="admin-view" data-view="plans">
+    <div class="panel admin-section-head"><div><span class="eyebrow">🚀 DESTAQUES</span><h2>Planos de divulgação</h2><p class="admin-help">Altere preço, duração, descrição e disponibilidade diretamente por aqui. As mudanças valem para novas compras.</p></div><button class="auth-primary" id="newPlan" type="button">Novo plano <span>+</span></button></div>
+    <div id="newPlanForm" class="panel admin-new-plan" hidden>
+      <div><strong>Criar novo plano</strong><span>Defina os dados que serão exibidos no catálogo.</span></div>
+      <div class="admin-plan-form-grid">
+        <label>Nome<input id="newPlanName" class="admin-inline-input" maxlength="60" placeholder="Ex.: IMPULSIONAR"></label>
+        <label>Preço (R$)<input id="newPlanPrice" class="admin-inline-input" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0,00"></label>
+        <label>Duração (dias)<input id="newPlanDays" class="admin-inline-input" type="number" min="1" step="1" inputmode="numeric" placeholder="7"></label>
+        <label>Descrição<textarea id="newPlanDesc" class="admin-inline-input" maxlength="300" placeholder="Descreva o benefício do plano."></textarea></label>
+      </div>
+      <div class="admin-row-actions"><button class="auth-secondary" id="cancelNewPlan" type="button">Cancelar</button><button class="auth-primary" id="createPlan" type="button">Criar plano</button></div>
+    </div>
+    <div id="adminPlans" class="admin-list"></div>
+  </section>
+
+  <section class="admin-view" data-view="orders">
+    <div class="panel admin-section-head"><div><span class="eyebrow">💳 FINANCEIRO</span><h2>Pedidos e pagamentos</h2></div><button class="auth-secondary" id="refreshOrders">Atualizar</button></div>
+    <div id="adminOrders" class="admin-list"></div>
+  </section>
+</section>
+</main>
+<script src="config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="app.js?v=20260908b"></script>
+<script>
+(async function(){
+  const auth=window.SorasakiAuth;await auth.ready;const client=auth.getClient(),user=auth.getUser();
+  const msg=document.getElementById('adminMessage'),content=document.getElementById('adminContent');
+  if(!user){msg.innerHTML='<div>🔐</div><strong>Área restrita</strong><span>Entre na sua conta de administrador para continuar.</span>';setTimeout(()=>auth.requireLogin('Você precisa estar conectado para acessar esta área.'),300);return}
+  const profile=await client.from('profiles').select('role,display_name').eq('user_id',user.id).maybeSingle();
+  if(profile.error||profile.data?.role!=='admin'){msg.innerHTML='<div>🔒</div><strong>Acesso não disponível</strong><span>Esta área é reservada à administração.</span>';return}
+  msg.hidden=true;content.hidden=false;
+  const esc=v=>String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  const labels={pending:'🟡 Em análise',approved:'🟢 Aprovado',rejected:'🔴 Recusado',removed:'⚫ Removido'};
+  const cats={vendas:'Vendas',comunidade:'Comunidade',jogos:'Jogos',estudos:'Estudos',outros:'Outros'};
+  let groups=[],plans=[],reports=[],reviews=[],orders=[];
+
+  function switchTab(name){document.querySelectorAll('.admin-tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));document.querySelectorAll('.admin-view').forEach(v=>v.classList.toggle('active',v.dataset.view===name))}
+  document.querySelectorAll('.admin-tab').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
+
+  async function loadGroups(){
+    const {data,error}=await client.from('groups').select('id,owner_id,name,description,category,avatar_url,member_count,invite_url,status,featured_by_admin,admin_badge,admin_note,created_at,approved_at').order('created_at',{ascending:false});
+    if(error){$('adminGroups').innerHTML='<div class="groups-empty"><strong>Não foi possível carregar os grupos.</strong><span>Tente novamente.</span></div>';return}groups=data||[];renderGroups();stats();
+  }
+  const $=id=>document.getElementById(id);
+  function renderGroups(){
+    const q=$('adminSearch').value.trim().toLowerCase(),s=$('adminStatus').value;
+    const list=groups.filter(g=>(s==='all'||g.status===s)&&(!q||`${g.name} ${g.description} ${g.category}`.toLowerCase().includes(q)));
+    $('adminGroups').innerHTML=list.map(g=>`<article class="group-card admin-group-card"><div class="group-card-top"><div class="group-icon">${g.featured_by_admin?'👑':'👥'}</div><span class="group-category">${esc(cats[g.category]||g.category)}</span><span class="group-featured">${labels[g.status]}</span></div>
+      <input class="admin-inline-input" data-field="name" data-id="${g.id}" value="${esc(g.name)}" maxlength="100"><textarea class="admin-inline-input" data-field="description" data-id="${g.id}" maxlength="800">${esc(g.description)}</textarea>
+      <div class="admin-edit-grid"><select data-field="category" data-id="${g.id}">${Object.entries(cats).map(([k,v])=>`<option value="${k}" ${g.category===k?'selected':''}>${v}</option>`).join('')}</select><input class="admin-inline-input" data-field="members" data-id="${g.id}" type="number" min="0" value="${Number(g.member_count)||0}" placeholder="Membros"></div>
+      <input class="admin-inline-input" data-field="link" data-id="${g.id}" value="${esc(g.invite_url)}" placeholder="Link de convite">
+      <div class="group-meta"><span>Enviado em ${new Date(g.created_at).toLocaleDateString('pt-BR')}</span><span>Dono: ${esc(g.owner_id.slice(0,8))}…</span></div>
+      <div class="admin-edit-grid"><select data-status="${g.id}">${Object.entries(labels).map(([k,v])=>`<option value="${k}" ${g.status===k?'selected':''}>${v}</option>`).join('')}</select><input class="admin-inline-input" data-note="${g.id}" maxlength="500" placeholder="Observação para o responsável" value="${esc(g.admin_note||'')}"></div>
+      <div class="admin-edit-grid"><label class="check-row"><input data-featured="${g.id}" type="checkbox" ${g.featured_by_admin?'checked':''}> Indicar</label><select data-badge="${g.id}"><option value="">Sem selo</option><option value="oficial" ${g.admin_badge==='oficial'?'selected':''}>Oficial</option><option value="indicado" ${g.admin_badge==='indicado'?'selected':''}>Indicado</option><option value="parceiro" ${g.admin_badge==='parceiro'?'selected':''}>Parceiro</option></select></div>
+      <button class="auth-primary" data-save="${g.id}" type="button">Salvar alterações</button></article>`).join('')||'<div class="groups-empty"><div>⌕</div><strong>Nenhum grupo encontrado</strong><span>Altere os filtros para continuar.</span></div>';
+    document.querySelectorAll('[data-save]').forEach(b=>b.onclick=saveGroup);
+  }
+  async function saveGroup(e){
+    const id=Number(e.currentTarget.dataset.save),get=(field)=>document.querySelector(`[data-field="${field}"][data-id="${id}"]`);
+    const status=document.querySelector(`[data-status="${id}"]`).value;
+    const payload={name:get('name').value.trim(),description:get('description').value.trim(),category:get('category').value,member_count:Math.max(0,Number(get('members').value)||0),invite_url:get('link').value.trim(),status,admin_note:document.querySelector(`[data-note="${id}"]`).value.trim()||null,featured_by_admin:status==='approved'&&document.querySelector(`[data-featured="${id}"]`).checked,admin_badge:status==='approved'?(document.querySelector(`[data-badge="${id}"]`).value||null):null,approved_at:status==='approved'?new Date().toISOString():null};
+    e.currentTarget.disabled=true;
+    const {error}=await client.from('groups').update(payload).eq('id',id);
+    e.currentTarget.disabled=false;e.currentTarget.textContent=error?'Tente novamente':'Salvo ✓';if(!error)await loadGroups();setTimeout(()=>e.currentTarget.textContent='Salvar alterações',1400);
+  }
+  function stats(){$('adminStats').innerHTML=[['🟡',groups.filter(g=>g.status==='pending').length,'Pendentes'],['🟢',groups.filter(g=>g.status==='approved').length,'Publicados'],['🔴',groups.filter(g=>g.status==='rejected').length,'Recusados'],['⚫',groups.filter(g=>g.status==='removed').length,'Removidos']].map(x=>`<div><strong>${x[0]} ${x[1]}</strong><span>${x[2]}</span></div>`).join('')}
+
+  async function loadReports(){
+    const {data,error}=await client.from('reports').select('id,group_id,reporter_id,reason,description,status,created_at,groups(name)').order('created_at',{ascending:false}).limit(100);
+    reports=data||[];$('adminReports').innerHTML=error?'<div class="groups-empty"><strong>Não foi possível carregar os relatos.</strong></div>':reports.map(r=>`<article class="admin-list-row"><div><strong>${esc(r.groups?.name||'Grupo removido')}</strong><span>${esc(r.reason)} · ${new Date(r.created_at).toLocaleString('pt-BR')}</span><p>${esc(r.description||'Sem detalhes adicionais.')}</p></div><div class="admin-row-actions"><select data-report-status="${r.id}">${['open','reviewing','resolved','dismissed'].map(s=>`<option ${r.status===s?'selected':''} value="${s}">${s==='open'?'Aberto':s==='reviewing'?'Em análise':s==='resolved'?'Resolvido':'Descartado'}</option>`).join('')}</select><button class="auth-secondary" data-report-save="${r.id}">Salvar</button></div></article>`).join('')||'<div class="groups-empty"><strong>Nenhum relato recebido.</strong></div>';
+    document.querySelectorAll('[data-report-save]').forEach(b=>b.onclick=async()=>{const id=Number(b.dataset.reportSave),status=document.querySelector(`[data-report-status="${id}"]`).value;const {error}=await client.from('reports').update({status}).eq('id',id);b.textContent=error?'Erro':'Salvo ✓';if(!error)loadReports();});
+  }
+  async function loadReviews(){
+    const {data,error}=await client.from('reviews').select('id,group_id,user_id,rating,comment,status,created_at,groups(name)').order('created_at',{ascending:false}).limit(100);
+    reviews=data||[];$('adminReviews').innerHTML=error?'<div class="groups-empty"><strong>Não foi possível carregar as avaliações.</strong></div>':reviews.map(r=>`<article class="admin-list-row"><div><strong>${esc(r.groups?.name||'Grupo removido')} · ${'★'.repeat(r.rating)}</strong><span>${new Date(r.created_at).toLocaleString('pt-BR')} · ${esc(r.user_id.slice(0,8))}…</span><p>${esc(r.comment||'Sem comentário.')}</p></div><div class="admin-row-actions"><select data-review-status="${r.id}"><option value="visible" ${r.status==='visible'?'selected':''}>Visível</option><option value="hidden" ${r.status==='hidden'?'selected':''}>Oculta</option></select><button class="auth-secondary" data-review-save="${r.id}">Salvar</button></div></article>`).join('')||'<div class="groups-empty"><strong>Nenhuma avaliação recebida.</strong></div>';
+    document.querySelectorAll('[data-review-save]').forEach(b=>b.onclick=async()=>{const id=Number(b.dataset.reviewSave),status=document.querySelector(`[data-review-status="${id}"]`).value;const {error}=await client.from('reviews').update({status}).eq('id',id);b.textContent=error?'Erro':'Salvo ✓';if(!error)loadReviews();});
+  }
+  async function loadPlans(){
+    const {data,error}=await client.from('promotion_plans').select('id,name,description,price,duration_days,active,created_at').order('created_at',{ascending:true});
+    plans=data||[];
+    $('adminPlans').innerHTML=error?'<div class="groups-empty"><strong>Não foi possível carregar os planos.</strong><span>Tente novamente.</span></div>':plans.map(p=>`<article class="admin-list-row admin-plan-row">
+      <div class="admin-plan-content">
+        <div class="admin-plan-heading"><strong>${esc(p.name)}</strong><span class="admin-plan-status ${p.active?'is-active':'is-off'}">${p.active?'Ativo':'Inativo'}</span></div>
+        <div class="plan-admin-grid">
+          <label>Nome<input class="admin-inline-input" data-plan-name="${p.id}" value="${esc(p.name)}" maxlength="60"></label>
+          <label>Preço (R$)<input class="admin-inline-input admin-price-input" data-plan-price="${p.id}" type="number" min="0" step="0.01" inputmode="decimal" value="${Number(p.price).toFixed(2)}"></label>
+          <label>Duração (dias)<input class="admin-inline-input" data-plan-days="${p.id}" type="number" min="1" step="1" inputmode="numeric" value="${Number(p.duration_days)}"></label>
+          <label>Descrição<textarea class="admin-inline-input" data-plan-desc="${p.id}" maxlength="300">${esc(p.description)}</textarea></label>
+        </div>
+      </div>
+      <div class="admin-plan-footer"><label class="check-row"><input data-plan-active="${p.id}" type="checkbox" ${p.active?'checked':''}> Disponível para novas compras</label><button class="auth-primary" data-plan-save="${p.id}" type="button">Salvar alterações</button></div>
+    </article>`).join('')||'<div class="groups-empty"><strong>Nenhum plano cadastrado.</strong><span>Crie o primeiro plano acima.</span></div>';
+    document.querySelectorAll('[data-plan-save]').forEach(b=>b.onclick=savePlan);
+  }
+  async function savePlan(e){
+    const button=e.currentTarget,id=Number(button.dataset.planSave);
+    const name=$(`[data-plan-name="${id}"]`).value.trim();
+    const price=Number($(`[data-plan-price="${id}"]`).value);
+    const days=Number($(`[data-plan-days="${id}"]`).value);
+    const description=$(`[data-plan-desc="${id}"]`).value.trim();
+    const active=$(`[data-plan-active="${id}"]`).checked;
+    if(!name||!Number.isFinite(price)||price<0||!Number.isInteger(days)||days<1||!description){button.textContent='Confira os dados';setTimeout(()=>button.textContent='Salvar alterações',1600);return}
+    button.disabled=true;button.textContent='Salvando...';
+    const {error}=await client.from('promotion_plans').update({name,price:Number(price.toFixed(2)),duration_days:days,description,active}).eq('id',id);
+    button.disabled=false;button.textContent=error?'Tente novamente':'Salvo ✓';
+    if(!error) await loadPlans();
+    setTimeout(()=>{const current=document.querySelector(`[data-plan-save="${id}"]`);if(current)current.textContent='Salvar alterações'},1600);
+  }
+  function toggleNewPlanForm(show){
+    $('newPlanForm').hidden=!show;
+    if(show) $('newPlanName').focus();
+  }
+  $('newPlan').onclick=()=>toggleNewPlanForm($('newPlanForm').hidden);
+  $('cancelNewPlan').onclick=()=>toggleNewPlanForm(false);
+  $('createPlan').onclick=async()=>{
+    const button=$('createPlan'),name=$('newPlanName').value.trim(),price=Number($('newPlanPrice').value),days=Number($('newPlanDays').value),description=$('newPlanDesc').value.trim();
+    if(!name||!Number.isFinite(price)||price<0||!Number.isInteger(days)||days<1||!description){button.textContent='Confira os dados';setTimeout(()=>button.textContent='Criar plano',1600);return}
+    button.disabled=true;button.textContent='Criando...';
+    const {error}=await client.from('promotion_plans').insert({name,description,price:Number(price.toFixed(2)),duration_days:days,active:true});
+    button.disabled=false;
+    if(error){button.textContent='Tente novamente';setTimeout(()=>button.textContent='Criar plano',1600);return}
+    $('newPlanName').value='';$('newPlanPrice').value='';$('newPlanDays').value='';$('newPlanDesc').value='';toggleNewPlanForm(false);await loadPlans();
+  };
+
+  async function loadOrders(){
+    const {data,error}=await client.from('orders').select('id,user_id,group_id,plan_id,amount,status,payment_provider,payment_id,created_at,paid_at,groups(name),promotion_plans(name)').order('created_at',{ascending:false}).limit(150);
+    orders=data||[];$('adminOrders').innerHTML=error?'<div class="groups-empty"><strong>Não foi possível carregar os pedidos.</strong></div>':orders.map(o=>`<article class="admin-list-row"><div><strong>Pedido #${o.id} · R$ ${Number(o.amount).toFixed(2).replace('.',',')}</strong><span>${esc(o.promotion_plans?.name||'Plano')} · ${esc(o.groups?.name||'Grupo')} · ${new Date(o.created_at).toLocaleString('pt-BR')}</span><p>Usuário: ${esc(o.user_id.slice(0,12))}…${o.payment_id?` · Pagamento: ${esc(o.payment_id)}`:''}</p></div><span class="order-status">${statusOrder(o.status)}</span></article>`).join('')||'<div class="groups-empty"><strong>Nenhum pedido registrado.</strong></div>';
+  }
+  function statusOrder(s){return {pending:'🟡 Pendente',paid:'🟢 Pago',rejected:'🔴 Recusado',cancelled:'⚫ Cancelado',expired:'⚫ Expirado',refunded:'↩️ Estornado'}[s]||'Em atualização'}
+
+  $('adminSearch').oninput=renderGroups;$('adminStatus').onchange=renderGroups;$('refreshReports').onclick=loadReports;$('refreshReviews').onclick=loadReviews;$('refreshOrders').onclick=loadOrders;
+  await Promise.all([loadGroups(),loadReports(),loadReviews(),loadPlans(),loadOrders()]);
+})();
+</script>
+</body>
+</html>

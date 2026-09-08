@@ -2,25 +2,25 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://xwrsjfxsmpuqneriptfw.supabase.co https://ponte-m7br.onrender.com; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://xwrsjfxsmpuqneriptfw.supabase.co https://ponte-m7br.onrender.com; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests" />
 <meta http-equiv="X-Content-Type-Options" content="nosniff" />
 <meta name="referrer" content="strict-origin-when-cross-origin" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Grupos — Sorasaki</title>
-<link rel="stylesheet" href="style.css?v=20260908a" />
+<link rel="stylesheet" href="style.css?v=20260908b" />
 </head>
 <body>
 <div class="topbar">
-  <div class="brand"><span class="dot" id="dotStatus"></span><div>Sorasaki<small>Comunidades recomendadas pelo Sorasaki</small></div></div>
+  <div class="brand"><span class="dot"></span><div>Sorasaki<small>Comunidades organizadas</small></div></div>
   <nav>
-    <a href="index.html">Resumo</a>
-    <a href="grupos.html" class="active">Grupos</a>
-    <a href="estatisticas.html">Estatísticas</a>
-    <a href="status.html">Status</a>
-    <a href="erros.html">Erros</a>
-    <a href="uptime.html">Uptime</a>
-    <a href="sobre.html">Sobre</a>
-    <a href="suporte.html">Suporte</a>
+    <a href="/">Resumo</a>
+    <a href="/grupos" class="active">Grupos</a>
+    <a href="/estatisticas">Estatísticas</a>
+    <a href="/status">Status</a>
+    <a href="/erros">Erros</a>
+    <a href="/uptime">Uptime</a>
+    <a href="/sobre">Sobre</a>
+    <a href="/suporte">Suporte</a>
   </nav>
 </div>
 
@@ -29,11 +29,11 @@
     <div>
       <span class="eyebrow">✦ CENTRAL DE COMUNIDADES</span>
       <h1>Encontre um grupo para <span>entrar e participar.</span></h1>
-      <p>Explore comunidades organizadas por categoria e encontre um espaço que combine com você.</p>
+      <p>Explore comunidades por categoria e encontre um espaço que combine com você.</p>
       <div class="groups-hero-stats">
-        <div><strong id="groupCount">—</strong><span>grupos disponíveis</span></div>
+        <div><strong id="groupCount">—</strong><span>grupos publicados</span></div>
         <div><strong id="memberCount">—</strong><span>membros somados</span></div>
-        <div><strong>100%</strong><span>entrada por convite</span></div>
+        <div><strong>100%</strong><span>convites analisados</span></div>
       </div>
     </div>
     <div class="groups-mascot" aria-hidden="true"><span>✦</span><span>♡</span><span>✧</span><div>💜</div></div>
@@ -43,18 +43,10 @@
     <div class="sorasaki-group-feature-copy">
       <span class="eyebrow">✦ UM CANTINHO ESPECIAL</span>
       <h2>Bem-vindo às comunidades do <span>Sorasaki.</span></h2>
-      <p>Escolha uma comunidade, conheça o ambiente e entre quando estiver pronto. Tudo passa por uma análise antes de aparecer no catálogo.</p>
-      <div class="sorasaki-feature-pills">
-        <span>🛡️ Comunidades organizadas</span>
-        <span>💜 Ambiente ativo</span>
-        <span>✨ Convites analisados</span>
-      </div>
+      <p>Escolha uma comunidade, conheça as informações e entre quando estiver pronto. Todo envio passa por análise antes da publicação.</p>
+      <div class="sorasaki-feature-pills"><span>🛡️ Comunidades organizadas</span><span>💜 Ambiente ativo</span><span>✨ Convites analisados</span></div>
     </div>
-    <div class="sorasaki-feature-character">
-      <div class="sorasaki-feature-glow"></div>
-      <img src="sorasaki-grupos.png" alt="Sorasaki apresentando as comunidades" draggable="false">
-      <div class="sorasaki-feature-caption">Oi! Eu sou a Sorasaki! 💜</div>
-    </div>
+    <div class="sorasaki-feature-character"><div class="sorasaki-feature-glow"></div><img src="sorasaki-grupos.png" alt="Sorasaki apresentando as comunidades" draggable="false"><div class="sorasaki-feature-caption">Oi! Eu sou a Sorasaki! 💜</div></div>
   </section>
 
   <section class="groups-actions panel">
@@ -63,19 +55,16 @@
   </section>
 
   <section class="groups-toolbar panel" style="scroll-margin-top:90px">
-    <div class="group-search-wrap"><span>⌕</span><input id="groupSearch" type="search" placeholder="Pesquisar grupo..." autocomplete="off" /></div>
+    <div class="group-search-wrap"><span>⌕</span><input id="groupSearch" type="search" placeholder="Pesquisar grupo..." autocomplete="off"></div>
     <div class="group-filters" role="group" aria-label="Filtrar grupos">
       <button class="group-filter active" data-filter="todos" type="button">Todos</button>
       <button class="group-filter" data-filter="vendas" type="button">Vendas</button>
       <button class="group-filter" data-filter="comunidade" type="button">Comunidade</button>
       <button class="group-filter" data-filter="jogos" type="button">Jogos</button>
       <button class="group-filter" data-filter="estudos" type="button">Estudos</button>
+      <button class="group-filter" data-filter="outros" type="button">Outros</button>
     </div>
-    <select id="groupSort" aria-label="Ordenar grupos">
-      <option value="newest">Mais recentes</option>
-      <option value="rating">Melhor avaliados</option>
-      <option value="name">Nome</option>
-    </select>
+    <select id="groupSort" aria-label="Ordenar grupos"><option value="newest">Mais recentes</option><option value="rating">Melhor avaliados</option><option value="name">Nome</option></select>
   </section>
 
   <section class="groups-recommended" id="recommendedSection" hidden>
@@ -83,19 +72,27 @@
     <div id="recommendedGrid" class="groups-grid"></div>
   </section>
 
+  <section class="panel groups-plans" id="plansSection">
+    <div class="section-heading"><div><span class="eyebrow">🚀 MAIS VISIBILIDADE</span><h2>Planos de destaque</h2></div><span>O destaque não substitui a análise.</span></div>
+    <p class="subtitle">Escolha um plano para aumentar a exposição de um grupo já aprovado. A posição pode mudar conforme novos anúncios entram.</p>
+    <div id="plansGrid" class="plans-grid"><div class="groups-empty"><div>◌</div><strong>Carregando planos</strong><span>Um instante...</span></div></div>
+  </section>
+
   <div id="groupsLoading" class="groups-empty"><div>◌</div><strong>Carregando comunidades</strong><span>Um instante...</span></div>
   <div id="groupsGrid" class="groups-grid" hidden></div>
   <div id="groupsEmpty" class="groups-empty" hidden><div>⌕</div><strong>Nenhum grupo encontrado</strong><span>Tente outro nome ou altere o filtro.</span></div>
 
   <section id="myGroupsSection" class="my-groups panel" hidden>
-    <div class="section-heading"><div><span class="eyebrow">✦ SUA CONTA</span><h2>Meus envios</h2></div></div>
+    <div class="section-heading"><div><span class="eyebrow">✦ SUA CONTA</span><h2>Meus envios</h2></div><span>Acompanhe o andamento por aqui.</span></div>
     <div id="myGroupsList"></div>
   </section>
 
-  <section class="groups-note panel">
-    <div class="groups-note-icon">🛡️</div>
-    <div><strong>Uma área feita para crescer</strong><p>Todo grupo enviado passa por análise antes de ser publicado. Assim o catálogo continua organizado para todos.</p></div>
+  <section id="myOrdersSection" class="my-groups panel" hidden>
+    <div class="section-heading"><div><span class="eyebrow">💳 COMPRAS</span><h2>Meus pedidos</h2></div><span>O benefício só é liberado após a confirmação do pagamento.</span></div>
+    <div id="myOrdersList"></div>
   </section>
+
+  <section class="groups-note panel"><div class="groups-note-icon">🛡️</div><div><strong>Uma área feita para crescer</strong><p>Todo grupo enviado passa por análise antes de ser publicado. Assim o catálogo continua organizado para todos.</p></div></section>
 </main>
 
 <div class="footer">Sorasaki — comunidades organizadas em um só lugar</div>
@@ -104,14 +101,14 @@
   <div class="group-modal-backdrop" data-close-group-modal></div>
   <section class="group-modal-card" role="dialog" aria-modal="true" aria-labelledby="groupModalTitle">
     <button class="group-modal-close" type="button" aria-label="Fechar" data-close-group-modal>×</button>
-    <span class="eyebrow">✦ NOVA DIVULGAÇÃO</span>
-    <h2 id="groupModalTitle">Envie seu grupo</h2>
+    <span class="eyebrow">✦ NOVA DIVULGAÇÃO</span><h2 id="groupModalTitle">Envie seu grupo</h2>
     <p>O envio é gratuito. A publicação depende da análise da administração.</p>
     <form id="groupForm">
       <label>Nome do grupo<input id="groupName" maxlength="100" required placeholder="Ex.: Comunidade Sorasaki"></label>
       <label>Categoria<select id="groupCategory" required><option value="vendas">Vendas</option><option value="comunidade">Comunidade</option><option value="jogos">Jogos</option><option value="estudos">Estudos</option><option value="outros">Outros</option></select></label>
       <label>Descrição<textarea id="groupDescription" maxlength="800" minlength="10" required placeholder="Conte um pouco sobre o grupo..."></textarea></label>
-      <label>Quantidade aproximada de membros <span class="field-optional">opcional</span><input id="groupMembers" type="number" min="0" max="10000000" inputmode="numeric" placeholder="Ex.: 250"></label><label>Link de convite<input id="groupLink" type="url" maxlength="1000" required placeholder="https://chat.whatsapp.com/..."></label>
+      <label>Quantidade aproximada de membros <span class="field-optional">opcional</span><input id="groupMembers" type="number" min="0" max="10000000" inputmode="numeric" placeholder="Ex.: 250"></label>
+      <label>Link de convite<input id="groupLink" type="url" maxlength="1000" required placeholder="https://..."></label>
       <label>Imagem do grupo <span class="field-optional">opcional</span><input id="groupAvatar" type="url" maxlength="1000" placeholder="Link da imagem"></label>
       <div class="group-form-note">🔐 Seu envio fica associado à sua conta e permanece em análise até uma decisão.</div>
       <button class="auth-primary" type="submit">Enviar para análise <span>→</span></button>
@@ -120,34 +117,147 @@
   </section>
 </div>
 
+<div class="group-modal" id="reviewModal" hidden>
+  <div class="group-modal-backdrop" data-close-review></div>
+  <section class="group-modal-card" role="dialog" aria-modal="true">
+    <button class="group-modal-close" type="button" aria-label="Fechar" data-close-review>×</button>
+    <span class="eyebrow">⭐ AVALIAÇÃO</span><h2 id="reviewTitle">Avaliar grupo</h2>
+    <p>Sua avaliação fica vinculada à sua conta e pode ser moderada.</p>
+    <form id="reviewForm"><input id="reviewGroupId" type="hidden"><div class="rating-picker" id="ratingPicker"><button type="button" data-rating="1">★</button><button type="button" data-rating="2">★</button><button type="button" data-rating="3">★</button><button type="button" data-rating="4">★</button><button type="button" data-rating="5">★</button></div><textarea id="reviewComment" maxlength="600" placeholder="Comentário opcional"></textarea><button class="auth-primary" type="submit">Enviar avaliação <span>→</span></button><div id="reviewResult" class="auth-result"></div></form>
+  </section>
+</div>
+
+<div class="group-modal" id="reportModal" hidden>
+  <div class="group-modal-backdrop" data-close-report></div>
+  <section class="group-modal-card" role="dialog" aria-modal="true">
+    <button class="group-modal-close" type="button" aria-label="Fechar" data-close-report>×</button>
+    <span class="eyebrow">⚑ RELATAR</span><h2 id="reportTitle">Relatar grupo</h2>
+    <p>Use esta opção apenas quando houver um problema real com o anúncio.</p>
+    <form id="reportForm"><input id="reportGroupId" type="hidden"><select id="reportReason" required><option value="spam">Spam</option><option value="link_invalido">Link inválido</option><option value="conteudo_inadequado">Conteúdo inadequado</option><option value="fraude">Possível fraude</option><option value="outro">Outro</option></select><textarea id="reportDescription" maxlength="800" placeholder="Explique brevemente o que aconteceu"></textarea><button class="auth-primary" type="submit">Enviar relato <span>→</span></button><div id="reportResult" class="auth-result"></div></form>
+  </section>
+</div>
+
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="app.js?v=20260908a"></script>
+<script src="app.js?v=20260908b"></script>
 <script>
 (function(){
-  const client = window.SorasakiAuth?.getClient?.();
-  if(!client) return;
-  const grid=document.getElementById('groupsGrid'), loading=document.getElementById('groupsLoading'), empty=document.getElementById('groupsEmpty');
-  const recommendedSection=document.getElementById('recommendedSection'), recommendedGrid=document.getElementById('recommendedGrid');
-  const search=document.getElementById('groupSearch'), sort=document.getElementById('groupSort');
-  const modal=document.getElementById('groupModal'), form=document.getElementById('groupForm'), result=document.getElementById('groupFormResult');
-  const submitBtn=document.getElementById('submitGroupBtn');
-  let groups=[], filter='todos';
-
+  const auth=window.SorasakiAuth, client=auth?.getClient?.();
+  if(!client)return;
+  const $=id=>document.getElementById(id);
   const esc=v=>String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
   const categoryLabel={vendas:'Vendas',comunidade:'Comunidade',jogos:'Jogos',estudos:'Estudos',outros:'Outros'};
   const iconFor={vendas:'🛍️',comunidade:'💜',jogos:'🎮',estudos:'📚',outros:'✨'};
-  const average=(id)=>{const r=groups.find(g=>g.id===id)?.reviews||[];if(!r.length)return {score:0,count:0};const score=r.reduce((s,x)=>s+x.rating,0)/r.length;return {score,count:r.length};};
-  function card(g){const r=average(g.id);const badge=g.admin_badge?`<span class="group-featured">${g.admin_badge==='oficial'?'★ Oficial':g.admin_badge==='parceiro'?'◆ Parceiro':'★ Indicado'}</span>`:'';return `<article class="group-card ${g.featured_by_admin?'featured':''}"><div class="group-card-top"><div class="group-icon">${g.avatar_url?'🖼️':iconFor[g.category]||'✨'}</div><span class="group-category">${esc(categoryLabel[g.category]||g.category)}</span>${badge}</div><h2>${esc(g.name)}</h2><p>${esc(g.description)}</p><div class="group-meta"><span>⭐ <strong>${r.count?r.score.toFixed(1):'Novo'}</strong>${r.count?` (${r.count})`:''}</span><span>👥 ${Number(g.member_count||0).toLocaleString('pt-BR')} membros</span></div><div class="group-card-actions"><button class="group-copy" data-link="${encodeURIComponent(g.invite_url)}" type="button">Copiar convite</button><a class="group-join" href="${esc(g.invite_url)}" target="_blank" rel="noopener noreferrer">Entrar no grupo <span>↗</span></a></div></article>`}
-  function render(){let list=groups.filter(g=>filter==='todos'||g.category===filter);const q=search.value.trim().toLowerCase();if(q)list=list.filter(g=>`${g.name} ${g.category} ${g.description}`.toLowerCase().includes(q));list.sort((a,b)=>sort.value==='name'?a.name.localeCompare(b.name,'pt-BR'):sort.value==='rating'?average(b.id).score-average(a.id).score:new Date(b.created_at)-new Date(a.created_at));grid.innerHTML=list.map(card).join('');grid.hidden=false;empty.hidden=list.length>0||groups.length===0;grid.querySelectorAll('.group-copy').forEach(b=>b.onclick=async()=>{try{await navigator.clipboard.writeText(decodeURIComponent(b.dataset.link));b.textContent='✓ Convite copiado';setTimeout(()=>b.textContent='Copiar convite',1600)}catch{b.textContent='Não foi possível copiar';setTimeout(()=>b.textContent='Copiar convite',1600)}})}
-  async function load(){loading.hidden=false;grid.hidden=true;const {data,error}=await client.from('groups').select('id,owner_id,name,description,category,avatar_url,member_count,invite_url,status,featured_by_admin,admin_badge,created_at').eq('status','approved').order('created_at',{ascending:false});if(error){loading.innerHTML='<div>!</div><strong>Não foi possível carregar as comunidades</strong><span>Tente novamente em alguns instantes.</span>';return}groups=(data||[]).map(g=>({...g,reviews:[]}));document.getElementById('groupCount').textContent=groups.length;document.getElementById('memberCount').textContent=groups.reduce((sum,g)=>sum+(Number(g.member_count)||0),0).toLocaleString('pt-BR')+'+';const ids=groups.map(g=>g.id);if(ids.length){const rr=await client.from('reviews').select('group_id,rating').in('group_id',ids).eq('status','visible');(rr.data||[]).forEach(r=>{const g=groups.find(x=>x.id===r.group_id);if(g)g.reviews.push(r)});}const recommended=groups.filter(g=>g.featured_by_admin);recommendedSection.hidden=!recommended.length;recommendedGrid.innerHTML=recommended.map(card).join('');loading.hidden=true;render()}
-  async function loadMine(){const user=window.SorasakiAuth?.getUser?.();if(!user)return;const {data}=await client.from('groups').select('id,name,category,status,admin_note,created_at').eq('owner_id',user.id).order('created_at',{ascending:false});if(!data?.length)return;const labels={pending:'🟡 Em análise',approved:'🟢 Aprovado',rejected:'🔴 Recusado',removed:'⚫ Removido'};document.getElementById('myGroupsSection').hidden=false;document.getElementById('myGroupsList').innerHTML=data.map(g=>`<div class="my-group-row"><div><strong>${esc(g.name)}</strong><span>${esc(categoryLabel[g.category]||g.category)} · ${new Date(g.created_at).toLocaleDateString('pt-BR')}</span></div><div><b>${labels[g.status]||g.status}</b>${g.admin_note?`<small>${esc(g.admin_note)}</small>`:''}</div></div>`).join('')}
-  function open(){if(!window.SorasakiAuth.requireLogin('Você precisa estar conectado para enviar um grupo.'))return;modal.hidden=false;document.body.classList.add('group-modal-open');setTimeout(()=>document.getElementById('groupName').focus(),50)}
-  function close(){modal.hidden=true;document.body.classList.remove('group-modal-open');result.textContent='';result.className='auth-result'}
-  submitBtn.onclick=open;modal.querySelectorAll('[data-close-group-modal]').forEach(x=>x.onclick=close);
-  form.onsubmit=async e=>{e.preventDefault();if(!window.SorasakiAuth.requireLogin('Você precisa estar conectado para enviar um grupo.'))return;const user=window.SorasakiAuth.getUser();const name=document.getElementById('groupName').value.trim(),member_count=Math.max(0,Math.min(10000000,Number(document.getElementById('groupMembers').value)||0)),description=document.getElementById('groupDescription').value.trim(),category=document.getElementById('groupCategory').value,invite_url=document.getElementById('groupLink').value.trim(),avatar_url=document.getElementById('groupAvatar').value.trim()||null;if(!/^https?:\/\//i.test(invite_url)){result.className='auth-result error';result.textContent='Informe um link de convite válido.';return}result.className='auth-result';result.textContent='Enviando...';const {error}=await client.from('groups').insert({owner_id:user.id,name,description,category,member_count,invite_url,avatar_url,status:'pending'});if(error){result.className='auth-result error';result.textContent='Não foi possível enviar o grupo. Tente novamente em alguns instantes.';return}result.className='auth-result ok';result.textContent='Grupo enviado! Ele ficará em análise antes de aparecer no catálogo.';form.reset();await loadMine();setTimeout(close,1100)};
-  document.querySelectorAll('.group-filter').forEach(b=>b.onclick=()=>{document.querySelectorAll('.group-filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');filter=b.dataset.filter;render()});search.oninput=render;sort.onchange=render;
-  window.SorasakiAuth.ready?.then(()=>{load();loadMine()});
+  let groups=[],filter='todos',selectedRating=0;
+
+  function average(g){const r=g.reviews||[];if(!r.length)return {score:0,count:0};return {score:r.reduce((s,x)=>s+x.rating,0)/r.length,count:r.length};}
+  function card(g){
+    const r=average(g), badge=g.admin_badge?`<span class="group-featured">${g.admin_badge==='oficial'?'★ Oficial':g.admin_badge==='parceiro'?'◆ Parceiro':'★ Indicado'}</span>`:'';
+    const promo=g.active_promotion?`<span class="group-promo">🚀 Destaque</span>`:'';
+    return `<article class="group-card ${g.featured_by_admin?'featured':''}">
+      <div class="group-card-top"><div class="group-icon">${g.avatar_url?'🖼️':iconFor[g.category]||'✨'}</div><span class="group-category">${esc(categoryLabel[g.category]||g.category)}</span>${badge}${promo}</div>
+      <h2>${esc(g.name)}</h2><p>${esc(g.description)}</p>
+      <div class="group-meta"><span>⭐ <strong>${r.count?r.score.toFixed(1):'Novo'}</strong>${r.count?` (${r.count})`:''}</span><span>👥 ${Number(g.member_count||0).toLocaleString('pt-BR')} membros</span></div>
+      <div class="group-card-actions"><button class="group-copy" data-link="${encodeURIComponent(g.invite_url)}" type="button">Copiar convite</button><a class="group-join" href="${esc(g.invite_url)}" target="_blank" rel="noopener noreferrer">Entrar <span>↗</span></a></div>
+      <div class="group-card-secondary"><button type="button" data-review="${g.id}">⭐ Avaliar</button><button type="button" data-report="${g.id}">⚑ Relatar</button></div>
+    </article>`;
+  }
+
+  function render(){
+    let list=groups.filter(g=>filter==='todos'||g.category===filter);
+    const q=$('groupSearch').value.trim().toLowerCase();
+    if(q)list=list.filter(g=>`${g.name} ${g.category} ${g.description}`.toLowerCase().includes(q));
+    list.sort((a,b)=>$('groupSort').value==='name'?a.name.localeCompare(b.name,'pt-BR'):$('groupSort').value==='rating'?average(b).score-average(a).score:new Date(b.created_at)-new Date(a.created_at));
+    $('groupsGrid').innerHTML=list.map(card).join('');$('groupsGrid').hidden=false;$('groupsEmpty').hidden=list.length>0;
+    document.querySelectorAll('.group-copy').forEach(b=>b.onclick=async()=>{try{await navigator.clipboard.writeText(decodeURIComponent(b.dataset.link));b.textContent='✓ Convite copiado';setTimeout(()=>b.textContent='Copiar convite',1600)}catch{b.textContent='Não foi possível copiar';setTimeout(()=>b.textContent='Copiar convite',1600)}});
+    document.querySelectorAll('[data-review]').forEach(b=>b.onclick=()=>openReview(Number(b.dataset.review)));
+    document.querySelectorAll('[data-report]').forEach(b=>b.onclick=()=>openReport(Number(b.dataset.report)));
+  }
+
+  async function loadGroups(){
+    $('groupsLoading').hidden=false;$('groupsGrid').hidden=true;
+    const {data,error}=await client.from('groups').select('id,owner_id,name,description,category,avatar_url,member_count,invite_url,status,featured_by_admin,admin_badge,created_at').eq('status','approved').order('created_at',{ascending:false});
+    if(error){$('groupsLoading').innerHTML='<div>!</div><strong>Não foi possível carregar as comunidades</strong><span>Tente novamente em alguns instantes.</span>';return}
+    groups=(data||[]).map(g=>({...g,reviews:[],active_promotion:false}));
+    $('groupCount').textContent=groups.length;$('memberCount').textContent=groups.reduce((s,g)=>s+(Number(g.member_count)||0),0).toLocaleString('pt-BR')+'+';
+    const ids=groups.map(g=>g.id);
+    if(ids.length){
+      const rr=await client.from('reviews').select('group_id,rating').in('group_id',ids).eq('status','visible');
+      (rr.data||[]).forEach(r=>{const g=groups.find(x=>x.id===r.group_id);if(g)g.reviews.push(r)});
+      const pp=await client.from('promotions').select('group_id,expires_at').in('group_id',ids).eq('active',true).gt('expires_at',new Date().toISOString());
+      (pp.data||[]).forEach(p=>{const g=groups.find(x=>x.id===p.group_id);if(g)g.active_promotion=true});
+    }
+    const recommended=groups.filter(g=>g.featured_by_admin);
+    $('recommendedSection').hidden=!recommended.length;$('recommendedGrid').innerHTML=recommended.map(card).join('');
+    $('groupsLoading').hidden=true;render();
+  }
+
+  async function loadPlans(){
+    const {data,error}=await client.from('promotion_plans').select('id,name,description,price,duration_days').eq('active',true).order('price');
+    if(error){$('plansGrid').innerHTML='<div class="groups-empty"><strong>Os planos não estão disponíveis agora.</strong><span>Tente novamente mais tarde.</span></div>';return}
+    const plans=data||[];
+    $('plansGrid').innerHTML=plans.map(p=>`<article class="plan-card"><span class="plan-name">${esc(p.name)}</span><h3>R$ ${Number(p.price).toFixed(2).replace('.',',')}</h3><p>${esc(p.description)}</p><span class="plan-duration">${p.duration_days} dias de destaque</span><button class="auth-primary plan-buy" data-plan="${p.id}" type="button">Escolher grupo e continuar <span>→</span></button></article>`).join('')||'<div class="groups-empty"><strong>Nenhum plano disponível</strong><span>Novas opções podem aparecer em breve.</span></div>';
+    document.querySelectorAll('.plan-buy').forEach(b=>b.onclick=()=>openPlan(Number(b.dataset.plan),plans.find(p=>p.id===Number(b.dataset.plan))));
+  }
+
+  async function loadMine(){
+    const user=auth.getUser();if(!user)return;
+    const {data}=await client.from('groups').select('id,name,category,status,admin_note,created_at').eq('owner_id',user.id).order('created_at',{ascending:false});
+    if(data?.length){$('myGroupsSection').hidden=false;const labels={pending:'🟡 Em análise',approved:'🟢 Aprovado',rejected:'🔴 Recusado',removed:'⚫ Removido'};$('myGroupsList').innerHTML=data.map(g=>`<div class="my-group-row"><div><strong>${esc(g.name)}</strong><span>${esc(categoryLabel[g.category]||g.category)} · ${new Date(g.created_at).toLocaleDateString('pt-BR')}</span></div><div><b>${labels[g.status]||g.status}</b>${g.admin_note?`<small>${esc(g.admin_note)}</small>`:''}</div></div>`).join('')}
+    const orders=await client.from('orders').select('id,group_id,plan_id,amount,status,created_at,paid_at').eq('user_id',user.id).order('created_at',{ascending:false}).limit(20);
+    if(orders.data?.length){$('myOrdersSection').hidden=false;$('myOrdersList').innerHTML=orders.data.map(o=>`<div class="my-group-row"><div><strong>Pedido #${o.id}</strong><span>R$ ${Number(o.amount).toFixed(2).replace('.',',')} · ${new Date(o.created_at).toLocaleDateString('pt-BR')}</span></div><div><b>${statusOrder(o.status)}</b></div></div>`).join('')}
+  }
+  function statusOrder(s){return {pending:'🟡 Aguardando pagamento',paid:'🟢 Pago',rejected:'🔴 Recusado',cancelled:'⚫ Cancelado',expired:'⚫ Expirado',refunded:'↩️ Estornado'}[s]||'Em atualização'}
+  function openGroupModal(){if(!auth.requireLogin('Você precisa estar conectado para enviar um grupo.'))return;$('groupModal').hidden=false;document.body.classList.add('group-modal-open');setTimeout(()=>$('groupName').focus(),50)}
+  function closeGroupModal(){$('groupModal').hidden=true;document.body.classList.remove('group-modal-open');$('groupFormResult').textContent=''}
+  $('submitGroupBtn').onclick=openGroupModal;$('groupModal').querySelectorAll('[data-close-group-modal]').forEach(x=>x.onclick=closeGroupModal);
+
+  $('groupForm').onsubmit=async e=>{
+    e.preventDefault();if(!auth.requireLogin('Você precisa estar conectado para enviar um grupo.'))return;
+    const user=auth.getUser(),name=$('groupName').value.trim(),description=$('groupDescription').value.trim(),category=$('groupCategory').value,invite_url=$('groupLink').value.trim(),avatar_url=$('groupAvatar').value.trim()||null,member_count=Math.max(0,Math.min(10000000,Number($('groupMembers').value)||0));
+    if(!/^https?:\/\//i.test(invite_url)){ $('groupFormResult').className='auth-result error';$('groupFormResult').textContent='Informe um link de convite válido.';return}
+    $('groupFormResult').className='auth-result';$('groupFormResult').textContent='Enviando...';
+    const {error}=await client.from('groups').insert({owner_id:user.id,name,description,category,member_count,invite_url,avatar_url,status:'pending'});
+    if(error){$('groupFormResult').className='auth-result error';$('groupFormResult').textContent='Não foi possível enviar o grupo. Tente novamente em alguns instantes.';return}
+    $('groupFormResult').className='auth-result ok';$('groupFormResult').textContent='Grupo enviado! Ele ficará em análise antes de aparecer no catálogo.';$('groupForm').reset();await loadMine();setTimeout(closeGroupModal,1100);
+  };
+
+  let planToBuy=null;
+  function openPlan(planId,plan){
+    if(!auth.requireLogin('Você precisa estar conectado para comprar um plano.'))return;
+    planToBuy={planId,plan};const mine=groups.filter(g=>false);
+    const approved=[];
+    client.from('groups').select('id,name').eq('owner_id',auth.getUser().id).eq('status','approved').order('name').then(({data})=>{
+      const list=data||[];
+      if(!list.length){alert('Você ainda não tem um grupo aprovado para destacar.');return}
+      const options=list.map(g=>`<button class="select-group-option" data-group-buy="${g.id}"><strong>${esc(g.name)}</strong><span>Grupo aprovado</span></button>`).join('');
+      const modal=document.createElement('div');modal.className='group-modal';modal.innerHTML=`<div class="group-modal-backdrop"></div><section class="group-modal-card"><button class="group-modal-close" type="button">×</button><span class="eyebrow">🚀 ${esc(plan.name)}</span><h2>Escolha o grupo</h2><p>O plano dura ${plan.duration_days} dias. A compra não substitui a análise do anúncio.</p><div class="select-group-list">${options}</div><div class="auth-result" id="planResult"></div></section>`;document.body.appendChild(modal);
+      const close=()=>{modal.remove()};modal.querySelector('.group-modal-backdrop').onclick=close;modal.querySelector('.group-modal-close').onclick=close;
+      modal.querySelectorAll('[data-group-buy]').forEach(b=>b.onclick=async()=>{
+        b.disabled=true;b.textContent='Abrindo pagamento...';
+        const token=await auth.getToken();
+        const response=await fetch('/api/create-preference',{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify({plan_id:planId,group_id:Number(b.dataset.groupBuy)})});
+        const result=await response.json().catch(()=>({}));
+        if(response.ok&&result.checkout_url){location.href=result.checkout_url;return}
+        const box=modal.querySelector('#planResult');box.className='auth-result error';box.textContent=result.message||'Não foi possível iniciar o pagamento.';b.disabled=false;b.textContent='Escolher este grupo';
+      });
+    });
+  }
+
+  function openReview(id){if(!auth.requireLogin('Você precisa estar conectado para avaliar um grupo.'))return;$('reviewGroupId').value=id;$('reviewModal').hidden=false;selectedRating=0;document.querySelectorAll('#ratingPicker button').forEach(b=>b.classList.remove('selected'))}
+  function closeReview(){$('reviewModal').hidden=true;$('reviewResult').textContent=''}
+  document.querySelectorAll('[data-close-review]').forEach(x=>x.onclick=closeReview);
+  document.querySelectorAll('#ratingPicker button').forEach(b=>b.onclick=()=>{selectedRating=Number(b.dataset.rating);document.querySelectorAll('#ratingPicker button').forEach(x=>x.classList.toggle('selected',Number(x.dataset.rating)<=selectedRating))});
+  $('reviewForm').onsubmit=async e=>{e.preventDefault();if(!auth.requireLogin('Você precisa estar conectado para avaliar um grupo.'))return;if(!selectedRating){$('reviewResult').className='auth-result error';$('reviewResult').textContent='Escolha uma nota de 1 a 5.';return}const {error}=await client.from('reviews').insert({group_id:Number($('reviewGroupId').value),user_id:auth.getUser().id,rating:selectedRating,comment:$('reviewComment').value.trim()||null});$('reviewResult').className=`auth-result ${error?'error':'ok'}`;$('reviewResult').textContent=error?'Você já avaliou este grupo ou não foi possível enviar agora.':'Avaliação enviada. Obrigado!';if(!error){$('reviewForm').reset();setTimeout(()=>{closeReview();loadGroups()},900)}};
+
+  function openReport(id){if(!auth.requireLogin('Você precisa estar conectado para enviar um relato.'))return;$('reportGroupId').value=id;$('reportModal').hidden=false}
+  function closeReport(){$('reportModal').hidden=true;$('reportResult').textContent=''}
+  document.querySelectorAll('[data-close-report]').forEach(x=>x.onclick=closeReport);
+  $('reportForm').onsubmit=async e=>{e.preventDefault();if(!auth.requireLogin('Você precisa estar conectado para enviar um relato.'))return;const {error}=await client.from('reports').insert({group_id:Number($('reportGroupId').value),reporter_id:auth.getUser().id,reason:$('reportReason').value,description:$('reportDescription').value.trim()||null});$('reportResult').className=`auth-result ${error?'error':'ok'}`;$('reportResult').textContent=error?'Não foi possível enviar o relato agora.':'Relato enviado. Obrigado por ajudar a manter a área organizada.';if(!error){$('reportForm').reset();setTimeout(closeReport,900)}};
+
+  document.querySelectorAll('.group-filter').forEach(b=>b.onclick=()=>{document.querySelectorAll('.group-filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');filter=b.dataset.filter;render()});
+  $('groupSearch').oninput=render;$('groupSort').onchange=render;
+  auth.ready.then(()=>{loadGroups();loadPlans();loadMine();const params=new URLSearchParams(location.search);if(params.get('pagamento')){const s=params.get('pagamento');const text=s==='sucesso'?'Pagamento recebido! A liberação acontece após a confirmação.':s==='pendente'?'Pagamento pendente. Assim que for confirmado, o benefício será atualizado.':'O pagamento não foi concluído.';const box=document.createElement('div');box.className='aviso';box.style.display='block';box.textContent=text;document.querySelector('main').prepend(box)}});
 })();
 </script>
 </body>
