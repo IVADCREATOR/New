@@ -689,11 +689,19 @@ criarAssistente = function() {
         <div class="auth-result" id="authResult" aria-live="polite"></div>
       </div>
       <div class="auth-panel hidden" data-auth-panel="register">
-        <div class="login-intro"><b>Crie sua conta ✨</b><span>Use um e-mail válido e uma senha com pelo menos 8 caracteres.</span></div>
-        <label>E-mail<input id="registerEmail" type="email" autocomplete="email" placeholder="voce@exemplo.com"></label>
-        <label>Senha<input id="registerPassword" type="password" autocomplete="new-password" placeholder="Mínimo de 8 caracteres"></label>
-        <label>Confirmar senha<input id="registerConfirm" type="password" autocomplete="new-password" placeholder="Digite novamente"></label>
-        <button class="auth-primary" id="authRegister" type="button">Criar conta <span>✦</span></button>
+        <div class="login-intro"><b>Crie sua conta ✨</b><span>Use um e-mail válido e uma senha com pelo menos 8 caracteres. Depois, confirme seu e-mail com o código enviado pelo Sorasaki.</span></div>
+        <div id="registerFormFields">
+          <label>E-mail<input id="registerEmail" type="email" autocomplete="email" placeholder="voce@exemplo.com"></label>
+          <label>Senha<input id="registerPassword" type="password" autocomplete="new-password" placeholder="Mínimo de 8 caracteres"></label>
+          <label>Confirmar senha<input id="registerConfirm" type="password" autocomplete="new-password" placeholder="Digite novamente"></label>
+          <button class="auth-primary" id="authRegister" type="button">Criar conta <span>✦</span></button>
+        </div>
+        <div class="auth-code-area hidden" id="signupCodeArea">
+          <div class="code-title"><span>✦</span><div><b>Quase lá.</b><small>Digite o código recebido no seu e-mail.</small></div></div>
+          <label>Código de confirmação<input id="signupCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000"></label>
+          <button class="auth-primary" id="authVerifySignup" type="button">Confirmar e entrar <span>✓</span></button>
+          <button class="auth-link auth-resend" id="authResendSignup" type="button">Não recebeu? Reenviar código</button>
+        </div>
         <div class="auth-result" id="registerResult" aria-live="polite"></div>
       </div>
       <div class="auth-panel hidden" data-auth-panel="forgot">
@@ -732,6 +740,8 @@ criarAssistente = function() {
       if(error)return show('authResult',false,traduzAuthError(error));
       show('authResult',true,'Login realizado! 💜'); setTimeout(close,500);
     };
+    let pendingSignupEmail = '';
+
     drawer.querySelector('#authRegister').onclick=async()=>{
       const c=ensureClient(); if(!c)return show('registerResult',false,'Não foi possível acessar sua conta. Tente novamente.');
       const email=drawer.querySelector('#registerEmail').value.trim(),password=drawer.querySelector('#registerPassword').value,confirm=drawer.querySelector('#registerConfirm').value;
@@ -740,8 +750,39 @@ criarAssistente = function() {
       if(password!==confirm)return show('registerResult',false,'As senhas não coincidem.');
       const {data,error}=await c.auth.signUp({email,password});
       if(error)return show('registerResult',false,traduzAuthError(error));
-      if(data.user && !data.session) show('registerResult',true,'Conta criada! Confira seu e-mail para confirmar a conta e depois entre. 💜');
-      else {show('registerResult',true,'Conta criada e login realizado! 💜');setTimeout(close,700);}
+      pendingSignupEmail = email;
+      if(data.user && !data.session){
+        drawer.querySelector('#signupCodeArea').classList.remove('hidden');
+        drawer.querySelector('#registerFormFields').classList.add('hidden');
+        show('registerResult',true,'Código enviado! Confira sua caixa de entrada e digite o código abaixo. 💜');
+        setTimeout(()=>drawer.querySelector('#signupCode')?.focus(),80);
+      } else {
+        show('registerResult',true,'Conta criada e login realizado! 💜');
+        setTimeout(close,700);
+      }
+    };
+
+    drawer.querySelector('#authVerifySignup').onclick=async()=>{
+      const c=ensureClient(); if(!c)return show('registerResult',false,'Não foi possível confirmar sua conta. Tente novamente.');
+      const email=pendingSignupEmail || drawer.querySelector('#registerEmail').value.trim();
+      const token=drawer.querySelector('#signupCode').value.trim();
+      if(!email)return show('registerResult',false,'Não encontramos o e-mail da criação da conta.');
+      if(!/^\d{6}$/.test(token))return show('registerResult',false,'Digite o código de 6 dígitos recebido por e-mail.');
+      const {data,error}=await c.auth.verifyOtp({email,token,type:'signup'});
+      if(error)return show('registerResult',false,'Código inválido ou expirado. Peça um novo código e tente novamente.');
+      currentUser = data?.session?.user || data?.user || null;
+      updateAuthUI();
+      show('registerResult',true,'E-mail confirmado! Sua conta está pronta. Bem-vindo ao Sorasaki. 💜');
+      setTimeout(close,900);
+    };
+
+    drawer.querySelector('#authResendSignup').onclick=async()=>{
+      const c=ensureClient(); if(!c)return show('registerResult',false,'Não foi possível reenviar o código.');
+      const email=pendingSignupEmail || drawer.querySelector('#registerEmail').value.trim();
+      if(!email)return show('registerResult',false,'Informe o e-mail da conta.');
+      const {error}=await c.auth.resend({type:'signup',email});
+      if(error)return show('registerResult',false,traduzAuthError(error));
+      show('registerResult',true,'Novo código enviado! Confira seu e-mail. ✉️');
     };
     drawer.querySelector('#authSendCode').onclick=async()=>{
       const c=ensureClient(); if(!c)return show('forgotResult',false,'Não foi possível acessar sua conta. Tente novamente.');

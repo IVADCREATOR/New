@@ -1133,3 +1133,10 @@ textarea.admin-inline-input{min-height:90px;resize:vertical}
 .order-status{white-space:nowrap;font-weight:600}
 @media(max-width:820px){.plans-grid{grid-template-columns:1fr}.admin-list-row{flex-direction:column;align-items:stretch}.admin-row-actions{justify-content:flex-start;flex-wrap:wrap}.plan-admin-grid,.admin-plan-form-grid{grid-template-columns:1fr 1fr}.admin-plan-footer{align-items:stretch;flex-direction:column}}
 @media(max-width:560px){.admin-tabs{top:68px}.admin-edit-grid{grid-template-columns:1fr}.admin-section-head{align-items:flex-start;gap:12px;flex-direction:column}.group-card-secondary{flex-direction:column}.plan-admin-grid,.admin-plan-form-grid{grid-template-columns:1fr}.admin-plan-footer .auth-primary{width:100%}}
+
+/* Verificação de e-mail — SORASAKI SYSTEM */
+.code-title{display:flex;align-items:center;gap:10px;padding:11px 12px;margin:0 0 8px;border:1px solid rgba(190,120,255,.16);border-radius:12px;background:linear-gradient(135deg,rgba(124,92,255,.10),rgba(212,108,255,.045))}
+.code-title>span{display:grid;place-items:center;width:28px;height:28px;border-radius:9px;background:rgba(190,120,255,.14);color:#e8caff}
+.code-title b{display:block;font-size:11px;color:#eee7ff}.code-title small{display:block;margin-top:2px;color:#8f88a2;font-size:9px}
+.auth-code-area .auth-primary{margin-top:3px}.auth-resend{display:block;width:100%;margin-top:6px;text-align:center}
+#signupCode,#resetCode{letter-spacing:.34em;text-align:center;font-weight:900;font-size:18px}
