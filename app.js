@@ -634,8 +634,12 @@ criarAssistente = function() {
   const SUPA_KEY = window.SORASAKI_SUPABASE_KEY || '';
   let client = null;
   let currentUser = null;
+  const authListeners = [];
   let resolveReady;
+  let afterAuthAction = null;
   const ready = new Promise(r => resolveReady = r);
+  function setAfterAuth(fn) { afterAuthAction = typeof fn === 'function' ? fn : null; }
+  function runAfterAuth() { const fn = afterAuthAction; afterAuthAction = null; if (fn) setTimeout(() => { try { fn(); } catch (e) { console.warn('[SORASAKI] Pós-login:', e); } }, 80); }
 
   function ensureClient() {
     if (client) return client;
@@ -651,13 +655,16 @@ criarAssistente = function() {
     const { data } = await c.auth.getSession();
     currentUser = data?.session?.user || null;
     updateAuthUI();
-    c.auth.onAuthStateChange((_event, session) => {
+    authListeners.forEach(fn => { try { fn(currentUser, null); } catch {} });
+    c.auth.onAuthStateChange((event, session) => {
       currentUser = session?.user || null;
       updateAuthUI();
+      authListeners.forEach(fn => { try { fn(currentUser, event); } catch {} });
     });
     resolveReady();
   }
   function getUser() { return currentUser; }
+  function onAuthChange(callback) { if (typeof callback === 'function') authListeners.push(callback); return () => { const i = authListeners.indexOf(callback); if (i >= 0) authListeners.splice(i, 1); }; }
   async function getToken() {
     const c = ensureClient();
     if (!c) return '';
@@ -716,7 +723,7 @@ criarAssistente = function() {
         <div class="auth-result" id="forgotResult" aria-live="polite"></div>
       </div>
       <div class="login-character-tip"><div><strong>Ei! 👀</strong><span>Quer divulgar um grupo ou participar da comunidade?</span><small>Faça login para continuar!</small></div><img src="sorasaki-login.png" alt="Sorasaki apontando para o login" draggable="false"></div>
-      <div class="login-privacy">🔒 Sua senha é protegida e não fica visível para o Sorasaki.</div>`;
+      <div class="login-privacy">🔐 Sua conta está protegida e seus dados de acesso são tratados com segurança.</div>`;
     document.body.appendChild(overlay); document.body.appendChild(drawer);
     const open=()=>{drawer.classList.add('is-open');overlay.classList.add('is-open');overlay.setAttribute('aria-hidden','false');document.body.classList.add('login-open');};
     const close=()=>{drawer.classList.remove('is-open');overlay.classList.remove('is-open');overlay.setAttribute('aria-hidden','true');document.body.classList.remove('login-open');};
@@ -737,7 +744,7 @@ criarAssistente = function() {
       if(!email||!password)return show('authResult',false,'Informe seu e-mail e sua senha.');
       const {error}=await c.auth.signInWithPassword({email,password});
       if(error)return show('authResult',false,traduzAuthError(error));
-      show('authResult',true,'Login realizado! 💜'); setTimeout(close,500);
+      show('authResult',true,'Login realizado! 💜'); runAfterAuth(); setTimeout(close,500);
     };
     let pendingSignupEmail = '';
 
@@ -748,7 +755,7 @@ criarAssistente = function() {
       if(!/^[a-zA-Z0-9_]{3,24}$/.test(username))return show('registerResult',false,'O nome de usuário deve ter 3 a 24 caracteres, usando letras, números ou _.');
       if(password.length<8)return show('registerResult',false,'A senha precisa ter pelo menos 8 caracteres.');
       if(password!==confirm)return show('registerResult',false,'As senhas não coincidem.');
-      const redirectTo = window.location.origin + '/';
+      const redirectTo = window.location.href.split('#')[0];
       const {data,error}=await c.auth.signUp({email,password,options:{emailRedirectTo:redirectTo,data:{username,display_name:username}}});
       if(error)return show('registerResult',false,traduzAuthError(error));
       pendingSignupEmail = email;
@@ -760,7 +767,7 @@ criarAssistente = function() {
         currentUser=data?.session?.user||data?.user||null;
         updateAuthUI();
         show('registerResult',true,'Conta criada e sessão iniciada! Bem-vindo ao Sorasaki. 💜');
-        setTimeout(close,700);
+        runAfterAuth(); setTimeout(close,700);
       }
     };
 
@@ -832,8 +839,10 @@ criarAssistente = function() {
         <div class="profile-form-actions"><button class="auth-secondary" id="profileEditCancel" type="button">Cancelar</button><button class="auth-primary" type="submit">Salvar perfil</button></div>
         <div class="auth-result" id="profileEditResult" aria-live="polite"></div>
       </form>
+      <div class="profile-section-title">DIVULGAÇÕES</div>
+      <button class="profile-action" id="profileGroupsBtn" type="button"><span>📢</span><div><strong>Minhas divulgações</strong><small id="profileGroupsSummary">Gerencie os grupos enviados por você</small></div><b>›</b></button><div class="profile-groups-list hidden" id="profileGroups"></div>
       <button class="profile-logout" id="profileLogout" type="button">🚪 Sair da conta</button>
-      <div class="profile-note">🔒 Sua senha nunca é enviada para o Sorasaki. A autenticação e a sessão são gerenciadas pelo Supabase.</div>`;
+      <div class="profile-note">🔐 Sua conta está protegida e suas informações de acesso são tratadas com segurança.</div>`;
     document.body.append(overlay,modal);
     const close=()=>{modal.classList.remove('is-open');overlay.classList.remove('is-open');overlay.setAttribute('aria-hidden','true');document.body.classList.remove('profile-open');};
     const open=async()=>{if(!getUser()){window.SorasakiAuth.open();return;} modal.classList.add('is-open');overlay.classList.add('is-open');overlay.setAttribute('aria-hidden','false');document.body.classList.add('profile-open'); await renderProfile();};
@@ -865,12 +874,25 @@ criarAssistente = function() {
       if(error)return setRes(false,error.code==='23505'?'Esse nome de usuário já está em uso.':'Não foi possível salvar o perfil.');
       setRes(true,'Perfil atualizado! 💜'); await renderProfile(); setTimeout(()=>modal.querySelector('#profileEditForm').classList.add('hidden'),800);
     };
+    modal.querySelector('#profileGroupsBtn').onclick=()=>{ const list=modal.querySelector('#profileGroups'); list?.classList.toggle('hidden'); };
     modal.querySelector('#profileLogout').onclick=async()=>{if(!confirm('Tem certeza que deseja sair da sua conta?'))return; await logout(); close();};
     async function renderProfile(){
-      const user=getUser(); if(!user)return; const p=await loadProfile(); const username=p?.username||p?.display_name||user.user_metadata?.username||user.email?.split('@')[0]||'usuario';
+      const user=getUser(); if(!user)return; const p=await loadProfile();
+      try { const {count}=await ensureClient().from('groups').select('id',{count:'exact',head:true}).eq('owner_id',user.id); const summary=modal.querySelector('#profileGroupsSummary'); if(summary) summary.textContent=`${count||0} ${count===1?'divulgação':'divulgações'} cadastrada${count===1?'':'s'}`; } catch {} const username=p?.username||p?.display_name||user.user_metadata?.username||user.email?.split('@')[0]||'usuario';
       const confirmed=Boolean(user.email_confirmed_at);
       modal.querySelector('#profileAvatar').textContent='@'; modal.querySelector('#profileUsername').textContent='@'+username; modal.querySelector('#profileEmail').textContent=user.email||'—';
       modal.querySelector('#profileUsernameInfo').textContent='@'+username; modal.querySelector('#profileEmailInfo').textContent=user.email||'—'; modal.querySelector('#profileStatus').textContent=confirmed?'● E-mail confirmado':'● E-mail pendente'; modal.querySelector('#profileStatus').classList.toggle('pending',!confirmed); modal.querySelector('#profileStatusInfo').textContent=confirmed?'E-mail confirmado':'E-mail pendente'; modal.querySelector('#profileLastLogin').textContent=fmtDataHora(user.last_sign_in_at); modal.querySelector('#profileEditUsername').value=username;
+      const list=modal.querySelector('#profileGroups');
+      const c=ensureClient();
+      if(list&&c){
+        const {data,error}=await c.from('groups').select('id,name,category,status,view_count,created_at').eq('owner_id',user.id).order('created_at',{ascending:false}).limit(20);
+        if(error){list.innerHTML='<div class="profile-groups-empty">Não foi possível carregar suas divulgações.</div>';return;}
+        const labels={pending:'🟡 Em análise',approved:'🟢 Ativa',rejected:'🔴 Recusada',removed:'⚫ Removida'};
+        const cat={vendas:'Vendas',comunidade:'Comunidade',jogos:'Jogos',freefire:'Free Fire',divulgacao:'Divulgação',amizades:'Amizades',suporte:'Suporte',estudos:'Estudos',outros:'Outros'};
+        list.innerHTML=(data||[]).map(g=>`<div class="profile-group-row"><div><strong>${escapeHtml(g.name)}</strong><small>${escapeHtml(cat[g.category]||g.category)} · ${labels[g.status]||g.status} · 👁️ ${fmtNumero(g.view_count||0)}</small></div><div class="profile-group-actions"><button type="button" data-profile-edit="${g.id}">Editar</button><button type="button" data-profile-delete="${g.id}">Remover</button></div></div>`).join('')||'<div class="profile-groups-empty">Você ainda não publicou nenhuma divulgação.</div>';
+        list.querySelectorAll('[data-profile-edit]').forEach(b=>b.onclick=()=>{location.href='/grupos?editar='+b.dataset.profileEdit;});
+        list.querySelectorAll('[data-profile-delete]').forEach(b=>b.onclick=async()=>{if(!confirm('Remover esta divulgação?\n\nEssa ação não poderá ser desfeita.'))return;b.disabled=true;const {error}=await c.from('groups').delete().eq('id',Number(b.dataset.profileDelete)).eq('owner_id',user.id);if(error){b.disabled=false;alert('Não foi possível remover a divulgação. Tente novamente.');return;}await renderProfile();});
+      }
     }
   }
   function updateAuthUI(){
@@ -880,7 +902,7 @@ criarAssistente = function() {
     document.querySelectorAll('[data-auth-required]').forEach(el=>el.classList.toggle('auth-locked',!user));
     const profileModal=document.querySelector('.sora-profile-modal'); if(profileModal&&user) { const status=profileModal.querySelector('#profileStatus'); if(status) status.textContent=user.email_confirmed_at?'● E-mail confirmado':'● E-mail pendente'; }
   }
-  window.SorasakiAuth={getUser,getToken,ready,open:()=>{},openProfile:()=>{},logout,clear:logout,requireLogin:(msg='Faça login para continuar.')=>{if(getUser())return true;createLoginUI();window.SorasakiAuth.open();const r=document.querySelector('#authResult');if(r){r.className='auth-result error';r.textContent=msg;}return false;},getClient:ensureClient};
+  window.SorasakiAuth={getUser,getToken,ready,open:()=>{},openProfile:()=>{},logout,clear:logout,setAfterAuth,requireLogin:(msg='Faça login para continuar.')=>{if(getUser())return true;createLoginUI();window.SorasakiAuth.open();const r=document.querySelector('#authResult');if(r){r.className='auth-result error';r.textContent=msg;}return false;},getClient:ensureClient};
   function init(){createLoginUI();createProfileUI();const btn=document.querySelector('.sora-login-trigger');if(btn)btn.onclick=()=>getUser()?window.SorasakiAuth.openProfile():window.SorasakiAuth.open();syncSession();document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelector('.sora-login-drawer')?.classList.remove('is-open');document.querySelector('.sora-login-overlay')?.classList.remove('is-open');document.querySelector('.sora-profile-modal')?.classList.remove('is-open');document.querySelector('.sora-profile-overlay')?.classList.remove('is-open');document.body.classList.remove('login-open','profile-open');}});}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();

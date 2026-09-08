@@ -4,7 +4,7 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta http-equiv="X-Content-Type-Options" content="nosniff"><meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="robots" content="noindex,nofollow,noarchive">
-<title>Área restrita — Sorasaki</title><link rel="stylesheet" href="style.css?v=20260908b">
+<title>Área restrita — Sorasaki</title><link rel="stylesheet" href="style.css?v=20260908d">
 </head>
 <body>
 <div class="topbar"><div class="brand"><span class="dot"></span><div>Sorasaki<small>Administração</small></div></div><nav><a href="/grupos">Grupos</a><a href="/">Voltar ao site</a></nav></div>
@@ -18,7 +18,7 @@
     <button class="admin-tab" data-tab="reports">Relatos</button>
     <button class="admin-tab" data-tab="reviews">Avaliações</button>
     <button class="admin-tab" data-tab="plans">Planos</button>
-    <button class="admin-tab" data-tab="orders">Pagamentos</button>
+    <button class="admin-tab" data-tab="official">⭐ Grupos Oficiais</button><button class="admin-tab" data-tab="orders">Pagamentos</button>
   </div>
 
   <section class="admin-view active" data-view="groups">
@@ -51,13 +51,32 @@
     <div id="adminPlans" class="admin-list"></div>
   </section>
 
+
+  <section class="admin-view" data-view="official">
+    <div class="panel admin-section-head"><div><span class="eyebrow">⭐ DESTAQUE</span><h2>Grupos Oficiais</h2><p class="admin-help">Cadastre as comunidades oficiais dos donos. Elas aparecem separadas das divulgações comuns.</p></div><button class="auth-primary" id="newOfficial" type="button">Adicionar grupo oficial <span>+</span></button></div>
+    <div id="newOfficialForm" class="panel admin-new-plan" hidden>
+      <div><strong>Novo grupo oficial</strong><span>Preencha as informações que aparecerão na página inicial e em Grupos.</span></div>
+      <div class="admin-plan-form-grid">
+        <label>Nome<input id="officialName" class="admin-inline-input" maxlength="100" placeholder="SORASAKI OFICIAL"></label>
+        <label>Categoria<select id="officialCategory" class="admin-inline-input"><option value="jogos">🎮 Jogos</option><option value="comunidade">💬 Comunidade</option><option value="vendas">🛒 Compra e venda</option><option value="estudos">📚 Estudos</option><option value="outros">🌐 Outros</option></select></label>
+        <label>Ordem<input id="officialOrder" class="admin-inline-input" type="number" step="1" value="0"></label>
+        <label>Link<input id="officialLink" class="admin-inline-input" type="url" maxlength="1000" placeholder="https://..."></label>
+        <label>Imagem/logo<input id="officialImage" class="admin-inline-input" type="url" maxlength="1000" placeholder="https://..."></label>
+        <label>Frase de destaque<input id="officialHighlight" class="admin-inline-input" maxlength="180" placeholder="Comunidade oficial do SORASAKI."></label>
+        <label style="grid-column:1/-1">Descrição<textarea id="officialDescription" class="admin-inline-input" maxlength="800" placeholder="Descreva o grupo oficial."></textarea></label>
+      </div>
+      <div class="admin-row-actions"><button class="auth-secondary" id="cancelOfficial" type="button">Cancelar</button><button class="auth-primary" id="createOfficial" type="button">Adicionar grupo</button></div><div id="officialResult" class="auth-result"></div>
+    </div>
+    <div id="adminOfficialGroups" class="admin-list"></div>
+  </section>
+
   <section class="admin-view" data-view="orders">
     <div class="panel admin-section-head"><div><span class="eyebrow">💳 FINANCEIRO</span><h2>Pedidos e pagamentos</h2></div><button class="auth-secondary" id="refreshOrders">Atualizar</button></div>
     <div id="adminOrders" class="admin-list"></div>
   </section>
 </section>
 </main>
-<script src="config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="app.js?v=20260908c"></script>
+<script src="config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="app.js?v=20260908d"></script>
 <script>
 (async function(){
   const auth=window.SorasakiAuth;await auth.ready;const client=auth.getClient(),user=auth.getUser();
@@ -69,24 +88,27 @@
   const esc=v=>String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
   const labels={pending:'🟡 Em análise',approved:'🟢 Aprovado',rejected:'🔴 Recusado',removed:'⚫ Removido'};
   const cats={vendas:'Vendas',comunidade:'Comunidade',jogos:'Jogos',estudos:'Estudos',outros:'Outros'};
-  let groups=[],plans=[],reports=[],reviews=[],orders=[];
+  let groups=[],plans=[],reports=[],reviews=[],orders=[],officialGroups=[];
 
   function switchTab(name){document.querySelectorAll('.admin-tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));document.querySelectorAll('.admin-view').forEach(v=>v.classList.toggle('active',v.dataset.view===name))}
   document.querySelectorAll('.admin-tab').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
 
   async function loadGroups(){
-    const {data,error}=await client.from('groups').select('id,owner_id,name,description,category,avatar_url,member_count,invite_url,status,featured_by_admin,admin_badge,admin_note,created_at,approved_at').order('created_at',{ascending:false});
+    const {data,error}=await client.from('groups').select('id,owner_id,name,description,category,avatar_url,member_count,invite_url,status,featured_by_admin,admin_badge,admin_note,created_at,approved_at,tags,contact_url,highlight,view_count').order('created_at',{ascending:false});
     if(error){$('adminGroups').innerHTML='<div class="groups-empty"><strong>Não foi possível carregar os grupos.</strong><span>Tente novamente.</span></div>';return}groups=data||[];renderGroups();stats();
   }
   const $=id=>document.getElementById(id);
   function renderGroups(){
     const q=$('adminSearch').value.trim().toLowerCase(),s=$('adminStatus').value;
-    const list=groups.filter(g=>(s==='all'||g.status===s)&&(!q||`${g.name} ${g.description} ${g.category}`.toLowerCase().includes(q)));
-    $('adminGroups').innerHTML=list.map(g=>`<article class="group-card admin-group-card"><div class="group-card-top"><div class="group-icon">${g.featured_by_admin?'👑':'👥'}</div><span class="group-category">${esc(cats[g.category]||g.category)}</span><span class="group-featured">${labels[g.status]}</span></div>
+    const list=groups.filter(g=>(s==='all'||g.status===s)&&(!q||`${g.name} ${g.description} ${g.category} ${g.tags||''}`.toLowerCase().includes(q)));
+    $('adminGroups').innerHTML=list.map(g=>`<article class="group-card admin-group-card"><div class="group-card-top"><div class="group-icon">${g.avatar_url?`<img src="${esc(g.avatar_url)}" alt="" loading="lazy">`:g.featured_by_admin?'👑':'👥'}</div><span class="group-category">${esc(cats[g.category]||g.category)}</span><span class="group-featured">${labels[g.status]}</span></div>
       <input class="admin-inline-input" data-field="name" data-id="${g.id}" value="${esc(g.name)}" maxlength="100"><textarea class="admin-inline-input" data-field="description" data-id="${g.id}" maxlength="800">${esc(g.description)}</textarea>
-      <div class="admin-edit-grid"><select data-field="category" data-id="${g.id}">${Object.entries(cats).map(([k,v])=>`<option value="${k}" ${g.category===k?'selected':''}>${v}</option>`).join('')}</select><input class="admin-inline-input" data-field="members" data-id="${g.id}" type="number" min="0" value="${Number(g.member_count)||0}" placeholder="Membros"></div>
-      <input class="admin-inline-input" data-field="link" data-id="${g.id}" value="${esc(g.invite_url)}" placeholder="Link de convite">
-      <div class="group-meta"><span>Enviado em ${new Date(g.created_at).toLocaleDateString('pt-BR')}</span><span>Dono: ${esc(g.owner_id.slice(0,8))}…</span></div>
+      <div class="admin-edit-grid"><select data-field="category" data-id="${g.id}">${Object.entries(cats).map(([k,v])=>`<option value="${k}" ${g.category===k?'selected':''}>${v}</option>`).join('')} </select><input class="admin-inline-input" data-field="members" data-id="${g.id}" type="number" min="0" value="${Number(g.member_count)||0}" placeholder="Membros"></div>
+      <input class="admin-inline-input" data-field="link" data-id="${g.id}" value="${esc(g.invite_url)}" placeholder="Link do grupo">
+      <div class="admin-edit-grid"><input class="admin-inline-input" data-field="avatar" data-id="${g.id}" value="${esc(g.avatar_url||'')}" placeholder="Imagem/logo"><input class="admin-inline-input" data-field="highlight" data-id="${g.id}" value="${esc(g.highlight||'')}" maxlength="160" placeholder="Frase de destaque"></div>
+      <input class="admin-inline-input" data-field="tags" data-id="${g.id}" value="${esc(g.tags||'')}" maxlength="300" placeholder="Tags: freefire, comunidade, ranked">
+      <input class="admin-inline-input" data-field="contact" data-id="${g.id}" value="${esc(g.contact_url||'')}" maxlength="1000" placeholder="Contato ou rede social (opcional)">
+      <div class="group-meta"><span>Enviado em ${new Date(g.created_at).toLocaleDateString('pt-BR')}</span><span>👁️ ${Number(g.view_count||0).toLocaleString('pt-BR')} visualizações</span><span>Dono: ${esc(g.owner_id.slice(0,8))}…</span></div>
       <div class="admin-edit-grid"><select data-status="${g.id}">${Object.entries(labels).map(([k,v])=>`<option value="${k}" ${g.status===k?'selected':''}>${v}</option>`).join('')}</select><input class="admin-inline-input" data-note="${g.id}" maxlength="500" placeholder="Observação para o responsável" value="${esc(g.admin_note||'')}"></div>
       <div class="admin-edit-grid"><label class="check-row"><input data-featured="${g.id}" type="checkbox" ${g.featured_by_admin?'checked':''}> Indicar</label><select data-badge="${g.id}"><option value="">Sem selo</option><option value="oficial" ${g.admin_badge==='oficial'?'selected':''}>Oficial</option><option value="indicado" ${g.admin_badge==='indicado'?'selected':''}>Indicado</option><option value="parceiro" ${g.admin_badge==='parceiro'?'selected':''}>Parceiro</option></select></div>
       <button class="auth-primary" data-save="${g.id}" type="button">Salvar alterações</button></article>`).join('')||'<div class="groups-empty"><div>⌕</div><strong>Nenhum grupo encontrado</strong><span>Altere os filtros para continuar.</span></div>';
@@ -95,7 +117,7 @@
   async function saveGroup(e){
     const id=Number(e.currentTarget.dataset.save),get=(field)=>document.querySelector(`[data-field="${field}"][data-id="${id}"]`);
     const status=document.querySelector(`[data-status="${id}"]`).value;
-    const payload={name:get('name').value.trim(),description:get('description').value.trim(),category:get('category').value,member_count:Math.max(0,Number(get('members').value)||0),invite_url:get('link').value.trim(),status,admin_note:document.querySelector(`[data-note="${id}"]`).value.trim()||null,featured_by_admin:status==='approved'&&document.querySelector(`[data-featured="${id}"]`).checked,admin_badge:status==='approved'?(document.querySelector(`[data-badge="${id}"]`).value||null):null,approved_at:status==='approved'?new Date().toISOString():null};
+    const payload={name:get('name').value.trim(),description:get('description').value.trim(),category:get('category').value,member_count:Math.max(0,Number(get('members').value)||0),invite_url:get('link').value.trim(),avatar_url:get('avatar').value.trim()||null,tags:get('tags').value.trim()||null,contact_url:get('contact').value.trim()||null,highlight:get('highlight').value.trim()||null,status,admin_note:document.querySelector(`[data-note="${id}"]`).value.trim()||null,featured_by_admin:status==='approved'&&document.querySelector(`[data-featured="${id}"]`).checked,admin_badge:status==='approved'?(document.querySelector(`[data-badge="${id}"]`).value||null):null,approved_at:status==='approved'?new Date().toISOString():null};
     e.currentTarget.disabled=true;
     const {error}=await client.from('groups').update(payload).eq('id',id);
     e.currentTarget.disabled=false;e.currentTarget.textContent=error?'Tente novamente':'Salvo ✓';if(!error)await loadGroups();setTimeout(()=>e.currentTarget.textContent='Salvar alterações',1400);
@@ -159,6 +181,20 @@
     $('newPlanName').value='';$('newPlanPrice').value='';$('newPlanDays').value='';$('newPlanDesc').value='';toggleNewPlanForm(false);await loadPlans();
   };
 
+  async function loadOfficialGroups(){
+    const {data,error}=await client.from('official_groups').select('id,name,description,category,avatar_url,invite_url,highlight,display_order,active,created_at').order('display_order',{ascending:true}).order('created_at',{ascending:true});
+    const box=$('adminOfficialGroups');
+    if(error){box.innerHTML='<div class="groups-empty"><strong>Não foi possível carregar os grupos oficiais.</strong><span>Tente novamente.</span></div>';return;}
+    officialGroups=data||[];
+    box.innerHTML=officialGroups.map(g=>`<article class="admin-list-row official-admin-card"><div class="official-admin-preview">${g.avatar_url?`<img src="${esc(g.avatar_url)}" alt="" loading="lazy">`:'⭐'}</div><div class="official-admin-fields"><div class="admin-edit-grid"><input class="admin-inline-input" data-og-name="${g.id}" value="${esc(g.name)}" maxlength="100"><select data-og-category="${g.id}">${Object.entries(cats).map(([k,v])=>`<option value="${k}" ${g.category===k?'selected':''}>${v}</option>`).join('')}</select></div><textarea class="admin-inline-input" data-og-description="${g.id}" maxlength="800">${esc(g.description)}</textarea><div class="admin-edit-grid"><input class="admin-inline-input" data-og-link="${g.id}" value="${esc(g.invite_url)}" placeholder="Link"><input class="admin-inline-input" data-og-image="${g.id}" value="${esc(g.avatar_url||'')}" placeholder="Imagem/logo"></div><div class="admin-edit-grid"><input class="admin-inline-input" data-og-highlight="${g.id}" maxlength="160" value="${esc(g.highlight||'')}" placeholder="Frase de destaque"><input class="admin-inline-input" data-og-order="${g.id}" type="number" value="${Number(g.display_order)||0}" placeholder="Ordem"></div><div class="admin-row-actions"><span class="official-status">${g.active?'🟢 Ativo':'⚫ Inativo'}</span><button class="auth-secondary" data-og-toggle="${g.id}" type="button">${g.active?'Desativar':'Ativar'}</button><button class="auth-primary" data-og-save="${g.id}" type="button">Salvar</button><button class="auth-secondary admin-danger" data-og-delete="${g.id}" type="button">Excluir</button></div></div></article>`).join('')||'<div class="groups-empty"><strong>Nenhum grupo oficial cadastrado.</strong><span>Use “Adicionar grupo oficial” para começar.</span></div>';
+    document.querySelectorAll('[data-og-save]').forEach(b=>b.onclick=async()=>{const id=Number(b.dataset.ogSave);b.disabled=true;b.textContent='Salvando...';const payload={name:$(`[data-og-name="${id}"]`).value.trim(),description:$(`[data-og-description="${id}"]`).value.trim(),category:$(`[data-og-category="${id}"]`).value,invite_url:$(`[data-og-link="${id}"]`).value.trim(),avatar_url:$(`[data-og-image="${id}"]`).value.trim()||null,highlight:$(`[data-og-highlight="${id}"]`).value.trim()||null,display_order:Number($(`[data-og-order="${id}"]`).value)||0};const r=await client.from('official_groups').update(payload).eq('id',id);b.disabled=false;b.textContent=r.error?'Tente novamente':'Salvo ✓';if(!r.error)await loadOfficialGroups();setTimeout(()=>{const x=document.querySelector(`[data-og-save="${id}"]`);if(x)x.textContent='Salvar'},1300)});
+    document.querySelectorAll('[data-og-toggle]').forEach(b=>b.onclick=async()=>{const id=Number(b.dataset.ogToggle),item=officialGroups.find(x=>x.id===id);if(!item)return;const r=await client.from('official_groups').update({active:!item.active}).eq('id',id);if(r.error)alert('Não foi possível atualizar o status.');else loadOfficialGroups();});
+    document.querySelectorAll('[data-og-delete]').forEach(b=>b.onclick=async()=>{if(!confirm('Excluir este grupo oficial?\n\nEssa ação não poderá ser desfeita.'))return;const r=await client.from('official_groups').delete().eq('id',Number(b.dataset.ogDelete));if(r.error)alert('Não foi possível excluir o grupo.');else loadOfficialGroups();});
+  }
+  function toggleOfficialForm(show){$('newOfficialForm').hidden=!show;if(show)$('officialName').focus();}
+  $('newOfficial').onclick=()=>toggleOfficialForm($('newOfficialForm').hidden);$('cancelOfficial').onclick=()=>toggleOfficialForm(false);
+  $('createOfficial').onclick=async()=>{const b=$('createOfficial'),name=$('officialName').value.trim(),description=$('officialDescription').value.trim(),category=$('officialCategory').value,link=$('officialLink').value.trim(),image=$('officialImage').value.trim(),highlight=$('officialHighlight').value.trim(),order=Number($('officialOrder').value)||0;if(!name||description.length<10||!/^https?:\/\//i.test(link)||(image&&!/^https?:\/\//i.test(image))){$('officialResult').className='auth-result error';$('officialResult').textContent='Confira nome, descrição e links.';return}b.disabled=true;b.textContent='Adicionando...';const {error}=await client.from('official_groups').insert({name,description,category,invite_url:link,avatar_url:image||null,highlight:highlight||null,display_order:order,active:true});b.disabled=false;if(error){$('officialResult').className='auth-result error';$('officialResult').textContent='Não foi possível adicionar o grupo oficial.';b.textContent='Adicionar grupo';return}$('officialResult').className='auth-result ok';$('officialResult').textContent='✓ Grupo oficial adicionado!';['officialName','officialDescription','officialLink','officialImage','officialHighlight'].forEach(id=>$(id).value='');$('officialOrder').value='0';toggleOfficialForm(false);await loadOfficialGroups();setTimeout(()=>{$('officialResult').textContent=''},1500)};
+
   async function loadOrders(){
     const {data,error}=await client.from('orders').select('id,user_id,group_id,plan_id,amount,status,payment_provider,payment_id,created_at,paid_at,groups(name),promotion_plans(name)').order('created_at',{ascending:false}).limit(150);
     orders=data||[];$('adminOrders').innerHTML=error?'<div class="groups-empty"><strong>Não foi possível carregar os pedidos.</strong></div>':orders.map(o=>`<article class="admin-list-row"><div><strong>Pedido #${o.id} · R$ ${Number(o.amount).toFixed(2).replace('.',',')}</strong><span>${esc(o.promotion_plans?.name||'Plano')} · ${esc(o.groups?.name||'Grupo')} · ${new Date(o.created_at).toLocaleString('pt-BR')}</span><p>Usuário: ${esc(o.user_id.slice(0,12))}…${o.payment_id?` · Pagamento: ${esc(o.payment_id)}`:''}</p></div><span class="order-status">${statusOrder(o.status)}</span></article>`).join('')||'<div class="groups-empty"><strong>Nenhum pedido registrado.</strong></div>';
@@ -166,7 +202,7 @@
   function statusOrder(s){return {pending:'🟡 Pendente',paid:'🟢 Pago',rejected:'🔴 Recusado',cancelled:'⚫ Cancelado',expired:'⚫ Expirado',refunded:'↩️ Estornado'}[s]||'Em atualização'}
 
   $('adminSearch').oninput=renderGroups;$('adminStatus').onchange=renderGroups;$('refreshReports').onclick=loadReports;$('refreshReviews').onclick=loadReviews;$('refreshOrders').onclick=loadOrders;
-  await Promise.all([loadGroups(),loadReports(),loadReviews(),loadPlans(),loadOrders()]);
+  await Promise.all([loadGroups(),loadReports(),loadReviews(),loadPlans(),loadOfficialGroups(),loadOrders()]);
 })();
 </script>
 </body>
