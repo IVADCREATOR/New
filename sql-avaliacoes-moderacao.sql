@@ -5,8 +5,6 @@
 alter table public.reviews add column if not exists ip inet;
 alter table public.reviews add column if not exists email text;
 alter table public.reviews add column if not exists user_agent text;
-alter table public.reviews drop constraint if exists reviews_email_len, drop constraint if exists reviews_user_agent_len;
-alter table public.reviews add constraint reviews_email_len check (email is null or char_length(email)<=160), add constraint reviews_user_agent_len check (user_agent is null or char_length(user_agent)<=300);
 
 alter table public.reviews drop constraint if exists reviews_status_check;
 alter table public.reviews add constraint reviews_status_check check (status in ('pending','visible','hidden'));

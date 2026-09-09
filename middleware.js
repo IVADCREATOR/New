@@ -14,10 +14,10 @@ export const config = {
 function paginaManutencao(state) {
   const titulo = escapeHtml(state.title || 'Estamos em manutenção');
   const mensagem = escapeHtml(state.message || 'O site está passando por algumas melhorias no momento.');
-  const imagem = state.image_url ? escapeHtml(state.image_url) : '';
+  const imagem = '/sorasaki-manutencao.jpg';
   return `<!doctype html><html lang="pt-BR"><head><meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="robots" content="noindex,nofollow" />
+<meta name="robots" content="noindex,nofollow" /><meta name="referrer" content="no-referrer" />
 <title>${titulo} — Sorasaki</title>
 <style>
 body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;font-family:system-ui,-apple-system,sans-serif;background:radial-gradient(circle at 50% 18%,rgba(143,75,255,.22),transparent 38%),#04030a;color:#fff}
@@ -38,7 +38,8 @@ export default async function middleware(request) {
     const stateRes = await fetch(`${url.origin}/api/site-state`, { headers: { accept: 'application/json' } });
     if (!stateRes.ok) return;
     const state = await stateRes.json();
-    if (!state?.maintenance) return;
+    const maintenance = state?.maintenance === true || ['true','1','yes','on'].includes(String(state?.maintenance || '').trim().toLowerCase());
+    if (!maintenance) return;
     if (state.start_at) {
       const start = new Date(state.start_at).getTime();
       if (!Number.isNaN(start) && Date.now() < start) return;
@@ -48,7 +49,10 @@ export default async function middleware(request) {
       headers: {
         'content-type': 'text/html; charset=utf-8',
         'retry-after': '120',
-        'cache-control': 'no-store'
+        'cache-control': 'no-store, no-cache, must-revalidate, max-age=0',
+        'x-content-type-options': 'nosniff',
+        'x-frame-options': 'DENY',
+        'referrer-policy': 'no-referrer'
       }
     });
   } catch {

@@ -17,7 +17,7 @@
     <div>Sorasaki<small>Central Sorasaki</small></div>
   </div>
   <nav>
-    <a href="/grupos">Grupos</a><a href="/noticias">Notícias</a>
+    <a href="/grupos">Grupos</a><a href="/catalogo">Catálogo</a><a href="/noticias">Notícias</a>
     <a href="/" class="active">Resumo</a>
     <a href="/estatisticas">Estatísticas</a>
     <a href="/status">Status</a>
@@ -61,6 +61,7 @@
     <div id="officialHomeGrid" class="official-grid"><div class="groups-empty"><div>★</div><strong>Carregando grupos oficiais</strong><span>Um instante...</span></div></div>
   </section>
 
+  <section id="homeProductsArea" class="panel" hidden><div class="section-heading"><div><span class="eyebrow">💰 PRODUTOS</span><h2>Produtos e preços</h2></div><a class="hero-btn" href="/catalogo">Ver catálogo <span>→</span></a></div><div id="homeProductsGrid" class="plans-grid"></div></section>
   <section id="homeNoticeArea" class="panel" hidden></section>
   <section id="homeNewsArea" class="panel" hidden>
     <div class="section-heading"><div><span class="eyebrow">📰 NOVIDADES</span><h2>Últimas atualizações</h2></div><a class="hero-btn" href="/noticias">Ver todas <span>→</span></a></div>
@@ -110,16 +111,16 @@
 <script>
 (async()=>{
   try{
-    await window.SorasakiAuth?.ready;
-    const c=window.SorasakiAuth?.getClient?.(); if(!c)return;
+    const r=await fetch('/api/public-content?type=all',{cache:'no-store',headers:{Accept:'application/json'}});
+    const d=await r.json(); if(!r.ok||!d?.ok)return;
     const esc=v=>String(v??'').replace(/[&<>'"]/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[x]));
-    const n=await c.from('site_notices').select('title,message,notice_type,highlighted').order('highlighted',{ascending:false}).limit(3);
-    const na=document.getElementById('homeNoticeArea');
-    if(na&&n.data?.length){na.hidden=false;na.innerHTML=n.data.map(x=>`<div class="notice-preview"><strong>📌 ${esc(x.title)}</strong><p>${esc(x.message)}</p></div>`).join('')}
-    const r=await c.from('news').select('id,title,summary,content,category,publish_at,image_url').eq('status','published').lte('publish_at',new Date().toISOString()).order('publish_at',{ascending:false}).limit(3);
-    const area=document.getElementById('homeNewsArea'),grid=document.getElementById('homeNewsGrid');
-    if(area&&grid&&r.data?.length){area.hidden=false;grid.innerHTML=r.data.map(x=>`<article class="panel news-card"><div class="news-meta">${esc(x.category)} · ${new Date(x.publish_at).toLocaleDateString('pt-BR')}</div><h3>${esc(x.title)}</h3><p>${esc(x.summary||x.content.slice(0,180))}</p></article>`).join('')}
-  }catch(e){}
+    const pr=d.products||[],pa=document.getElementById('homeProductsArea'),pg=document.getElementById('homeProductsGrid');
+    if(pa&&pg&&pr.length){pa.hidden=false;pg.innerHTML=pr.slice(0,8).map(x=>{const price=Number(x.promo_price??x.price),old=x.promo_price!=null?Number(x.price):Number(x.previous_price||0);return `<article class="plan-card">${x.image_url?`<img src="${esc(x.image_url)}" alt="" loading="lazy" style="width:100%;height:130px;object-fit:cover;border-radius:12px;margin-bottom:10px">`:''}<span class="plan-name">${esc(x.name)}</span>${x.category?`<small class="admin-muted">${esc(x.category)}</small>`:''}${old>price?`<div class="admin-muted" style="text-decoration:line-through">R$ ${old.toFixed(2).replace('.',',')}</div>`:''}<h3>R$ ${price.toFixed(2).replace('.',',')}</h3><p>${esc(x.description||'')}</p></article>`}).join('')}
+    const n=d.notices||[],na=document.getElementById('homeNoticeArea');
+    if(na&&n.length){na.hidden=false;na.innerHTML=n.map(x=>`<div class="notice-preview"><strong>📌 ${esc(x.title)}</strong><p>${esc(x.message)}</p></div>`).join('')}
+    const rnews=d.news||[],area=document.getElementById('homeNewsArea'),grid=document.getElementById('homeNewsGrid');
+    if(area&&grid&&rnews.length){area.hidden=false;grid.innerHTML=rnews.slice(0,3).map(x=>`<article class="panel news-card">${x.image_url?`<img src="${esc(x.image_url)}" alt="" loading="lazy">`:''}<div class="news-meta">${esc(x.category)} · ${new Date(x.publish_at).toLocaleDateString('pt-BR')}</div><h3>${esc(x.title)}</h3><p>${esc(x.summary||String(x.content||'').slice(0,180))}</p></article>`).join('')}
+  }catch(e){console.error('[SORASAKI] Conteúdo público:',e)}
 })();
 </script>
 <script>

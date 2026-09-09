@@ -1,24 +1,16 @@
-# SORASAKI — Manutenção 2026-09-09
+# Manutenção completa Sorasaki — 09/09/2026
 
-## Alterações desta versão
-- Corrigida a interpretação de valores JSONB no endpoint de estado do site, evitando que `maintenance_mode=false` seja tratado como verdadeiro.
-- Reforçada a proteção do preview de grupos contra SSRF em URLs de imagens e redirecionamentos para hosts privados.
-- Adicionado limite básico de tentativas no início de pagamentos.
-- Padronizada a estrutura de avaliações para suportar moderação (`pending`, `visible`, `hidden`) e metadados opcionais.
-- Painel administrativo ganhou moderação de avaliações de grupos.
-- Corrigido o botão de atualização da tela de estatísticas.
-- Produtos agora preservam/permitem alterar o estado ativo/inativo pelo painel.
-- Salvamento das configurações administrativas agora detecta falha parcial antes de informar sucesso.
-- Auditoria administrativa ficou mais tolerante a registros sem `admin_id`.
-- Adicionados headers de segurança no Vercel.
-- Atualizado o cache-busting do `app.js` para esta manutenção.
+## Antes do deploy
+1. Execute `sql-manutencao-20260909.sql` no SQL Editor do Supabase.
+2. Confirme no Vercel as variáveis `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY`.
+3. A imagem de manutenção já está no projeto como `sorasaki-manutencao.jpg`; não é necessário cadastrar URL.
 
-## Validação local
-- Sintaxe de todos os arquivos JavaScript verificada com `node --check`.
-- Scripts inline de todas as páginas HTML verificados com `node --check`.
-- Estrutura do ZIP preserva os arquivos do projeto na raiz, sem pasta interna desnecessária.
+## Fluxos corrigidos
+- Conteúdo público (produtos, notícias e avisos) passa por `/api/public-content`, com filtros aplicados no servidor.
+- Catálogo público em `/catalogo`.
+- Produtos suportam categoria e imagem.
+- Usuários: busca por e-mail, nome, username, metadata ou ID e filtro de status no servidor.
+- Manutenção: middleware bloqueia páginas públicas e mantém `/controle-8f4c2e91` acessível; imagem fixa local.
 
-## Limitações
-Os fluxos que dependem do Supabase, autenticação real, Storage, Mercado Pago e variáveis de ambiente não podem ser considerados teste de produção dentro deste ambiente. Depois do deploy, é necessário validar esses fluxos com a configuração real.
-
-As variáveis sensíveis continuam fora do código: `SUPABASE_SERVICE_ROLE_KEY`, `MERCADOPAGO_ACCESS_TOKEN` e `MERCADOPAGO_WEBHOOK_SECRET`.
+## Limitação de teste
+O projeto foi validado estaticamente e com testes locais de sintaxe/fluxo usando mocks. Não é possível confirmar aqui uma conexão real com o Supabase/Vercel sem o ambiente de produção.
