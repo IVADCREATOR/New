@@ -895,6 +895,42 @@ criarAssistente = function() {
       }
     }
   }
+  async function installMaintenanceGuard(){
+    const path=location.pathname.replace(/\/+$/,'') || '/';
+    if(path==='/controle-8f4c2e91') return;
+    try{
+      const response=await fetch('/api/site-state',{cache:'no-store',headers:{Accept:'application/json'}});
+      if(!response.ok) return;
+      const state=await response.json();
+      if(!state?.maintenance) return;
+      if(state.start_at){const start=new Date(state.start_at);if(!Number.isNaN(start.getTime())&&Date.now()<start.getTime())return;}
+      const existing=document.getElementById('sorasakiMaintenance');
+      if(existing) return;
+      const overlay=document.createElement('div');
+      overlay.id='sorasakiMaintenance';
+      overlay.className='sorasaki-maintenance';
+      const card=document.createElement('section');
+      card.className='sorasaki-maintenance-card';
+      const visual=document.createElement('div');
+      visual.className='sorasaki-maintenance-visual';
+      const image=String(state.image_url||'');
+      let safeImage='';
+      try{const u=new URL(image,location.origin);if(['https:','http:'].includes(u.protocol)&&(!u.hostname||u.hostname===location.hostname))safeImage=u.href;}catch{}
+      if(safeImage){const img=document.createElement('img');img.src=safeImage;img.alt='';img.loading='eager';visual.appendChild(img);}
+      else {visual.textContent='🔧';}
+      const eyebrow=document.createElement('span');eyebrow.className='eyebrow';eyebrow.textContent='SORASAKI';
+      const title=document.createElement('h1');title.textContent=state.title||'Estamos em manutenção';
+      const message=document.createElement('p');message.textContent=state.message||'Estamos fazendo algumas melhorias. Voltaremos em breve.';
+      card.append(visual,eyebrow,title,message);
+      if(state.return_at){
+        const d=new Date(state.return_at);
+        if(!Number.isNaN(d.getTime())){const eta=document.createElement('div');eta.className='sorasaki-maintenance-return';eta.textContent=`Previsão de retorno: ${d.toLocaleString('pt-BR',{dateStyle:'medium',timeStyle:'short'})}`;card.appendChild(eta);}
+      }
+      const thanks=document.createElement('div');thanks.className='sorasaki-maintenance-thanks';thanks.textContent='Agradecemos pela compreensão. 💜';card.appendChild(thanks);
+      overlay.appendChild(card);document.body.appendChild(overlay);document.documentElement.classList.add('maintenance-active');
+    }catch{}
+  }
+
   function updateAuthUI(){
     const user=getUser(),btn=document.querySelector('.sora-login-trigger');
     if(btn){btn.classList.toggle('logged',!!user);const label=btn.querySelector('.login-trigger-label');if(label)label.textContent=user?'Perfil':'Entrar';btn.setAttribute('aria-label',user?'Abrir meu perfil':'Entrar ou criar conta');}
@@ -903,6 +939,6 @@ criarAssistente = function() {
     const profileModal=document.querySelector('.sora-profile-modal'); if(profileModal&&user) { const status=profileModal.querySelector('#profileStatus'); if(status) status.textContent=user.email_confirmed_at?'● E-mail confirmado':'● E-mail pendente'; }
   }
   window.SorasakiAuth={getUser,getToken,ready,open:()=>{},openProfile:()=>{},logout,clear:logout,setAfterAuth,requireLogin:(msg='Faça login para continuar.')=>{if(getUser())return true;createLoginUI();window.SorasakiAuth.open();const r=document.querySelector('#authResult');if(r){r.className='auth-result error';r.textContent=msg;}return false;},getClient:ensureClient};
-  function init(){createLoginUI();createProfileUI();const btn=document.querySelector('.sora-login-trigger');if(btn)btn.onclick=()=>getUser()?window.SorasakiAuth.openProfile():window.SorasakiAuth.open();syncSession();document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelector('.sora-login-drawer')?.classList.remove('is-open');document.querySelector('.sora-login-overlay')?.classList.remove('is-open');document.querySelector('.sora-profile-modal')?.classList.remove('is-open');document.querySelector('.sora-profile-overlay')?.classList.remove('is-open');document.body.classList.remove('login-open','profile-open');}});}
+  function init(){createLoginUI();createProfileUI();installMaintenanceGuard();const btn=document.querySelector('.sora-login-trigger');if(btn)btn.onclick=()=>getUser()?window.SorasakiAuth.openProfile():window.SorasakiAuth.open();syncSession();document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelector('.sora-login-drawer')?.classList.remove('is-open');document.querySelector('.sora-login-overlay')?.classList.remove('is-open');document.querySelector('.sora-profile-modal')?.classList.remove('is-open');document.querySelector('.sora-profile-overlay')?.classList.remove('is-open');document.body.classList.remove('login-open','profile-open');}});}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();

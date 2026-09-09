@@ -1167,9 +1167,19 @@ textarea.admin-inline-input{min-height:90px;resize:vertical}
 /* SORASAKI 2026 — comunidade, notícias e central administrativa */
 .news-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.news-card{overflow:hidden}.news-card h2,.news-card h3{margin:8px 0}.news-card p{color:#91889a;line-height:1.55}.news-meta{font-size:9px;color:#756c80;text-transform:uppercase;letter-spacing:.08em}.group-platform{display:inline-block;margin:4px 0;color:#8e8498;font-size:10px}.notice-preview{padding:12px;border-radius:12px;background:rgba(255,255,255,.035);margin:6px 0;color:#d9d1df}.notice-preview p{margin:5px 0 0;color:#9a91a3}@media(max-width:760px){.news-grid{grid-template-columns:1fr}}
 
-.group-avatar-status{display:flex;align-items:center;gap:10px;margin:10px 0 14px;padding:11px 13px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(255,255,255,.025);font-size:.86rem;color:var(--muted,#a7a7b7)}
-.group-avatar-status[data-state="found"]{border-color:rgba(80,210,140,.28)}
-.group-avatar-status[data-state="loading"]{border-color:rgba(130,150,255,.28)}
-.group-avatar-status span:first-child{font-size:1rem}
-.group-avatar-status button{margin-left:auto;white-space:nowrap;padding:8px 11px}
-@media (max-width:640px){.group-avatar-status{align-items:flex-start;flex-wrap:wrap}.group-avatar-status button{margin-left:0;width:100%}}
+/* Manutenção global */
+html.maintenance-active,html.maintenance-active body{overflow:hidden!important}
+.sorasaki-maintenance{position:fixed;inset:0;z-index:999999;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 50% 18%,rgba(143,75,255,.22),transparent 38%),rgba(4,3,9,.97);backdrop-filter:blur(12px);overflow:auto}
+.sorasaki-maintenance-card{width:min(760px,100%);padding:28px;text-align:center;border:1px solid rgba(196,128,255,.24);border-radius:28px;background:linear-gradient(145deg,rgba(26,18,39,.98),rgba(9,9,16,.98));box-shadow:0 30px 100px rgba(0,0,0,.55);animation:maintenanceIn .35s ease}
+.sorasaki-maintenance-visual{width:min(520px,100%);height:min(310px,48vh);margin:0 auto 22px;border-radius:22px;overflow:hidden;display:grid;place-items:center;background:linear-gradient(135deg,rgba(124,77,255,.18),rgba(214,89,255,.08));border:1px solid rgba(196,128,255,.18);font-size:70px}
+.sorasaki-maintenance-visual img{width:100%;height:100%;object-fit:cover}
+.sorasaki-maintenance-card .eyebrow{display:block;margin-bottom:7px;color:#caa7ff}
+.sorasaki-maintenance-card h1{margin:0;font-size:clamp(26px,5vw,46px);background:linear-gradient(90deg,#fff,#c996ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sorasaki-maintenance-card p{max-width:600px;margin:14px auto 0;color:#a7a0b2;font-size:14px;line-height:1.7;white-space:pre-line}
+.sorasaki-maintenance-return{margin:18px auto 0;width:max-content;max-width:100%;padding:9px 13px;border-radius:999px;border:1px solid rgba(196,128,255,.18);background:rgba(196,128,255,.06);color:#d9c5ef;font-size:11px}
+.sorasaki-maintenance-thanks{margin-top:18px;color:#cda9f5;font-size:12px}
+@keyframes maintenanceIn{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:none}}
+@media(max-width:560px){.sorasaki-maintenance{padding:14px}.sorasaki-maintenance-card{padding:18px;border-radius:21px}.sorasaki-maintenance-visual{height:230px;border-radius:17px}}
+.maintenance-admin-preview{margin-top:16px;padding:14px;border:1px dashed rgba(196,128,255,.2);border-radius:18px;background:rgba(196,128,255,.03)}
+.maintenance-admin-preview .sorasaki-maintenance-card{margin:0 auto;box-shadow:none}
+.group-auto-status{min-height:18px;color:#9d91aa;font-size:10px}.group-image-status{display:flex;align-items:center;gap:9px;padding:10px 11px;border:1px solid rgba(255,255,255,.08);border-radius:11px;background:rgba(255,255,255,.025)}.group-image-status>span{font-size:18px}.group-image-status>div{min-width:0;flex:1}.group-image-status strong,.group-image-status small{display:block}.group-image-status small{margin-top:3px;color:#7f7789;font-size:9px}.group-image-status button{flex-shrink:0}.field-help{color:#7f7789;font-size:9px;font-weight:400;line-height:1.4}

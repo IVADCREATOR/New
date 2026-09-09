@@ -61,11 +61,6 @@
     <div id="officialHomeGrid" class="official-grid"><div class="groups-empty"><div>★</div><strong>Carregando grupos oficiais</strong><span>Um instante...</span></div></div>
   </section>
 
-  <section class="official-groups panel" id="homeOfficialSection" hidden>
-    <div class="section-heading"><div><span class="eyebrow">⭐ GRUPOS OFICIAIS DOS DONOS</span><h2>Comunidades oficiais</h2></div><span>Comunidades oficiais indicadas pela equipe do SORASAKI.</span></div>
-    <div id="homeOfficialGrid" class="official-grid"></div>
-  </section>
-
   <section id="homeNoticeArea" class="panel" hidden></section>
   <section id="homeNewsArea" class="panel" hidden>
     <div class="section-heading"><div><span class="eyebrow">📰 NOVIDADES</span><h2>Últimas atualizações</h2></div><a class="hero-btn" href="/noticias">Ver todas <span>→</span></a></div>
@@ -111,17 +106,7 @@
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js?v=20260908d"></script>
-<script>
-  (async()=>{
-    const auth=window.SorasakiAuth; await auth?.ready; const client=auth?.getClient?.(); if(!client)return;
-    const esc=v=>String(v??'').replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]));
-    const safe=v=>{try{const u=new URL(v,location.origin);return /^https?:$/.test(u.protocol)?u.href:''}catch{return ''}};
-    const labels={vendas:'🛒 Compra e venda',comunidade:'💬 Comunidade',jogos:'🎮 Jogos',estudos:'📚 Estudos',outros:'🌐 Outros'};
-    const {data}=await client.from('official_groups').select('name,description,category,avatar_url,invite_url,highlight').eq('active',true).order('display_order',{ascending:true}).order('created_at',{ascending:true});
-    const section=document.getElementById('homeOfficialSection'),grid=document.getElementById('homeOfficialGrid'); if(!section||!grid||!data?.length)return; section.hidden=false;
-    grid.innerHTML=data.map(g=>{const img=safe(g.avatar_url),link=safe(g.invite_url);return `<article class="official-card"><div class="official-card-badge">⭐ GRUPO OFICIAL</div><div class="official-card-top"><div class="official-icon">${img?`<img src="${esc(img)}" alt="" loading="lazy">`:'👑'}</div><div><h3>${esc(g.name)}</h3><span>${esc(labels[g.category]||g.category)}</span></div></div>${g.highlight?`<div class="official-highlight">✦ ${esc(g.highlight)}</div>`:''}<p>${esc(g.description)}</p><a class="group-join" href="${esc(link)}" target="_blank" rel="noopener noreferrer">Entrar no grupo <span>↗</span></a></article>`}).join('');
-  })();
-</script>
+
 <script>
 (async()=>{
   try{
@@ -200,9 +185,9 @@
   const cats={vendas:'Compra e venda',comunidade:'Comunidade',jogos:'Jogos',freefire:'Free Fire',divulgacao:'Divulgação',amizades:'Amizades',suporte:'Suporte',estudos:'Estudos',outros:'Outros'};
   const icons={vendas:'🛒',comunidade:'💬',jogos:'🎮',freefire:'🔥',divulgacao:'📢',amizades:'👥',suporte:'🛠️',estudos:'📚',outros:'🌐'};
   const esc=v=>String(v??'').replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
-  const {data,error}=await c.from('official_groups').select('name,description,category,invite_url,image_url,highlight_phrase').eq('active',true).order('display_order',{ascending:true}).limit(6);
+  const {data,error}=await c.from('official_groups').select('name,description,category,invite_url,image_url,avatar_url,highlight_phrase,highlight').eq('active',true).order('display_order',{ascending:true}).limit(6);
   if(error){box.innerHTML='<div class="groups-empty"><strong>Não foi possível carregar os grupos oficiais.</strong></div>';return;}
-  box.innerHTML=(data||[]).map(g=>`<article class="official-card"><div class="official-media">${g.image_url?`<img src="${esc(g.image_url)}" alt="" loading="lazy">`:`<span>${icons[g.category]||'⭐'}</span>`}</div><h3>⭐ ${esc(g.name)}</h3><div class="group-promo">${esc(cats[g.category]||g.category)}</div><p>${esc(g.description)}</p>${g.highlight_phrase?`<div class="official-highlight">“${esc(g.highlight_phrase)}”</div>`:''}<a class="auth-primary official-btn" href="${esc(g.invite_url)}" target="_blank" rel="noopener noreferrer">ENTRAR NO GRUPO ↗</a></article>`).join('')||'<div class="groups-empty"><strong>Nenhum grupo oficial cadastrado.</strong><span>Os destaques aparecerão aqui quando a equipe adicionar os primeiros.</span></div>';
+  box.innerHTML=(data||[]).map(g=>`<article class="official-card"><div class="official-media">${(g.image_url||g.avatar_url)?`<img src="${esc(g.image_url||g.avatar_url)}" alt="" loading="lazy">`:`<span>${icons[g.category]||'⭐'}</span>`}</div><h3>⭐ ${esc(g.name)}</h3><div class="group-promo">${esc(cats[g.category]||g.category)}</div><p>${esc(g.description)}</p>${(g.highlight_phrase||g.highlight)?`<div class="official-highlight">“${esc(g.highlight_phrase||g.highlight)}”</div>`:''}<a class="auth-primary official-btn" href="${esc(g.invite_url)}" target="_blank" rel="noopener noreferrer">ENTRAR NO GRUPO ↗</a></article>`).join('')||'<div class="groups-empty"><strong>Nenhum grupo oficial cadastrado.</strong><span>Os destaques aparecerão aqui quando a equipe adicionar os primeiros.</span></div>';
 })();
 </script>
 

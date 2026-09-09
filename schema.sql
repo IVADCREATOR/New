@@ -33,10 +33,18 @@ create index if not exists idx_bug_created_at on public.bug_reports(created_at d
 -- com maxlength, mas qualquer pessoa pode chamar a API do Supabase direto
 -- com a anon key e ignorar o HTML, então o limite real tem que estar aqui).
 alter table public.feedback
+  drop constraint if exists feedback_title_len,
+  drop constraint if exists feedback_message_len,
+  drop constraint if exists feedback_email_len;
+alter table public.feedback
   add constraint feedback_title_len check (title is null or char_length(title) <= 120),
   add constraint feedback_message_len check (message is null or char_length(message) <= 1800),
   add constraint feedback_email_len check (email is null or char_length(email) <= 160);
 
+alter table public.bug_reports
+  drop constraint if exists bug_title_len,
+  drop constraint if exists bug_message_len,
+  drop constraint if exists bug_email_len;
 alter table public.bug_reports
   add constraint bug_title_len check (char_length(title) <= 120),
   add constraint bug_message_len check (char_length(message) <= 3000),
@@ -93,6 +101,11 @@ create table if not exists public.groups (
  description text not null,
  category text not null check(category in('vendas','comunidade','jogos','freefire','divulgacao','amizades','suporte','estudos','outros')),
  avatar_url text,
+ avatar_source text not null default 'manual' check(avatar_source in('auto','manual','fallback')),
+ avatar_status text not null default 'manual' check(avatar_status in('pending','found','not_found','error','manual')),
+ avatar_checked_at timestamptz,
+ avatar_hash text,
+ avatar_path text,
  member_count integer not null default 0 check(member_count>=0),
  invite_url text not null,
  status text not null default 'pending' check(status in('pending','approved','rejected','removed')),
@@ -135,8 +148,14 @@ create table if not exists public.official_groups (
  description text not null,
  category text not null check(category in('vendas','comunidade','jogos','freefire','divulgacao','amizades','suporte','estudos','outros')),
  avatar_url text,
+ image_url text,
+ image_source text not null default 'manual' check(image_source in('auto','manual','fallback')),
+ image_status text not null default 'manual' check(image_status in('pending','found','not_found','error','manual')),
+ image_checked_at timestamptz,
+ image_hash text,
  invite_url text not null check(invite_url ~* '^https?://'),
  highlight text,
+ highlight_phrase text,
  display_order integer not null default 0,
  active boolean not null default true,
  created_at timestamptz not null default now(),
@@ -307,7 +326,13 @@ create table if not exists public.admin_activity (
 insert into public.site_settings(key,value,description) values
 ('max_group_submissions_per_24h','5'::jsonb,'Máximo de novas divulgações por conta em 24 horas.'),
 ('community_submissions_enabled','true'::jsonb,'Permite novas divulgações.'),
-('maintenance_mode','false'::jsonb,'Modo de manutenção.')
+('maintenance_mode','false'::jsonb,'Modo de manutenção.'),
+('maintenance_title',to_jsonb('🔧 Estamos em manutenção'::text),'Título da tela de manutenção.'),
+('maintenance_message',to_jsonb('O site está passando por algumas melhorias no momento. Nossa equipe está trabalhando para deixar tudo funcionando corretamente.'::text),'Mensagem da tela de manutenção.'),
+('maintenance_image_url',to_jsonb(''::text),'Imagem da tela de manutenção.'),
+('maintenance_return_at','null'::jsonb,'Previsão opcional de retorno.'),
+('maintenance_show_immediately','true'::jsonb,'Compatibilidade legada.'),
+('maintenance_start_at','null'::jsonb,'Data opcional para iniciar a manutenção automaticamente.')
 on conflict(key) do nothing;
 
 -- Funções de manutenção/auditoria
@@ -390,6 +415,11 @@ end $$;
 drop trigger if exists trg_report_limit on public.reports;
 create trigger trg_report_limit before insert on public.reports for each row execute function public.enforce_report_limit();
 
+-- Armazenamento público somente para imagens públicas de grupos e manutenção.
+insert into storage.buckets (id,name,public,file_size_limit,allowed_mime_types)
+values ('group-images','group-images',true,5242880,array['image/jpeg','image/png','image/webp','image/gif'])
+on conflict (id) do update set public=true,file_size_limit=5242880,allowed_mime_types=excluded.allowed_mime_types;
+
 -- RLS
 alter table public.profiles enable row level security;
 alter table public.groups enable row level security;
@@ -449,6 +479,18 @@ create policy "admins settings" on public.site_settings for all to authenticated
 create policy "admins activity read" on public.admin_activity for select to authenticated using(public.is_admin());
 create policy "admins activity insert" on public.admin_activity for insert to authenticated with check(public.is_admin() and auth.uid()=admin_id);
 
+drop policy if exists "group images upload" on storage.objects;
+create policy "group images upload" on storage.objects for insert to authenticated
+with check(bucket_id='group-images' and ((storage.foldername(name))[1]=auth.uid()::text or public.is_admin()));
+drop policy if exists "group images update" on storage.objects;
+create policy "group images update" on storage.objects for update to authenticated
+using(bucket_id='group-images' and ((storage.foldername(name))[1]=auth.uid()::text or public.is_admin()))
+with check(bucket_id='group-images' and ((storage.foldername(name))[1]=auth.uid()::text or public.is_admin()));
+drop policy if exists "group images delete" on storage.objects;
+create policy "group images delete" on storage.objects for delete to authenticated
+using(bucket_id='group-images' and ((storage.foldername(name))[1]=auth.uid()::text or public.is_admin()));
+
+
 revoke all on public.profiles from anon;
 revoke all on public.orders from anon;
 revoke all on public.reports from anon;
@@ -464,16 +506,3 @@ begin
 end $$;
 revoke all on function public.log_admin_activity(text,text,text,jsonb) from public;
 grant execute on function public.log_admin_activity(text,text,text,jsonb) to authenticated;
-
--- Metadados da identificação automática de imagens
-alter table public.groups add column if not exists avatar_source text;
-alter table public.groups add column if not exists avatar_status text;
-alter table public.groups add column if not exists avatar_checked_at timestamptz;
-alter table public.groups add column if not exists avatar_storage_path text;
-alter table public.official_groups add column if not exists avatar_source text;
-alter table public.official_groups add column if not exists avatar_status text;
-alter table public.official_groups add column if not exists avatar_checked_at timestamptz;
-alter table public.official_groups add column if not exists avatar_storage_path text;
-insert into storage.buckets (id,name,public) values ('group-images','group-images',true) on conflict (id) do update set public=true;
-drop policy if exists "public read group images" on storage.objects;
-create policy "public read group images" on storage.objects for select to public using(bucket_id='group-images');
