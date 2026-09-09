@@ -1,5 +1,15 @@
 const { supabaseRequest, getUserFromAccessToken, bearerToken } = require('./_supabase');
 
+const checkoutRate = new Map();
+function allowCheckout(userId) {
+  const now = Date.now(), windowMs = 60_000, max = 6;
+  const list = (checkoutRate.get(userId) || []).filter(ts => now - ts < windowMs);
+  if (list.length >= max) { checkoutRate.set(userId, list); return false; }
+  list.push(now); checkoutRate.set(userId, list);
+  if (checkoutRate.size > 5000) { for (const [key, values] of checkoutRate) if (!values.some(ts => now - ts < windowMs)) checkoutRate.delete(key); }
+  return true;
+}
+
 function json(res, status, body) {
   res.status(status).setHeader('Content-Type', 'application/json');
   return res.end(JSON.stringify(body));
@@ -11,6 +21,7 @@ module.exports = async (req, res) => {
   const token = bearerToken(req);
   const user = await getUserFromAccessToken(token);
   if (!user) return json(res, 401, { ok: false, message: 'Você precisa estar conectado para continuar.' });
+  if (!allowCheckout(user.id)) return json(res, 429, { ok: false, message: 'Muitas tentativas de pagamento. Aguarde um instante.' });
 
   const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
   if (!accessToken) return json(res, 503, { ok: false, message: 'O pagamento não está disponível no momento.' });
@@ -19,6 +30,8 @@ module.exports = async (req, res) => {
   try { body = typeof req.body === 'object' ? req.body : JSON.parse(req.body || '{}'); } catch {
     return json(res, 400, { ok: false, message: 'Não foi possível iniciar esta compra.' });
   }
+
+  if (JSON.stringify(body).length > 20000) return json(res, 413, { ok: false, message: 'Dados da compra muito grandes.' });
 
   const planId = Number(body.plan_id);
   const groupId = Number(body.group_id);

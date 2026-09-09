@@ -31,6 +31,9 @@ module.exports = async (req, res) => {
     const groupId = Number(body.group_id || 0);
     const rating = Number(body.rating || 0);
     const comment = typeof body.comment === 'string' ? body.comment.trim().slice(0, 600) : null;
+    const email = typeof user.email === 'string' ? user.email.slice(0, 160) : null;
+    const ip = clientIp(req);
+    const userAgent = String(req.headers['user-agent'] || '').slice(0, 300);
     if (!(groupId > 0) || !(rating >= 1 && rating <= 5)) {
       return json(res, 400, { ok: false, message: 'Escolha uma nota de 1 a 5 para um grupo válido.' });
     }
@@ -46,9 +49,9 @@ module.exports = async (req, res) => {
       rating,
       comment: comment || null,
       status: 'pending',
-      email: user.email || null,
-      ip: clientIp(req),
-      user_agent: String(req.headers['user-agent'] || '').slice(0, 300)
+      email,
+      ip,
+      user_agent: userAgent
     };
 
     try {

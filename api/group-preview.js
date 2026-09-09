@@ -1,4 +1,6 @@
 const crypto = require('crypto');
+const dns = require('dns').promises;
+const net = require('net');
 const { supabaseRequest, getUserFromAccessToken, bearerToken } = require('./_supabase');
 
 const MAX_HTML = 1024 * 1024;
@@ -11,6 +13,27 @@ const ALLOWED_HOSTS = [
 const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg','image/png','image/webp','image/gif']);
 const lookupRate = new Map();
 function allowLookup(userId){const now=Date.now(),windowMs=60_000,max=12;const list=(lookupRate.get(userId)||[]).filter(ts=>now-ts<windowMs);if(list.length>=max){lookupRate.set(userId,list);return false;}list.push(now);lookupRate.set(userId,list);return true;}
+
+
+function isPrivateIp(ip) {
+  if (net.isIPv4(ip)) {
+    const parts = ip.split('.').map(Number);
+    const [a,b] = parts;
+    return a === 10 || a === 127 || (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || a === 0;
+  }
+  if (net.isIPv6(ip)) {
+    const h = ip.toLowerCase();
+    return h === '::1' || h === '::' || h.startsWith('fc') || h.startsWith('fd') || h.startsWith('fe80:') || h.startsWith('::ffff:127.') || h.startsWith('::ffff:10.') || h.startsWith('::ffff:192.168.') || h.startsWith('::ffff:172.');
+  }
+  return true;
+}
+async function assertPublicHost(hostname) {
+  const host = String(hostname || '').toLowerCase().replace(/\.$/, '');
+  if (!host || host === 'localhost' || host.endsWith('.localhost') || host.endsWith('.local')) throw new Error('private_host');
+  if (net.isIP(host)) { if (isPrivateIp(host)) throw new Error('private_host'); return; }
+  const records = await dns.lookup(host, { all: true, verbatim: true });
+  if (!records.length || records.some(r => isPrivateIp(r.address))) throw new Error('private_host');
+}
 
 function json(res, status, body) {
   res.status(status).setHeader('Cache-Control', 'no-store').json(body);
@@ -80,6 +103,7 @@ async function readLimited(response, limit) {
   return Buffer.concat(chunks);
 }
 async function fetchPage(url) {
+  await assertPublicHost(url.hostname);
   const response = await fetch(url, {
     redirect: 'follow',
     headers: {
@@ -90,17 +114,21 @@ async function fetchPage(url) {
   if (!response.ok) throw new Error('page_unavailable');
   const finalUrl = new URL(response.url || url);
   if (!hostAllowed(finalUrl.hostname)) throw new Error('redirect_not_allowed');
+  await assertPublicHost(finalUrl.hostname);
   const body = await readLimited(response, MAX_HTML);
   return { html: body.toString('utf8'), finalUrl };
 }
 async function fetchImage(imageUrl) {
   const u = new URL(imageUrl);
-  if (!['http:','https:'].includes(u.protocol)) throw new Error('image_url_invalid');
+  if (!['http:','https:'].includes(u.protocol) || u.href.length > 2000) throw new Error('image_url_invalid');
+  await assertPublicHost(u.hostname);
   const response = await fetch(u, {
     redirect: 'follow',
     headers: { 'user-agent': 'SorasakiGroupPreview/1.0 (+https://sorasakiplatform.store)', accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8' }
   });
   if (!response.ok) throw new Error('image_unavailable');
+  const finalUrl = new URL(response.url || u.toString());
+  await assertPublicHost(finalUrl.hostname);
   const contentType = String(response.headers.get('content-type') || '').split(';')[0].toLowerCase();
   if (!ALLOWED_IMAGE_TYPES.has(contentType)) throw new Error('image_type_not_allowed');
   const body = await readLimited(response, MAX_IMAGE);
