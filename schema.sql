@@ -42,322 +42,355 @@ alter table public.bug_reports
   add constraint bug_message_len check (char_length(message) <= 3000),
   add constraint bug_email_len check (email is null or char_length(email) <= 160);
 
-alter table public.feedback enable row level security;
-alter table public.bug_reports enable row level security;
 
-drop policy if exists "users can insert own feedback" on public.feedback;
-create policy "users can insert own feedback" on public.feedback
-  for insert to authenticated with check (auth.uid() = user_id);
 
-drop policy if exists "users can read own feedback" on public.feedback;
-create policy "users can read own feedback" on public.feedback
-  for select to authenticated using (auth.uid() = user_id);
-
-drop policy if exists "users can insert own bug reports" on public.bug_reports;
-create policy "users can insert own bug reports" on public.bug_reports
-  for insert to authenticated with check (auth.uid() = user_id);
-
-drop policy if exists "users can read own bug reports" on public.bug_reports;
-create policy "users can read own bug reports" on public.bug_reports
-  for select to authenticated using (auth.uid() = user_id);
-
--- Nenhuma policy de update/delete é criada de propósito: com RLS ligado e
--- sem policy, a operação é negada por padrão. Ninguém — nem o próprio autor
--- — pode editar ou apagar um feedback/bug já enviado pela API pública.
-
--- ===== Rate limit no banco (contra spam/flood mesmo de contas autenticadas) =====
--- Bloqueia um usuário que tente enviar mais de 5 registros em 10 minutos,
--- somando feedback + bug_reports. Isso protege o banco de ataques de
--- flood vindos de uma conta comprometida ou de um script automatizado,
--- e evita que a tabela cresça descontroladamente (o que degradaria o
--- painel de estatísticas e o próprio banco).
-create or replace function public.enforce_rate_limit()
-returns trigger
-language plpgsql
-security definer
-set search_path = public
-as $$
-declare
-  total integer;
-begin
-  select count(*) into total
-  from (
-    select created_at from public.feedback where user_id = new.user_id and created_at > now() - interval '10 minutes'
-    union all
-    select created_at from public.bug_reports where user_id = new.user_id and created_at > now() - interval '10 minutes'
-  ) recentes;
-
-  if total >= 5 then
-    raise exception 'limite de envios atingido, tente novamente em alguns minutos';
-  end if;
-
-  return new;
-end;
-$$;
-
-drop trigger if exists trg_feedback_rate_limit on public.feedback;
-create trigger trg_feedback_rate_limit
-  before insert on public.feedback
-  for each row execute function public.enforce_rate_limit();
-
-drop trigger if exists trg_bug_rate_limit on public.bug_reports;
-create trigger trg_bug_rate_limit
-  before insert on public.bug_reports
-  for each row execute function public.enforce_rate_limit();
-
+-- Perfis
 create table if not exists public.profiles (
   user_id uuid primary key references auth.users(id) on delete cascade,
   role text not null default 'user' check (role in ('user','admin')),
   display_name text,
   username text,
+  email text,
+  account_status text not null default 'active' check (account_status in ('active','suspended')),
+  email_confirmed boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
 create or replace function public.is_admin()
-returns boolean
-language sql
-stable
-security definer
-set search_path = public
-as $$
-  select exists (
-    select 1 from public.profiles
-    where user_id = auth.uid() and role = 'admin'
-  );
+returns boolean language sql stable security definer set search_path=public as $$
+  select exists(select 1 from public.profiles where user_id=auth.uid() and role='admin' and account_status='active');
 $$;
-
 revoke all on function public.is_admin() from public;
 grant execute on function public.is_admin() to authenticated;
 
+alter table public.feedback enable row level security;
+alter table public.bug_reports enable row level security;
+create policy "users insert feedback" on public.feedback for insert to authenticated with check(auth.uid()=user_id);
+create policy "users read feedback" on public.feedback for select to authenticated using(auth.uid()=user_id or public.is_admin());
+create policy "users insert bug reports" on public.bug_reports for insert to authenticated with check(auth.uid()=user_id);
+create policy "users read bug reports" on public.bug_reports for select to authenticated using(auth.uid()=user_id or public.is_admin());
+
+
+
 create or replace function public.handle_new_user()
-returns trigger
-language plpgsql
-security definer
-set search_path = public
-as $$
+returns trigger language plpgsql security definer set search_path=public as $$
 begin
-  insert into public.profiles (user_id, display_name, username)
-  values (new.id, coalesce(new.raw_user_meta_data->>'display_name', new.raw_user_meta_data->>'username', split_part(new.email, '@', 1)), coalesce(new.raw_user_meta_data->>'username', split_part(new.email, '@', 1)))
-  on conflict (user_id) do nothing;
-  return new;
-end;
-$$;
-
+ insert into public.profiles(user_id,display_name,username,email,email_confirmed)
+ values(new.id,coalesce(new.raw_user_meta_data->>'display_name',new.raw_user_meta_data->>'username',split_part(new.email,'@',1)),
+        coalesce(new.raw_user_meta_data->>'username',split_part(new.email,'@',1)),new.email,(new.email_confirmed_at is not null))
+ on conflict(user_id) do update set email=excluded.email;
+ return new;
+end $$;
 drop trigger if exists on_auth_user_created on auth.users;
-create trigger on_auth_user_created
-after insert on auth.users
-for each row execute function public.handle_new_user();
-
-insert into public.profiles (user_id, display_name, username)
-select id, coalesce(raw_user_meta_data->>'display_name', raw_user_meta_data->>'username', split_part(email, '@', 1)), coalesce(raw_user_meta_data->>'username', split_part(email, '@', 1))
-from auth.users
-on conflict (user_id) do nothing;
+create trigger on_auth_user_created after insert on auth.users for each row execute function public.handle_new_user();
 
 create table if not exists public.groups (
-  id bigint generated by default as identity primary key,
-  owner_id uuid not null references auth.users(id) on delete cascade,
-  name text not null,
-  description text not null,
-  category text not null check (category in ('vendas','comunidade','jogos','estudos','outros')),
-  avatar_url text,
-  member_count integer not null default 0 check (member_count >= 0),
-  invite_url text not null,
-  status text not null default 'pending' check (status in ('pending','approved','rejected','removed')),
-  admin_note text,
-  featured_by_admin boolean not null default false,
-  admin_badge text check (admin_badge is null or admin_badge in ('oficial','indicado','parceiro')),
-  tags text[] not null default '{}',
-  highlight_phrase text,
-  contact text,
-  view_count bigint not null default 0 check (view_count >= 0),
-  approved_at timestamptz,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  tags text,
-  contact_url text,
-  highlight text,
-  view_count bigint not null default 0 check (view_count >= 0),
-  check (char_length(name) between 2 and 100),
-  check (char_length(description) between 10 and 800),
-  check (avatar_url is null or char_length(avatar_url) <= 1000),
-  check (char_length(invite_url) between 10 and 1000),
-  check (highlight_phrase is null or char_length(highlight_phrase) <= 180),
-  check (contact is null or char_length(contact) <= 500),
-  check (cardinality(tags) <= 15),
-  check (invite_url ~* '^https?://'),
-  check (not featured_by_admin or status = 'approved'),
-  check (tags is null or char_length(tags) <= 300),
-  check (contact_url is null or char_length(contact_url) <= 1000),
-  check (highlight is null or char_length(highlight) <= 160)
+ id bigint generated by default as identity primary key,
+ owner_id uuid not null references auth.users(id) on delete cascade,
+ name text not null,
+ platform text not null,
+ description text not null,
+ category text not null check(category in('vendas','comunidade','jogos','freefire','divulgacao','amizades','suporte','estudos','outros')),
+ avatar_url text,
+ member_count integer not null default 0 check(member_count>=0),
+ invite_url text not null,
+ status text not null default 'pending' check(status in('pending','approved','rejected','removed')),
+ admin_note text,
+ featured_by_admin boolean not null default false,
+ admin_badge text check(admin_badge is null or admin_badge in('oficial','indicado','parceiro')),
+ tags text,
+ highlight text,
+ contact_url text,
+ view_count bigint not null default 0 check(view_count>=0),
+ approved_at timestamptz,
+ created_at timestamptz not null default now(),
+ updated_at timestamptz not null default now(),
+ check(char_length(name) between 2 and 100),
+ check(char_length(platform) between 2 and 80),
+ check(char_length(description) between 10 and 800),
+ check(avatar_url is null or char_length(avatar_url)<=1000),
+ check(char_length(invite_url) between 10 and 1000),
+ check(invite_url ~* '^https?://'),
+ check(tags is null or char_length(tags)<=300),
+ check(highlight is null or char_length(highlight)<=160),
+ check(contact_url is null or char_length(contact_url)<=1000),
+ check(not featured_by_admin or status='approved')
 );
+alter table public.groups drop constraint if exists groups_platform_required_pending;
+alter table public.groups add constraint groups_platform_required_pending check (status <> 'pending' or (platform is not null and char_length(trim(platform)) >= 2));
+create index if not exists idx_groups_status_created on public.groups(status,created_at desc);
+create index if not exists idx_groups_owner_created on public.groups(owner_id,created_at desc);
+create unique index if not exists uq_groups_invite_active on public.groups(lower(invite_url)) where status<>'removed';
 
-alter table public.groups drop constraint if exists groups_category_check;
-alter table public.groups add constraint groups_category_check check (category in ('vendas','comunidade','jogos','freefire','divulgacao','amizades','suporte','estudos','outros'));
-
-create index if not exists idx_groups_status_created on public.groups(status, created_at desc);
-create index if not exists idx_groups_owner on public.groups(owner_id, created_at desc);
-create index if not exists idx_groups_category on public.groups(category, status);
-
-
--- Contagem pública de visualizações sem permitir edição direta do contador.
 create or replace function public.increment_group_view(p_group_id bigint)
-returns void
-language plpgsql
-security definer
-set search_path = public
-as $$
-begin
-  update public.groups
-     set view_count = view_count + 1
-   where id = p_group_id
-     and status = 'approved';
-end;
-$$;
-
+returns void language plpgsql security definer set search_path=public as $$
+begin update public.groups set view_count=view_count+1 where id=p_group_id and status='approved'; end $$;
 revoke all on function public.increment_group_view(bigint) from public;
-grant execute on function public.increment_group_view(bigint) to anon, authenticated;
+grant execute on function public.increment_group_view(bigint) to anon,authenticated;
 
 create table if not exists public.official_groups (
-  id bigint generated by default as identity primary key,
-  name text not null,
-  description text not null,
-  category text not null check (category in ('vendas','comunidade','jogos','estudos','outros')),
-  avatar_url text,
-  invite_url text not null,
-  highlight text,
-  display_order integer not null default 0,
-  active boolean not null default true,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  check (char_length(name) between 2 and 100),
-  check (char_length(description) between 10 and 800),
-  check (avatar_url is null or char_length(avatar_url) <= 1000),
-  check (char_length(invite_url) between 10 and 1000),
-  check (highlight_phrase is null or char_length(highlight_phrase) <= 180),
-  check (contact is null or char_length(contact) <= 500),
-  check (cardinality(tags) <= 15),
-  check (invite_url ~* '^https?://'),
-  check (highlight is null or char_length(highlight) <= 160)
+ id bigint generated by default as identity primary key,
+ name text not null,
+ description text not null,
+ category text not null check(category in('vendas','comunidade','jogos','freefire','divulgacao','amizades','suporte','estudos','outros')),
+ avatar_url text,
+ invite_url text not null check(invite_url ~* '^https?://'),
+ highlight text,
+ display_order integer not null default 0,
+ active boolean not null default true,
+ created_at timestamptz not null default now(),
+ updated_at timestamptz not null default now(),
+ check(char_length(name) between 2 and 100),
+ check(char_length(description) between 10 and 800),
+ check(avatar_url is null or char_length(avatar_url)<=1000),
+ check(char_length(invite_url) between 10 and 1000),
+ check(highlight is null or char_length(highlight)<=160)
 );
-
-create index if not exists idx_official_groups_active_order on public.official_groups(active, display_order, created_at);
-
-create or replace function public.touch_official_group_updated_at()
-returns trigger
-language plpgsql
-as $$
-begin
-  new.updated_at = now();
-  return new;
-end;
-$$;
-
-drop trigger if exists trg_official_groups_updated_at on public.official_groups;
-create trigger trg_official_groups_updated_at
-before update on public.official_groups
-for each row execute function public.touch_official_group_updated_at();
-
-create or replace function public.touch_group_updated_at()
-returns trigger
-language plpgsql
-as $$
-begin
-  new.updated_at = now();
-  return new;
-end;
-$$;
-
-drop trigger if exists trg_groups_updated_at on public.groups;
-create trigger trg_groups_updated_at
-before update on public.groups
-for each row execute function public.touch_group_updated_at();
-
-create table if not exists public.official_groups (
-  id bigint generated by default as identity primary key,
-  name text not null,
-  description text not null,
-  category text not null check (category in ('vendas','comunidade','jogos','freefire','divulgacao','amizades','suporte','estudos','outros')),
-  invite_url text not null check (invite_url ~* '^https?://'),
-  image_url text,
-  highlight_phrase text,
-  display_order integer not null default 0,
-  active boolean not null default true,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  check (char_length(name) between 2 and 100),
-  check (char_length(description) between 10 and 800),
-  check (image_url is null or char_length(image_url) <= 1000),
-  check (highlight_phrase is null or char_length(highlight_phrase) <= 180)
-);
-create index if not exists idx_official_groups_active_order on public.official_groups(active, display_order, created_at desc);
+create index if not exists idx_official_groups_active_order on public.official_groups(active,display_order,created_at);
 
 create table if not exists public.reviews (
-  id bigint generated by default as identity primary key,
-  group_id bigint not null references public.groups(id) on delete cascade,
-  user_id uuid not null references auth.users(id) on delete cascade,
-  rating integer not null check (rating between 1 and 5),
-  comment text check (comment is null or char_length(comment) <= 600),
-  status text not null default 'visible' check (status in ('visible','hidden')),
-  created_at timestamptz not null default now(),
-  unique (group_id, user_id)
+ id bigint generated by default as identity primary key,
+ group_id bigint not null references public.groups(id) on delete cascade,
+ user_id uuid not null references auth.users(id) on delete cascade,
+ rating integer not null check(rating between 1 and 5),
+ comment text check(comment is null or char_length(comment)<=600),
+ status text not null default 'visible' check(status in('visible','hidden')),
+ created_at timestamptz not null default now(),
+ unique(group_id,user_id)
 );
-
-create index if not exists idx_reviews_group on public.reviews(group_id, status, created_at desc);
+create index if not exists idx_reviews_group on public.reviews(group_id,status,created_at desc);
 
 create table if not exists public.reports (
-  id bigint generated by default as identity primary key,
-  group_id bigint not null references public.groups(id) on delete cascade,
-  reporter_id uuid not null references auth.users(id) on delete cascade,
-  reason text not null check (reason in ('spam','link_invalido','conteudo_inadequado','fraude','outro')),
-  description text check (description is null or char_length(description) <= 800),
-  status text not null default 'open' check (status in ('open','reviewing','resolved','dismissed')),
-  created_at timestamptz not null default now()
+ id bigint generated by default as identity primary key,
+ group_id bigint not null references public.groups(id) on delete cascade,
+ reporter_id uuid not null references auth.users(id) on delete cascade,
+ reason text not null check(reason in('spam','link_invalido','conteudo_inadequado','fraude','outro')),
+ description text check(description is null or char_length(description)<=800),
+ status text not null default 'open' check(status in('open','reviewing','resolved','dismissed')),
+ created_at timestamptz not null default now(),
+ unique(group_id,reporter_id)
 );
-
-create index if not exists idx_reports_status on public.reports(status, created_at desc);
+create index if not exists idx_reports_status on public.reports(status,created_at desc);
 
 create table if not exists public.promotion_plans (
-  id bigint generated by default as identity primary key,
-  name text not null unique,
-  description text not null,
-  price numeric(10,2) not null check (price >= 0),
-  duration_days integer not null check (duration_days > 0),
-  active boolean not null default true,
-  created_at timestamptz not null default now()
+ id bigint generated by default as identity primary key,
+ name text not null unique,
+ description text not null,
+ price numeric(10,2) not null check(price>=0),
+ duration_days integer not null check(duration_days>0),
+ active boolean not null default true,
+ created_at timestamptz not null default now(),
+ updated_at timestamptz not null default now()
 );
 
 create table if not exists public.orders (
-  id bigint generated by default as identity primary key,
-  user_id uuid not null references auth.users(id) on delete cascade,
-  group_id bigint references public.groups(id) on delete set null,
-  plan_id bigint references public.promotion_plans(id) on delete set null,
-  amount numeric(10,2) not null check (amount >= 0),
-  status text not null default 'pending' check (status in ('pending','paid','rejected','cancelled','expired','refunded')),
-  payment_provider text not null default 'mercadopago',
-  payment_id text,
-  created_at timestamptz not null default now(),
-  paid_at timestamptz,
-  expires_at timestamptz
+ id bigint generated by default as identity primary key,
+ user_id uuid not null references auth.users(id) on delete cascade,
+ group_id bigint references public.groups(id) on delete set null,
+ plan_id bigint references public.promotion_plans(id) on delete set null,
+ amount numeric(10,2) not null check(amount>=0),
+ status text not null default 'pending' check(status in('pending','paid','rejected','cancelled','expired','refunded')),
+ payment_provider text not null default 'mercadopago',
+ payment_id text,
+ created_at timestamptz not null default now(),
+ paid_at timestamptz,
+ expires_at timestamptz
 );
-
-create index if not exists idx_orders_user on public.orders(user_id, created_at desc);
-create index if not exists idx_orders_payment on public.orders(payment_provider, payment_id);
+create index if not exists idx_orders_user on public.orders(user_id,created_at desc);
+create unique index if not exists uq_orders_payment_id on public.orders(payment_id) where payment_id is not null;
 
 create table if not exists public.promotions (
-  id bigint generated by default as identity primary key,
-  group_id bigint not null references public.groups(id) on delete cascade,
-  order_id bigint not null unique references public.orders(id) on delete cascade,
-  plan_id bigint not null references public.promotion_plans(id) on delete restrict,
-  starts_at timestamptz not null,
-  expires_at timestamptz not null,
-  active boolean not null default true,
-  created_at timestamptz not null default now(),
-  check (expires_at > starts_at)
+ id bigint generated by default as identity primary key,
+ group_id bigint not null references public.groups(id) on delete cascade,
+ order_id bigint not null unique references public.orders(id) on delete cascade,
+ plan_id bigint not null references public.promotion_plans(id) on delete restrict,
+ starts_at timestamptz not null,
+ expires_at timestamptz not null,
+ active boolean not null default true,
+ created_at timestamptz not null default now(),
+ check(expires_at>starts_at)
 );
 
-create index if not exists idx_promotions_active on public.promotions(active, expires_at desc);
+create table if not exists public.coupons (
+ id bigint generated by default as identity primary key,
+ code text not null unique,
+ discount_type text not null check(discount_type in('percent','fixed')),
+ discount_value numeric(10,2) not null check(discount_value>0),
+ starts_at timestamptz not null default now(),
+ expires_at timestamptz,
+ max_uses integer,
+ max_uses_per_user integer not null default 1,
+ uses_count integer not null default 0,
+ product_id bigint,
+ active boolean not null default true,
+ created_at timestamptz not null default now(),
+ updated_at timestamptz not null default now(),
+ check(char_length(code) between 3 and 40),
+ check(code=upper(code)),
+ check(max_uses is null or max_uses>0),
+ check(max_uses_per_user>0),
+ check(expires_at is null or expires_at>starts_at),
+ check((discount_type='percent' and discount_value<=100) or discount_type='fixed')
+);
 
+create table if not exists public.coupon_redemptions (
+ id bigint generated by default as identity primary key,
+ coupon_id bigint not null references public.coupons(id) on delete cascade,
+ user_id uuid not null references auth.users(id) on delete cascade,
+ order_id bigint references public.orders(id) on delete set null,
+ discount_amount numeric(10,2) not null default 0 check(discount_amount>=0),
+ created_at timestamptz not null default now()
+);
+create index if not exists idx_coupon_redemptions_user on public.coupon_redemptions(user_id,created_at desc);
+
+create table if not exists public.products (
+ id bigint generated by default as identity primary key,
+ name text not null,
+ slug text not null unique,
+ description text,
+ price numeric(10,2) not null default 0 check(price>=0),
+ previous_price numeric(10,2),
+ promo_price numeric(10,2),
+ active boolean not null default true,
+ display_order integer not null default 0,
+ created_at timestamptz not null default now(),
+ updated_at timestamptz not null default now()
+);
+
+create table if not exists public.news (
+ id bigint generated by default as identity primary key,
+ title text not null,
+ summary text,
+ content text not null,
+ category text not null default 'novidade',
+ image_url text,
+ status text not null default 'draft' check(status in('draft','published')),
+ publish_at timestamptz not null default now(),
+ created_by uuid references auth.users(id) on delete set null,
+ created_at timestamptz not null default now(),
+ updated_at timestamptz not null default now()
+);
+
+create table if not exists public.site_notices (
+ id bigint generated by default as identity primary key,
+ title text not null,
+ message text not null,
+ notice_type text not null default 'info' check(notice_type in('info','success','warning','danger')),
+ starts_at timestamptz not null default now(),
+ ends_at timestamptz,
+ highlighted boolean not null default false,
+ active boolean not null default true,
+ created_by uuid references auth.users(id) on delete set null,
+ created_at timestamptz not null default now(),
+ updated_at timestamptz not null default now()
+);
+
+create table if not exists public.site_settings (
+ key text primary key,
+ value jsonb not null default '{}'::jsonb,
+ description text,
+ updated_by uuid references auth.users(id) on delete set null,
+ updated_at timestamptz not null default now()
+);
+
+create table if not exists public.admin_activity (
+ id bigint generated by default as identity primary key,
+ admin_id uuid references auth.users(id) on delete set null,
+ action text not null,
+ entity text not null,
+ entity_id text,
+ details jsonb not null default '{}'::jsonb,
+ created_at timestamptz not null default now()
+);
+
+insert into public.site_settings(key,value,description) values
+('max_group_submissions_per_24h','5'::jsonb,'Máximo de novas divulgações por conta em 24 horas.'),
+('community_submissions_enabled','true'::jsonb,'Permite novas divulgações.'),
+('maintenance_mode','false'::jsonb,'Modo de manutenção.')
+on conflict(key) do nothing;
+
+-- Funções de manutenção/auditoria
+create or replace function public.touch_updated_at()
+returns trigger language plpgsql as $$ begin new.updated_at=now(); return new; end $$;
+
+do $$
+declare t text;
+begin
+ foreach t in array array['profiles','groups','official_groups','promotion_plans','coupons','products','news','site_notices','site_settings'] loop
+  execute format('drop trigger if exists trg_touch_%I on public.%I',t,t);
+  execute format('create trigger trg_touch_%I before update on public.%I for each row execute function public.touch_updated_at()',t,t);
+ end loop;
+end $$;
+
+create or replace function public.enforce_group_limits()
+returns trigger language plpgsql security definer set search_path=public as $$
+declare total integer; max_allowed integer := 5;
+begin
+ if new.owner_id<>auth.uid() and not public.is_admin() then raise exception 'operação não autorizada'; end if;
+ if new.status='pending' and not public.is_admin() then
+  if coalesce((select (value#>>'{}')::boolean from public.site_settings where key='community_submissions_enabled'),true)=false then raise exception 'novas divulgações estão temporariamente desativadas'; end if;
+  select coalesce((value#>>'{}')::integer,5) into max_allowed from public.site_settings where key='max_group_submissions_per_24h';
+  select count(*) into total from public.groups where owner_id=new.owner_id and status in('pending','approved') and created_at>now()-interval '24 hours';
+  if total>=coalesce(max_allowed,5) then raise exception 'limite de divulgações atingido'; end if;
+ end if;
+ return new;
+end $$;
+drop trigger if exists trg_group_limits on public.groups;
+create trigger trg_group_limits before insert on public.groups for each row execute function public.enforce_group_limits();
+
+create or replace function public.audit_admin_change()
+returns trigger language plpgsql security definer set search_path=public as $$
+declare who uuid:=auth.uid(); rid text;
+begin
+ if who is null or not public.is_admin() then return case when tg_op='DELETE' then old else new end; end if;
+ rid:=coalesce(to_jsonb(new)->>'id',to_jsonb(old)->>'id',to_jsonb(new)->>'key',to_jsonb(old)->>'key');
+ insert into public.admin_activity(admin_id,action,entity,entity_id,details)
+ values(who,tg_op,tg_table_name,rid,jsonb_build_object('record_id',rid));
+ return case when tg_op='DELETE' then old else new end;
+end $$;
+
+do $$
+declare t text;
+begin
+ foreach t in array array['groups','official_groups','coupons','products','news','site_notices','site_settings','promotion_plans','reviews','reports'] loop
+  execute format('drop trigger if exists trg_audit_%I on public.%I',t,t);
+  execute format('create trigger trg_audit_%I after insert or update or delete on public.%I for each row execute function public.audit_admin_change()',t,t);
+ end loop;
+end $$;
+
+
+create or replace function public.consume_coupon(p_coupon_id bigint,p_user_id uuid,p_order_id bigint,p_discount numeric)
+returns boolean language plpgsql security definer set search_path=public as $$
+declare c public.coupons; used_by_user integer;
+begin
+  select * into c from public.coupons where id=p_coupon_id for update;
+  if c.id is null or not c.active or c.starts_at>now() or (c.expires_at is not null and c.expires_at<=now()) then return false; end if;
+  if c.max_uses is not null and c.uses_count>=c.max_uses then return false; end if;
+  select count(*) into used_by_user from public.coupon_redemptions where coupon_id=c.id and user_id=p_user_id;
+  if used_by_user>=c.max_uses_per_user then return false; end if;
+  insert into public.coupon_redemptions(coupon_id,user_id,order_id,discount_amount)
+  values(c.id,p_user_id,p_order_id,greatest(0,p_discount));
+  update public.coupons set uses_count=uses_count+1 where id=c.id;
+  return true;
+exception when unique_violation then return false;
+end $$;
+revoke all on function public.consume_coupon(bigint,uuid,bigint,numeric) from public;
+grant execute on function public.consume_coupon(bigint,uuid,bigint,numeric) to service_role;
+
+
+create or replace function public.enforce_report_limit()
+returns trigger language plpgsql security definer set search_path=public as $$
+declare total integer;
+begin
+ select count(*) into total from public.reports where reporter_id=new.reporter_id and created_at>now()-interval '24 hours';
+ if total>=10 then raise exception 'limite de relatos atingido'; end if;
+ return new;
+end $$;
+drop trigger if exists trg_report_limit on public.reports;
+create trigger trg_report_limit before insert on public.reports for each row execute function public.enforce_report_limit();
+
+-- RLS
 alter table public.profiles enable row level security;
 alter table public.groups enable row level security;
 alter table public.official_groups enable row level security;
@@ -366,145 +399,68 @@ alter table public.reports enable row level security;
 alter table public.promotion_plans enable row level security;
 alter table public.orders enable row level security;
 alter table public.promotions enable row level security;
+alter table public.coupons enable row level security;
+alter table public.coupon_redemptions enable row level security;
+alter table public.products enable row level security;
+alter table public.news enable row level security;
+alter table public.site_notices enable row level security;
+alter table public.site_settings enable row level security;
+alter table public.admin_activity enable row level security;
 
-drop policy if exists "profiles own read" on public.profiles;
-create policy "profiles own read" on public.profiles for select to authenticated using (auth.uid() = user_id or public.is_admin());
+create policy "profiles own read" on public.profiles for select to authenticated using(auth.uid()=user_id or public.is_admin());
+create policy "profiles own update" on public.profiles for update to authenticated using(auth.uid()=user_id) with check(auth.uid()=user_id);
+create policy "admin profiles manage" on public.profiles for all to authenticated using(public.is_admin()) with check(public.is_admin());
 
-alter table public.profiles add constraint profiles_username_format check (username is null or username ~ '^[A-Za-z0-9_]{3,24}$');
-create unique index if not exists uq_profiles_username on public.profiles(lower(username)) where username is not null;
+create policy "public approved groups read" on public.groups for select to anon,authenticated using(status='approved');
+create policy "users own groups read" on public.groups for select to authenticated using(auth.uid()=owner_id or public.is_admin());
+create policy "users submit groups" on public.groups for insert to authenticated with check(auth.uid()=owner_id and status='pending' and featured_by_admin=false and admin_badge is null);
+create policy "users edit groups" on public.groups for update to authenticated using(auth.uid()=owner_id) with check(auth.uid()=owner_id and status='pending' and featured_by_admin=false and admin_badge is null);
+create policy "users delete groups" on public.groups for delete to authenticated using(auth.uid()=owner_id);
+create policy "admins manage groups" on public.groups for all to authenticated using(public.is_admin()) with check(public.is_admin());
 
-drop policy if exists "profiles own update" on public.profiles;
-create policy "profiles own update" on public.profiles for update to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "public official read" on public.official_groups for select to anon,authenticated using(active=true or public.is_admin());
+create policy "admins official manage" on public.official_groups for all to authenticated using(public.is_admin()) with check(public.is_admin());
 
+create policy "public reviews read" on public.reviews for select to anon,authenticated using(status='visible');
+create policy "users review" on public.reviews for insert to authenticated with check(auth.uid()=user_id and exists(select 1 from public.groups g where g.id=group_id and g.status='approved'));
+create policy "admins reviews" on public.reviews for all to authenticated using(public.is_admin()) with check(public.is_admin());
 
-drop policy if exists "public active official groups read" on public.official_groups;
-create policy "public active official groups read" on public.official_groups
-  for select to anon, authenticated using (active = true or public.is_admin());
+create policy "users reports insert" on public.reports for insert to authenticated with check(auth.uid()=reporter_id);
+create policy "users reports read" on public.reports for select to authenticated using(auth.uid()=reporter_id or public.is_admin());
+create policy "admins reports" on public.reports for all to authenticated using(public.is_admin()) with check(public.is_admin());
 
-drop policy if exists "admins manage official groups" on public.official_groups;
-create policy "admins manage official groups" on public.official_groups
-  for all to authenticated using (public.is_admin()) with check (public.is_admin());
+create policy "public plans read" on public.promotion_plans for select to anon,authenticated using(active=true or public.is_admin());
+create policy "admins plans" on public.promotion_plans for all to authenticated using(public.is_admin()) with check(public.is_admin());
+create policy "users orders read" on public.orders for select to authenticated using(auth.uid()=user_id or public.is_admin());
+create policy "admins orders" on public.orders for all to authenticated using(public.is_admin()) with check(public.is_admin());
+create policy "public promotions read" on public.promotions for select to anon,authenticated using(active=true or public.is_admin());
+create policy "admins promotions" on public.promotions for all to authenticated using(public.is_admin()) with check(public.is_admin());
 
-drop policy if exists "public approved groups read" on public.groups;
-create policy "public approved groups read" on public.groups for select to anon, authenticated using (status = 'approved');
-
-drop policy if exists "users own groups read" on public.groups;
-create policy "users own groups read" on public.groups for select to authenticated using (auth.uid() = owner_id or public.is_admin());
-
-drop policy if exists "users submit pending groups" on public.groups;
-create policy "users submit pending groups" on public.groups for insert to authenticated with check (auth.uid() = owner_id and status = 'pending' and featured_by_admin = false and admin_badge is null);
-
-
-drop policy if exists "users own groups update" on public.groups;
-create policy "users own groups update" on public.groups
-  for update to authenticated
-  using (auth.uid() = owner_id)
-  with check (auth.uid() = owner_id and status = 'pending' and featured_by_admin = false and admin_badge is null);
-
-drop policy if exists "users own groups delete" on public.groups;
-create policy "users own groups delete" on public.groups
-  for delete to authenticated
-  using (auth.uid() = owner_id);
-
-drop policy if exists "admins manage groups" on public.groups;
-create policy "admins manage groups" on public.groups for all to authenticated using (public.is_admin()) with check (public.is_admin());
-
-drop policy if exists "visible reviews read" on public.reviews;
-create policy "visible reviews read" on public.reviews for select to anon, authenticated using (status = 'visible');
-
-drop policy if exists "users create reviews" on public.reviews;
-create policy "users create reviews" on public.reviews for insert to authenticated with check (auth.uid() = user_id and exists (select 1 from public.groups g where g.id = group_id and g.status = 'approved'));
-
-drop policy if exists "users own reviews read" on public.reviews;
-create policy "users own reviews read" on public.reviews for select to authenticated using (auth.uid() = user_id or public.is_admin());
-
-drop policy if exists "admins manage reviews" on public.reviews;
-create policy "admins manage reviews" on public.reviews for all to authenticated using (public.is_admin()) with check (public.is_admin());
-
-drop policy if exists "users create reports" on public.reports;
-create policy "users create reports" on public.reports for insert to authenticated with check (auth.uid() = reporter_id);
-
-drop policy if exists "users own reports read" on public.reports;
-create policy "users own reports read" on public.reports for select to authenticated using (auth.uid() = reporter_id or public.is_admin());
-
-drop policy if exists "admins manage reports" on public.reports;
-create policy "admins manage reports" on public.reports for all to authenticated using (public.is_admin()) with check (public.is_admin());
-
-drop policy if exists "active plans read" on public.promotion_plans;
-create policy "active plans read" on public.promotion_plans for select to anon, authenticated using (active = true or public.is_admin());
-
-drop policy if exists "admins manage plans" on public.promotion_plans;
-create policy "admins manage plans" on public.promotion_plans for all to authenticated using (public.is_admin()) with check (public.is_admin());
-
-drop policy if exists "users own orders read" on public.orders;
-create policy "users own orders read" on public.orders for select to authenticated using (auth.uid() = user_id or public.is_admin());
-
-drop policy if exists "admins manage orders" on public.orders;
-create policy "admins manage orders" on public.orders for all to authenticated using (public.is_admin()) with check (public.is_admin());
-
-drop policy if exists "active promotions read" on public.promotions;
-create policy "active promotions read" on public.promotions for select to anon, authenticated using (active = true or public.is_admin());
-
-drop policy if exists "admins manage promotions" on public.promotions;
-create policy "admins manage promotions" on public.promotions for all to authenticated using (public.is_admin()) with check (public.is_admin());
+create policy "public products read" on public.products for select to anon,authenticated using(active=true or public.is_admin());
+create policy "admins products" on public.products for all to authenticated using(public.is_admin()) with check(public.is_admin());
+create policy "public news read" on public.news for select to anon,authenticated using((status='published' and publish_at<=now()) or public.is_admin());
+create policy "admins news" on public.news for all to authenticated using(public.is_admin()) with check(public.is_admin());
+create policy "public notices read" on public.site_notices for select to anon,authenticated using((active=true and starts_at<=now() and (ends_at is null or ends_at>now())) or public.is_admin());
+create policy "admins notices" on public.site_notices for all to authenticated using(public.is_admin()) with check(public.is_admin());
+create policy "admins coupons" on public.coupons for all to authenticated using(public.is_admin()) with check(public.is_admin());
+create policy "admins redemptions" on public.coupon_redemptions for all to authenticated using(public.is_admin()) with check(public.is_admin());
+create policy "users own redemptions" on public.coupon_redemptions for select to authenticated using(auth.uid()=user_id);
+create policy "admins settings" on public.site_settings for all to authenticated using(public.is_admin()) with check(public.is_admin());
+create policy "admins activity read" on public.admin_activity for select to authenticated using(public.is_admin());
+create policy "admins activity insert" on public.admin_activity for insert to authenticated with check(public.is_admin() and auth.uid()=admin_id);
 
 revoke all on public.profiles from anon;
 revoke all on public.orders from anon;
 revoke all on public.reports from anon;
 revoke all on public.promotions from anon;
+revoke all on public.admin_activity from anon;
 
-
--- ===== Complementos para a integração de pagamentos e moderação =====
--- Estes índices tornam operações repetidas mais seguras e rápidas.
-create unique index if not exists uq_orders_payment_id
-  on public.orders(payment_id)
-  where payment_id is not null;
-
-create unique index if not exists uq_reports_group_reporter
-  on public.reports(group_id, reporter_id);
-
--- Planos iniciais ficam inativos até que a administração defina os valores.
--- Assim nenhum preço comercial é inventado ou publicado por padrão.
-insert into public.promotion_plans (name, description, price, duration_days, active)
-values
-  ('IMPULSIONAR', 'Maior visibilidade durante o período contratado.', 0, 7, false),
-  ('PLUS', 'Mais destaque e benefícios adicionais durante o período contratado.', 0, 15, false),
-  ('VIP', 'Maior nível de exposição durante o período contratado.', 0, 30, false)
-on conflict (name) do nothing;
-
--- Grupos oficiais
-alter table public.official_groups enable row level security;
-drop policy if exists "public active official groups read" on public.official_groups;
-create policy "public active official groups read" on public.official_groups for select to anon, authenticated using (active = true or public.is_admin());
-drop policy if exists "admins manage official groups" on public.official_groups;
-create policy "admins manage official groups" on public.official_groups for all to authenticated using (public.is_admin()) with check (public.is_admin());
-
--- Donos podem editar/remover as próprias divulgações.
-drop policy if exists "users own groups update" on public.groups;
-create policy "users own groups update" on public.groups for update to authenticated using (auth.uid() = owner_id) with check (auth.uid() = owner_id);
-drop policy if exists "users own groups delete" on public.groups;
-create policy "users own groups delete" on public.groups for delete to authenticated using (auth.uid() = owner_id);
-
-create or replace function public.increment_group_view(p_group_id bigint)
-returns void language sql security definer set search_path = public as $$
-  update public.groups set view_count = view_count + 1 where id = p_group_id and status = 'approved';
-$$;
-revoke all on function public.increment_group_view(bigint) from public;
-grant execute on function public.increment_group_view(bigint) to anon, authenticated;
-
-create or replace function public.protect_group_owner_changes()
-returns trigger language plpgsql security definer set search_path = public as $$
+-- Função para registrar eventos manuais pelo painel.
+create or replace function public.log_admin_activity(p_action text,p_entity text,p_entity_id text default null,p_details jsonb default '{}'::jsonb)
+returns void language plpgsql security definer set search_path=public as $$
 begin
-  if not public.is_admin() then
-    if new.owner_id <> old.owner_id or new.featured_by_admin <> old.featured_by_admin or coalesce(new.admin_badge,'') <> coalesce(old.admin_badge,'') or coalesce(new.admin_note,'') <> coalesce(old.admin_note,'') or new.approved_at is distinct from old.approved_at then
-      raise exception 'alteração não permitida';
-    end if;
-    if old.status <> new.status and new.status <> 'pending' then
-      raise exception 'alteração não permitida';
-    end if;
-  end if;
-  return new;
-end;
-$$;
-drop trigger if exists trg_protect_group_owner_changes on public.groups;
-create trigger trg_protect_group_owner_changes before update on public.groups for each row execute function public.protect_group_owner_changes();
+ if not public.is_admin() then raise exception 'operação não autorizada'; end if;
+ insert into public.admin_activity(admin_id,action,entity,entity_id,details) values(auth.uid(),left(p_action,80),left(p_entity,80),p_entity_id,p_details);
+end $$;
+revoke all on function public.log_admin_activity(text,text,text,jsonb) from public;
+grant execute on function public.log_admin_activity(text,text,text,jsonb) to authenticated;

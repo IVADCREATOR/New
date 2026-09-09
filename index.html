@@ -17,7 +17,7 @@
     <div>Sorasaki<small>Central Sorasaki</small></div>
   </div>
   <nav>
-    <a href="/grupos">Grupos</a>
+    <a href="/grupos">Grupos</a><a href="/noticias">Notícias</a>
     <a href="/" class="active">Resumo</a>
     <a href="/estatisticas">Estatísticas</a>
     <a href="/status">Status</a>
@@ -64,6 +64,12 @@
   <section class="official-groups panel" id="homeOfficialSection" hidden>
     <div class="section-heading"><div><span class="eyebrow">⭐ GRUPOS OFICIAIS DOS DONOS</span><h2>Comunidades oficiais</h2></div><span>Comunidades oficiais indicadas pela equipe do SORASAKI.</span></div>
     <div id="homeOfficialGrid" class="official-grid"></div>
+  </section>
+
+  <section id="homeNoticeArea" class="panel" hidden></section>
+  <section id="homeNewsArea" class="panel" hidden>
+    <div class="section-heading"><div><span class="eyebrow">📰 NOVIDADES</span><h2>Últimas atualizações</h2></div><a class="hero-btn" href="/noticias">Ver todas <span>→</span></a></div>
+    <div id="homeNewsGrid" class="news-grid"></div>
   </section>
 
   <section class="groups-promo groups-promo-highlight">
@@ -115,6 +121,21 @@
     const section=document.getElementById('homeOfficialSection'),grid=document.getElementById('homeOfficialGrid'); if(!section||!grid||!data?.length)return; section.hidden=false;
     grid.innerHTML=data.map(g=>{const img=safe(g.avatar_url),link=safe(g.invite_url);return `<article class="official-card"><div class="official-card-badge">⭐ GRUPO OFICIAL</div><div class="official-card-top"><div class="official-icon">${img?`<img src="${esc(img)}" alt="" loading="lazy">`:'👑'}</div><div><h3>${esc(g.name)}</h3><span>${esc(labels[g.category]||g.category)}</span></div></div>${g.highlight?`<div class="official-highlight">✦ ${esc(g.highlight)}</div>`:''}<p>${esc(g.description)}</p><a class="group-join" href="${esc(link)}" target="_blank" rel="noopener noreferrer">Entrar no grupo <span>↗</span></a></article>`}).join('');
   })();
+</script>
+<script>
+(async()=>{
+  try{
+    await window.SorasakiAuth?.ready;
+    const c=window.SorasakiAuth?.getClient?.(); if(!c)return;
+    const esc=v=>String(v??'').replace(/[&<>'"]/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[x]));
+    const n=await c.from('site_notices').select('title,message,notice_type,highlighted').order('highlighted',{ascending:false}).limit(3);
+    const na=document.getElementById('homeNoticeArea');
+    if(na&&n.data?.length){na.hidden=false;na.innerHTML=n.data.map(x=>`<div class="notice-preview"><strong>📌 ${esc(x.title)}</strong><p>${esc(x.message)}</p></div>`).join('')}
+    const r=await c.from('news').select('id,title,summary,content,category,publish_at,image_url').eq('status','published').lte('publish_at',new Date().toISOString()).order('publish_at',{ascending:false}).limit(3);
+    const area=document.getElementById('homeNewsArea'),grid=document.getElementById('homeNewsGrid');
+    if(area&&grid&&r.data?.length){area.hidden=false;grid.innerHTML=r.data.map(x=>`<article class="panel news-card"><div class="news-meta">${esc(x.category)} · ${new Date(x.publish_at).toLocaleDateString('pt-BR')}</div><h3>${esc(x.title)}</h3><p>${esc(x.summary||x.content.slice(0,180))}</p></article>`).join('')}
+  }catch(e){}
+})();
 </script>
 <script>
   onConnection((c) => {

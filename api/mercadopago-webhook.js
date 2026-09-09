@@ -62,7 +62,7 @@ module.exports = async (req, res) => {
     const orderId = Number(externalReference);
     if (!Number.isInteger(orderId) || orderId <= 0) return res.status(200).json({ ok: true });
 
-    const orders = await supabaseRequest(`/rest/v1/orders?id=eq.${orderId}&select=id,user_id,group_id,plan_id,amount,status`);
+    const orders = await supabaseRequest(`/rest/v1/orders?id=eq.${orderId}&select=id,user_id,group_id,plan_id,amount,status,coupon_id,discount_amount`);
     const order = orders?.[0];
     if (!order) return res.status(200).json({ ok: true });
 
@@ -82,6 +82,20 @@ module.exports = async (req, res) => {
     });
 
     if (status === 'paid') {
+      if (order.coupon_id) {
+        const consumed = await supabaseRequest('/rest/v1/rpc/consume_coupon', {
+          method: 'POST',
+          body: JSON.stringify({
+            p_coupon_id: Number(order.coupon_id),
+            p_user_id: order.user_id,
+            p_order_id: order.id,
+            p_discount: Number(order.discount_amount || 0)
+          })
+        });
+        if (consumed !== true && consumed !== 'true') {
+          console.warn('coupon could not be consumed', order.coupon_id, order.id);
+        }
+      }
       const plans = await supabaseRequest(`/rest/v1/promotion_plans?id=eq.${order.plan_id}&select=id,duration_days`);
       const plan = plans?.[0];
       if (plan && order.group_id) {

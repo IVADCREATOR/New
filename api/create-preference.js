@@ -22,6 +22,7 @@ module.exports = async (req, res) => {
 
   const planId = Number(body.plan_id);
   const groupId = Number(body.group_id);
+  const couponCode = String(body.coupon_code || '').trim().toUpperCase();
   if (!Number.isInteger(planId) || !Number.isInteger(groupId)) {
     return json(res, 400, { ok: false, message: 'Selecione um plano e um grupo válidos.' });
   }
@@ -30,6 +31,26 @@ module.exports = async (req, res) => {
     const plans = await supabaseRequest(`/rest/v1/promotion_plans?id=eq.${planId}&active=eq.true&select=id,name,description,price,duration_days`);
     const plan = plans?.[0];
     if (!plan) return json(res, 404, { ok: false, message: 'Este plano não está disponível.' });
+    let coupon = null;
+    let discount = 0;
+    if (couponCode) {
+      const coupons = await supabaseRequest(`/rest/v1/coupons?code=eq.${encodeURIComponent(couponCode)}&active=eq.true&select=id,code,discount_type,discount_value,starts_at,expires_at,max_uses,uses_count,max_uses_per_user,plan_id`);
+      coupon = coupons?.[0];
+      if (!coupon) return json(res, 400, { ok: false, message: 'Cupom inválido ou indisponível.' });
+      const now = Date.now();
+      if (new Date(coupon.starts_at).getTime() > now || (coupon.expires_at && new Date(coupon.expires_at).getTime() <= now)) return json(res, 400, { ok: false, message: 'Este cupom não está válido neste momento.' });
+      if (coupon.max_uses != null && Number(coupon.uses_count) >= Number(coupon.max_uses)) return json(res, 400, { ok: false, message: 'Este cupom atingiu o limite de utilizações.' });
+      if (coupon.plan_id != null && Number(coupon.plan_id) !== plan.id) return json(res, 400, { ok: false, message: 'Este cupom não se aplica a este plano.' });
+      const previous = await supabaseRequest(`/rest/v1/coupon_redemptions?coupon_id=eq.${coupon.id}&user_id=eq.${encodeURIComponent(user.id)}&select=id&limit=100`);
+      if ((previous||[]).length >= Number(coupon.max_uses_per_user || 1)) return json(res, 400, { ok: false, message: 'Você já atingiu o limite deste cupom.' });
+      discount = coupon.discount_type === 'percent'
+        ? Number((Number(plan.price) * Number(coupon.discount_value) / 100).toFixed(2))
+        : Number(coupon.discount_value);
+      discount = Math.min(Number(plan.price), Math.max(0, discount));
+    }
+    const finalAmount = Number((Number(plan.price) - discount).toFixed(2));
+    if (finalAmount <= 0) return json(res, 400, { ok: false, message: 'O desconto não pode deixar o pedido sem valor.' });
+
 
     const groups = await supabaseRequest(`/rest/v1/groups?id=eq.${groupId}&owner_id=eq.${encodeURIComponent(user.id)}&select=id,name,status`);
     const group = groups?.[0];
@@ -43,7 +64,9 @@ module.exports = async (req, res) => {
         user_id: user.id,
         group_id: group.id,
         plan_id: plan.id,
-        amount: Number(plan.price),
+        amount: finalAmount,
+        coupon_id: coupon?.id || null,
+        discount_amount: discount,
         status: 'pending',
         payment_provider: 'mercadopago'
       })
@@ -59,7 +82,7 @@ module.exports = async (req, res) => {
         description: plan.description,
         quantity: 1,
         currency_id: 'BRL',
-        unit_price: Number(plan.price)
+        unit_price: finalAmount
       }],
       external_reference: String(order.id),
       notification_url: `${origin}/api/mercadopago-webhook`,
@@ -73,7 +96,8 @@ module.exports = async (req, res) => {
         order_id: String(order.id),
         user_id: user.id,
         group_id: String(group.id),
-        plan_id: String(plan.id)
+        plan_id: String(plan.id),
+        coupon_id: coupon?.id ? String(coupon.id) : ''
       }
     };
 
