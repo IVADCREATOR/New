@@ -1,22 +1,24 @@
-# Sorasaki — manutenção 2026-09-09
+# SORASAKI — Manutenção 2026-09-09
 
-## Importante antes do deploy
+## Alterações desta versão
+- Corrigida a interpretação de valores JSONB no endpoint de estado do site, evitando que `maintenance_mode=false` seja tratado como verdadeiro.
+- Reforçada a proteção do preview de grupos contra SSRF em URLs de imagens e redirecionamentos para hosts privados.
+- Adicionado limite básico de tentativas no início de pagamentos.
+- Padronizada a estrutura de avaliações para suportar moderação (`pending`, `visible`, `hidden`) e metadados opcionais.
+- Painel administrativo ganhou moderação de avaliações de grupos.
+- Corrigido o botão de atualização da tela de estatísticas.
+- Produtos agora preservam/permitem alterar o estado ativo/inativo pelo painel.
+- Salvamento das configurações administrativas agora detecta falha parcial antes de informar sucesso.
+- Auditoria administrativa ficou mais tolerante a registros sem `admin_id`.
+- Adicionados headers de segurança no Vercel.
+- Atualizado o cache-busting do `app.js` para esta manutenção.
 
-O código desta versão adiciona estatísticas reais de visitantes e um catálogo público de produtos. Para essas duas partes funcionarem no Supabase existente, execute **uma vez** o arquivo `sql-manutencao-20260909.sql` no SQL Editor do projeto.
+## Validação local
+- Sintaxe de todos os arquivos JavaScript verificada com `node --check`.
+- Scripts inline de todas as páginas HTML verificados com `node --check`.
+- Estrutura do ZIP preserva os arquivos do projeto na raiz, sem pasta interna desnecessária.
 
-Esse SQL cria/garante:
-- `site_visits` para visitantes e visualizações;
-- funções `record_site_visit` e `get_site_analytics`;
-- políticas de segurança do registro de visitas;
-- estrutura/políticas de `products` caso a instalação ainda não tenha a tabela;
-- correção de valores legados de `maintenance_mode` como `"false"`.
+## Limitações
+Os fluxos que dependem do Supabase, autenticação real, Storage, Mercado Pago e variáveis de ambiente não podem ser considerados teste de produção dentro deste ambiente. Depois do deploy, é necessário validar esses fluxos com a configuração real.
 
-O site não armazena IP para as estatísticas de visitantes. O identificador é aleatório e fica no navegador do visitante.
-
-Depois do SQL, publique o projeto no Vercel normalmente e teste:
-1. abrir `/` em uma janela normal;
-2. abrir `/estatisticas`;
-3. entrar no painel administrativo e abrir `Estatísticas`;
-4. cadastrar/editar um produto e conferir o catálogo público;
-5. ativar o modo de manutenção e abrir o site em uma janela anônima;
-6. confirmar que `/controle-8f4c2e91` continua acessível para o administrador.
+As variáveis sensíveis continuam fora do código: `SUPABASE_SERVICE_ROLE_KEY`, `MERCADOPAGO_ACCESS_TOKEN` e `MERCADOPAGO_WEBHOOK_SECRET`.

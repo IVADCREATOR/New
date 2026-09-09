@@ -61,7 +61,6 @@
     <div id="officialHomeGrid" class="official-grid"><div class="groups-empty"><div>★</div><strong>Carregando grupos oficiais</strong><span>Um instante...</span></div></div>
   </section>
 
-  <section id="homeProductsArea" class="panel" hidden><div class="section-heading"><div><span class="eyebrow">💰 PRODUTOS</span><h2>Produtos e preços</h2></div><a class="hero-btn" href="/grupos">Ver opções <span>→</span></a></div><div id="homeProductsGrid" class="plans-grid"></div></section>
   <section id="homeNoticeArea" class="panel" hidden></section>
   <section id="homeNewsArea" class="panel" hidden>
     <div class="section-heading"><div><span class="eyebrow">📰 NOVIDADES</span><h2>Últimas atualizações</h2></div><a class="hero-btn" href="/noticias">Ver todas <span>→</span></a></div>
@@ -114,9 +113,6 @@
     await window.SorasakiAuth?.ready;
     const c=window.SorasakiAuth?.getClient?.(); if(!c)return;
     const esc=v=>String(v??'').replace(/[&<>'"]/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[x]));
-    const pr=await c.from('products').select('id,name,description,price,previous_price,promo_price,display_order').eq('active',true).order('display_order').order('created_at').limit(8);
-    const pa=document.getElementById('homeProductsArea'),pg=document.getElementById('homeProductsGrid');
-    if(pa&&pg&&!pr.error&&pr.data?.length){pa.hidden=false;pg.innerHTML=pr.data.map(x=>{const price=Number(x.promo_price??x.price),old=x.promo_price!=null?Number(x.price):Number(x.previous_price||0);return `<article class="plan-card"><span class="plan-name">${esc(x.name)}</span>${old>price?`<div class="admin-muted" style="text-decoration:line-through">R$ ${old.toFixed(2).replace('.',',')}</div>`:''}<h3>R$ ${price.toFixed(2).replace('.',',')}</h3><p>${esc(x.description||'')}</p></article>`}).join('');}
     const n=await c.from('site_notices').select('title,message,notice_type,highlighted').order('highlighted',{ascending:false}).limit(3);
     const na=document.getElementById('homeNoticeArea');
     if(na&&n.data?.length){na.hidden=false;na.innerHTML=n.data.map(x=>`<div class="notice-preview"><strong>📌 ${esc(x.title)}</strong><p>${esc(x.message)}</p></div>`).join('')}
