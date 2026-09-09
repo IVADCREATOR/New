@@ -57,9 +57,11 @@
         <label>Categoria<select id="groupCategory" required><option value="jogos">🎮 Jogos</option><option value="freefire">🔥 Free Fire</option><option value="comunidade">💬 Comunidade</option><option value="vendas">🛒 Compra e venda</option><option value="divulgacao">📢 Divulgação</option><option value="amizades">👥 Amizades</option><option value="suporte">🛠️ Suporte</option><option value="estudos">📚 Estudos</option><option value="outros">🌐 Outros</option></select></label>
         <label>Plataforma / tipo do grupo<input id="groupPlatform" maxlength="80" required placeholder="Ex.: WhatsApp, Discord, Telegram, Comunidade"></label>
         <label>Descrição<textarea id="groupDescription" maxlength="800" minlength="10" required placeholder="Explique o que as pessoas encontrarão no grupo."></textarea></label>
-        <label>Link do grupo<input id="groupLink" type="url" maxlength="1000" required placeholder="https://..."></label>
+        <label>Link do grupo<input id="groupLink" type="url" maxlength="1000" required placeholder="https://chat.whatsapp.com/..."></label>
+        <div class="group-avatar-status" id="groupAvatarStatus" aria-live="polite"><span>🔎</span><span>Coloque o link do WhatsApp para tentar identificar a foto automaticamente.</span><button id="refreshGroupAvatar" type="button" class="auth-secondary">↻ Atualizar foto</button></div>
         <div class="form-required-title optional-title">INFORMAÇÕES OPCIONAIS</div>
-        <label>Imagem do grupo <span class="field-optional">opcional</span><input id="groupAvatar" type="url" maxlength="1000" placeholder="Link da imagem ou logo"></label>
+        <label>Imagem personalizada <span class="field-optional">opcional</span><input id="groupAvatar" type="url" maxlength="1000" placeholder="Se quiser, use uma imagem própria"></label>
+        <input id="groupAvatarSource" type="hidden"><input id="groupAvatarStatusValue" type="hidden"><input id="groupAvatarStoragePath" type="hidden">
         <label>Tags <span class="field-optional">opcional · separe por vírgulas</span><input id="groupTags" type="text" maxlength="300" placeholder="freefire, amizade, ranked, comunidade"></label>
         <label>Quantidade de membros <span class="field-optional">opcional</span><input id="groupMembers" type="number" min="0" max="10000000" inputmode="numeric" placeholder="Ex.: 1250"></label>
         <label>Contato ou rede social <span class="field-optional">opcional</span><input id="groupContact" type="url" maxlength="1000" placeholder="https://..."></label>
@@ -133,7 +135,7 @@
   }
   async function loadGroups(){
     $('groupsLoading').hidden=false;$('groupsGrid').hidden=true;
-    const {data,error}=await client.from('groups').select('id,owner_id,name,description,category,avatar_url,member_count,invite_url,status,featured_by_admin,admin_badge,created_at,tags,contact_url,highlight,view_count,platform').eq('status','approved').order('created_at',{ascending:false});
+    const {data,error}=await client.from('groups').select('id,owner_id,name,description,category,avatar_url,avatar_source,avatar_status,member_count,invite_url,status,featured_by_admin,admin_badge,created_at,tags,contact_url,highlight,view_count,platform').eq('status','approved').order('created_at',{ascending:false});
     if(error){$('groupsLoading').innerHTML='<div>!</div><strong>Não foi possível carregar as comunidades</strong><span>Tente novamente em alguns instantes.</span>';return}
     groups=(data||[]).map(g=>({...g,reviews:[],active_promotion:false}));
     $('groupCount').textContent=groups.length;$('memberCount').textContent=groups.reduce((s,g)=>s+(Number(g.member_count)||0),0).toLocaleString('pt-BR')+'+';
@@ -158,7 +160,7 @@
   function statusOrder(s){return {pending:'🟡 Aguardando pagamento',paid:'🟢 Pago',rejected:'🔴 Recusado',cancelled:'⚫ Cancelado',expired:'⚫ Expirado',refunded:'↩️ Estornado'}[s]||'Em atualização'}
   async function loadMine(){
     const user=auth.getUser();if(!user)return;
-    const {data}=await client.from('groups').select('id,name,category,status,admin_note,created_at,member_count,view_count,platform').eq('owner_id',user.id).order('created_at',{ascending:false});
+    const {data}=await client.from('groups').select('id,name,category,status,admin_note,created_at,member_count,view_count,platform,avatar_source,avatar_status').eq('owner_id',user.id).order('created_at',{ascending:false});
     const section=$('myGroupsSection'),listEl=$('myGroupsList');
     section.hidden=!data?.length;
     if(data?.length){const labels={pending:'🟡 Em análise',approved:'🟢 Aprovado',rejected:'🔴 Recusado',removed:'⚫ Removido'};listEl.innerHTML=data.map(g=>`<div class="my-group-row"><div><strong>${esc(g.name)}</strong><span>${esc(categoryLabel[g.category]||g.category)} · ${new Date(g.created_at).toLocaleDateString('pt-BR')}</span><small>👁️ ${Number(g.view_count||0).toLocaleString('pt-BR')} visualizações</small></div><div><b>${labels[g.status]||g.status}</b>${g.admin_note?`<small>${esc(g.admin_note)}</small>`:''}<div class="my-group-actions"><button class="auth-secondary" data-edit-group="${g.id}" type="button">✏️ Editar</button><button class="danger-button" data-delete-group="${g.id}" type="button">🗑️ Remover</button></div></div></div>`).join('');}
@@ -172,15 +174,37 @@
     $('loginGate').hidden=false;document.body.classList.add('group-modal-open');
   }
   function closeLoginGate(){ $('loginGate').hidden=true;document.body.classList.remove('group-modal-open'); }
+  let avatarLookupTimer=null, avatarLookupBusy=false;
+  function setAvatarStatus(state,message=''){
+    const box=$('groupAvatarStatus'); if(!box)return;
+    const map={idle:['🔎','Coloque o link do WhatsApp para tentar identificar a foto automaticamente.'],loading:['🔍','Identificando o grupo e procurando uma foto pública...'],found:['✅','Foto do grupo identificada automaticamente e salva no SORASAKI.'],not_found:['ℹ️','Não foi possível identificar a foto automaticamente. Você pode usar uma imagem personalizada.'],error:['ℹ️','A identificação automática não está disponível agora. Você pode continuar normalmente.']};
+    const item=map[state]||map.idle; box.innerHTML=`<span>${item[0]}</span><span>${esc(message||item[1])}</span>`; box.dataset.state=state;
+  }
+  async function identifyGroupAvatar(force=false){
+    const link=$('groupLink').value.trim();
+    if(!/^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9_-]{5,160}\/?$/i.test(link)){ setAvatarStatus('idle'); return; }
+    if(avatarLookupBusy)return;
+    avatarLookupBusy=true; setAvatarStatus('loading');
+    try{
+      const r=await fetch('/api/group-image',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({invite_url:link,force:!!force})});
+      const data=await r.json().catch(()=>({}));
+      if(data.found&&data.avatar_url){
+        $('groupAvatar').value=data.avatar_url;$('groupAvatarSource').value='whatsapp_auto';$('groupAvatarStatusValue').value='found';$('groupAvatarStoragePath').value=data.storage_path||'';setAvatarStatus('found');updatePreview();
+      }else{ $('groupAvatarStatusValue').value=data.ok?'not_found':'error';setAvatarStatus(data.ok?'not_found':'error',data.message||''); }
+    }catch{ $('groupAvatarStatusValue').value='error';setAvatarStatus('error'); }
+    finally{avatarLookupBusy=false;}
+  }
+  function scheduleAvatarLookup(){clearTimeout(avatarLookupTimer);avatarLookupTimer=setTimeout(()=>identifyGroupAvatar(),650)}
+
   function openGroupModal(){
     if(!auth.getUser()){openLoginGate();return;}
     closeLoginGate();$('groupModal').hidden=false;document.body.classList.add('group-modal-open');setTimeout(()=>{($(editingGroupId?'groupName':'groupName'))?.focus()},50);updatePreview();
   }
-  function closeGroupModal(){editingGroupId=null;$('groupModal').hidden=true;document.body.classList.remove('group-modal-open');$('groupForm').reset();$('groupFormResult').textContent='';$('groupModalTitle').textContent='Divulgue seu grupo';$('groupModalIntro').textContent='Apresente sua comunidade para outras pessoas e deixe sua divulgação disponível no SORASAKI.';$('groupSubmitBtn').innerHTML='Publicar divulgação <span>→</span>';updatePreview();}
+  function closeGroupModal(){editingGroupId=null;$('groupModal').hidden=true;document.body.classList.remove('group-modal-open');$('groupForm').reset();$('groupAvatarSource').value='';$('groupAvatarStatusValue').value='';$('groupAvatarStoragePath').value='';setAvatarStatus('idle');$('groupFormResult').textContent='';$('groupModalTitle').textContent='Divulgue seu grupo';$('groupModalIntro').textContent='Apresente sua comunidade para outras pessoas e deixe sua divulgação disponível no SORASAKI.';$('groupSubmitBtn').innerHTML='Publicar divulgação <span>→</span>';updatePreview();}
   function startEditGroup(id,g){
     if(!g||!auth.getUser())return;
     editingGroupId=id;$('groupModalTitle').textContent='Editar divulgação';$('groupModalIntro').textContent='Ao salvar alterações, a divulgação volta para análise antes de aparecer novamente no catálogo.';$('groupSubmitBtn').innerHTML='Salvar alterações <span>✓</span>';
-    $('groupName').value=g.name||'';$('groupCategory').value=g.category||'outros';$('groupPlatform').value=g.platform||'';$('groupDescription').value=g.description||'';$('groupMembers').value=Number(g.member_count)||'';$('groupLink').value=g.invite_url||'';$('groupAvatar').value=g.avatar_url||'';$('groupTags').value=g.tags||'';$('groupContact').value=g.contact_url||'';$('groupHighlight').value=g.highlight||'';$('groupFormResult').textContent='';openGroupModal();
+    $('groupName').value=g.name||'';$('groupCategory').value=g.category||'outros';$('groupPlatform').value=g.platform||'';$('groupDescription').value=g.description||'';$('groupMembers').value=Number(g.member_count)||'';$('groupLink').value=g.invite_url||'';$('groupAvatar').value=g.avatar_source==='manual'?(g.avatar_url||''):'';$('groupAvatarSource').value=g.avatar_source||'';$('groupAvatarStatusValue').value=g.avatar_status||'';$('groupAvatarStoragePath').value=g.avatar_storage_path||'';setAvatarStatus(g.avatar_status==='found'?'found':(g.avatar_status||'idle'),g.avatar_source==='manual'?'Imagem personalizada salva.':'');$('groupTags').value=g.tags||'';$('groupContact').value=g.contact_url||'';$('groupHighlight').value=g.highlight||'';$('groupFormResult').textContent='';openGroupModal();
   }
   async function deleteMyGroup(id){
     if(!confirm('Remover esta divulgação?\n\nEssa ação não poderá ser desfeita.'))return;
@@ -201,13 +225,13 @@
   ['groupName','groupCategory','groupPlatform','groupDescription','groupMembers','groupLink','groupAvatar','groupTags','groupContact','groupHighlight'].forEach(id=>$(id)?.addEventListener('input',updatePreview));
   $('groupForm').onsubmit=async e=>{
     e.preventDefault();if(!auth.getUser()){openLoginGate();return;}
-    const user=auth.getUser(),name=$('groupName').value.trim(),platform=$('groupPlatform').value.trim(),description=$('groupDescription').value.trim(),category=$('groupCategory').value,invite_url=$('groupLink').value.trim(),avatar_url=$('groupAvatar').value.trim()||null,tags=$('groupTags').value.trim()||null,contact_url=$('groupContact').value.trim()||null,highlight=$('groupHighlight').value.trim()||null,member_count=Math.max(0,Math.min(10000000,Number($('groupMembers').value)||0));
+    const user=auth.getUser(),name=$('groupName').value.trim(),platform=$('groupPlatform').value.trim(),description=$('groupDescription').value.trim(),category=$('groupCategory').value,invite_url=$('groupLink').value.trim(),avatar_url=$('groupAvatar').value.trim()||null,avatar_source=$('groupAvatarSource').value||($('groupAvatar').value.trim()?'manual':null),avatar_status=$('groupAvatarStatusValue').value||($('groupAvatar').value.trim()?'found':null),avatar_storage_path=$('groupAvatarStoragePath').value.trim()||null,tags=$('groupTags').value.trim()||null,contact_url=$('groupContact').value.trim()||null,highlight=$('groupHighlight').value.trim()||null,member_count=Math.max(0,Math.min(10000000,Number($('groupMembers').value)||0));
     if(name.length<2||platform.length<2||description.length<10||!invite_url){$('groupFormResult').className='auth-result error';$('groupFormResult').textContent='Confira nome, plataforma/tipo, descrição e link do grupo.';return}
     if(!/^https?:\/\//i.test(invite_url)|| (avatar_url&&!/^https?:\/\//i.test(avatar_url)) || (contact_url&&!/^https?:\/\//i.test(contact_url))){$('groupFormResult').className='auth-result error';$('groupFormResult').textContent='Confira os links informados.';return}
     if(!editingGroupId&&!confirm('📢 Publicar divulgação?\n\nConfira as informações antes de continuar. A divulgação será enviada para análise.'))return;
     const button=$('groupSubmitBtn');button.disabled=true;button.textContent=editingGroupId?'Salvando alterações...':'Publicando...';$('groupFormResult').className='auth-result';$('groupFormResult').textContent=editingGroupId?'Salvando alterações...':'Enviando sua divulgação para análise...';
     let result;
-    if(editingGroupId){result=await client.from('groups').update({name,platform,description,category,member_count,invite_url,avatar_url,tags,contact_url,highlight,status:'pending',featured_by_admin:false,admin_badge:null,admin_note:null,approved_at:null}).eq('id',editingGroupId).eq('owner_id',user.id);}
+    if(editingGroupId){result=await client.from('groups').update({name,platform,description,category,member_count,invite_url,avatar_url,avatar_source,avatar_status,avatar_storage_path,tags,contact_url,highlight,status:'pending',featured_by_admin:false,admin_badge:null,admin_note:null,approved_at:null}).eq('id',editingGroupId).eq('owner_id',user.id);}
     else{result=await client.from('groups').insert({owner_id:user.id,name,platform,description,category,member_count,invite_url,avatar_url,tags,contact_url,highlight,status:'pending'});}
     button.disabled=false;button.innerHTML=editingGroupId?'Salvar alterações <span>✓</span>':'Publicar divulgação <span>→</span>';
     if(result.error){$('groupFormResult').className='auth-result error';$('groupFormResult').textContent='Não foi possível concluir essa ação. Confira os dados e tente novamente.';return}
@@ -228,6 +252,11 @@
   $('reportForm').onsubmit=async e=>{e.preventDefault();if(!auth.requireLogin('Você precisa estar conectado para enviar um relato.'))return;const {error}=await client.from('reports').insert({group_id:Number($('reportGroupId').value),reporter_id:auth.getUser().id,reason:$('reportReason').value,description:$('reportDescription').value.trim()||null});$('reportResult').className=`auth-result ${error?'error':'ok'}`;$('reportResult').textContent=error?'Não foi possível enviar o relato agora.':'Relato enviado. Obrigado por ajudar a manter a área organizada.';if(!error){$('reportForm').reset();setTimeout(closeReport,900)}};
   document.querySelectorAll('.group-filter').forEach(b=>b.onclick=()=>{document.querySelectorAll('.group-filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');filter=b.dataset.filter;render()});
   $('groupSearch').oninput=render;$('groupSort').onchange=render;
+  $('groupLink').addEventListener('input',()=>{ if(/^https:\/\/chat\.whatsapp\.com\//i.test($('groupLink').value.trim())) scheduleAvatarLookup(); else setAvatarStatus('idle'); });
+  $('groupAvatar').addEventListener('input',()=>{ if($('groupAvatar').value.trim()){ $('groupAvatarSource').value='manual'; $('groupAvatarStatusValue').value='found'; setAvatarStatus('found','Imagem personalizada pronta para uso.'); } updatePreview(); });
+  $('groupLink').addEventListener('change',()=>identifyGroupAvatar());
+  $('refreshGroupAvatar').addEventListener('click',()=>identifyGroupAvatar(true));
+
   auth.ready.then(async()=>{
     await Promise.all([loadOfficial(),loadGroups(),loadPlans(),loadMine()]);
     const params=new URLSearchParams(location.search);if(params.get('pagamento')){const s=params.get('pagamento');const text=s==='sucesso'?'Pagamento recebido! A liberação acontece após a confirmação.':s==='pendente'?'Pagamento pendente. Assim que for confirmado, o benefício será atualizado.':'O pagamento não foi concluído.';const box=document.createElement('div');box.className='aviso';box.style.display='block';box.textContent=text;document.querySelector('main').prepend(box)}

@@ -40,3 +40,21 @@ Mantenha no ambiente do Vercel:
 - SITE_URL
 
 Nunca coloque essas variáveis no `config.js`.
+
+## Identificação automática da foto do WhatsApp
+
+A atualização adiciona uma tentativa automática de identificar a imagem pública associada ao convite `chat.whatsapp.com`.
+
+- A tentativa acontece no servidor em `/api/group-image`.
+- O sistema procura somente metadados públicos da página do convite; não usa sessão, conta ou informação privada do WhatsApp.
+- Quando encontra uma imagem pública compatível, ela é baixada, validada e armazenada no bucket privado de escrita/público de leitura `group-images` do Supabase Storage.
+- O nome do arquivo é derivado de SHA-256, evitando duplicações desnecessárias quando a mesma imagem reaparece.
+- O limite da imagem é 2 MB e apenas JPEG, PNG, WebP e GIF são aceitos.
+- Se a foto não estiver publicamente disponível, a divulgação continua funcionando e o usuário pode usar uma imagem personalizada.
+- Grupos oficiais usam a mesma lógica e possuem a opção de atualizar a foto.
+
+### Limitação importante
+
+Um link de convite do WhatsApp não deve ser tratado como uma garantia de acesso à foto do grupo. A implementação, portanto, é **best effort**: ela aproveita apenas dados públicos que a própria página do convite disponibilizar. Não tenta acessar APIs privadas, quebrar restrições ou descobrir informações que não estejam publicamente expostas.
+
+Antes de usar em produção, execute a `migration.sql` no Supabase para criar os novos campos e o bucket `group-images`.

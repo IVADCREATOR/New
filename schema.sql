@@ -464,3 +464,16 @@ begin
 end $$;
 revoke all on function public.log_admin_activity(text,text,text,jsonb) from public;
 grant execute on function public.log_admin_activity(text,text,text,jsonb) to authenticated;
+
+-- Metadados da identificação automática de imagens
+alter table public.groups add column if not exists avatar_source text;
+alter table public.groups add column if not exists avatar_status text;
+alter table public.groups add column if not exists avatar_checked_at timestamptz;
+alter table public.groups add column if not exists avatar_storage_path text;
+alter table public.official_groups add column if not exists avatar_source text;
+alter table public.official_groups add column if not exists avatar_status text;
+alter table public.official_groups add column if not exists avatar_checked_at timestamptz;
+alter table public.official_groups add column if not exists avatar_storage_path text;
+insert into storage.buckets (id,name,public) values ('group-images','group-images',true) on conflict (id) do update set public=true;
+drop policy if exists "public read group images" on storage.objects;
+create policy "public read group images" on storage.objects for select to public using(bucket_id='group-images');

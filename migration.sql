@@ -412,3 +412,30 @@ with check(auth.uid()=owner_id and status='pending' and featured_by_admin=false 
 create unique index if not exists uq_reports_group_reporter on public.reports(group_id,reporter_id);
 
 commit;
+
+-- Foto automática de grupos: metadados e armazenamento seguro
+alter table public.groups add column if not exists avatar_source text;
+alter table public.groups add column if not exists avatar_status text;
+alter table public.groups add column if not exists avatar_checked_at timestamptz;
+alter table public.groups add column if not exists avatar_storage_path text;
+alter table public.groups drop constraint if exists groups_avatar_source_check;
+alter table public.groups add constraint groups_avatar_source_check check (avatar_source is null or avatar_source in ('whatsapp_auto','manual','fallback'));
+alter table public.groups drop constraint if exists groups_avatar_status_check;
+alter table public.groups add constraint groups_avatar_status_check check (avatar_status is null or avatar_status in ('found','not_found','pending','error'));
+
+alter table public.official_groups add column if not exists avatar_source text;
+alter table public.official_groups add column if not exists avatar_status text;
+alter table public.official_groups add column if not exists avatar_checked_at timestamptz;
+alter table public.official_groups add column if not exists avatar_storage_path text;
+alter table public.official_groups drop constraint if exists official_groups_avatar_source_check;
+alter table public.official_groups add constraint official_groups_avatar_source_check check (avatar_source is null or avatar_source in ('whatsapp_auto','manual','fallback'));
+alter table public.official_groups drop constraint if exists official_groups_avatar_status_check;
+alter table public.official_groups add constraint official_groups_avatar_status_check check (avatar_status is null or avatar_status in ('found','not_found','pending','error'));
+
+insert into storage.buckets (id,name,public)
+values ('group-images','group-images',true)
+on conflict (id) do update set public=true;
+
+drop policy if exists "public read group images" on storage.objects;
+create policy "public read group images" on storage.objects
+for select to public using(bucket_id='group-images');
