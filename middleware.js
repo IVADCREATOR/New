@@ -38,7 +38,8 @@ export default async function middleware(request) {
     const stateRes = await fetch(`${url.origin}/api/site-state`, { headers: { accept: 'application/json' } });
     if (!stateRes.ok) return;
     const state = await stateRes.json();
-    if (!state?.maintenance) return;
+    const maintenance = state?.maintenance === true || ['true','1','yes','on'].includes(String(state?.maintenance || '').trim().toLowerCase());
+    if (!maintenance) return;
     if (state.start_at) {
       const start = new Date(state.start_at).getTime();
       if (!Number.isNaN(start) && Date.now() < start) return;

@@ -35,6 +35,10 @@
   <p class="subtitle">Volume de uso desde sempre, comandos e horários de maior movimento.</p>
 
   <div class="grid">
+    <div class="card"><div class="label">Visitantes únicos no site</div><div class="value" id="valSiteVisitantes">—</div></div>
+    <div class="card"><div class="label">Visualizações de páginas</div><div class="value" id="valSiteViews">—</div></div>
+    <div class="card"><div class="label">Visitantes hoje</div><div class="value" id="valSiteVisitantesHoje">—</div></div>
+    <div class="card"><div class="label">Visualizações hoje</div><div class="value" id="valSiteViewsHoje">—</div></div>
     <div class="card"><div class="label">Mensagens recebidas (total)</div><div class="value" id="valRecebidas">—</div></div>
     <div class="card"><div class="label">Mensagens enviadas (total)</div><div class="value" id="valEnviadas">—</div></div>
     <div class="card"><div class="label">Comandos executados (total)</div><div class="value" id="valComandos">—</div></div>
@@ -78,6 +82,9 @@
 </script>
 <script>
   let chartDiario, chartHoje;
+  async function carregarEstatisticasSite(){try{const r=await fetch('/api/site-analytics',{cache:'no-store'}),d=await r.json(),w=d?.website||{};document.getElementById('valSiteVisitantes').textContent=fmtNumero(w.unique_visitors_total);document.getElementById('valSiteViews').textContent=fmtNumero(w.page_views_total);document.getElementById('valSiteVisitantesHoje').textContent=fmtNumero(w.unique_visitors_today);document.getElementById('valSiteViewsHoje').textContent=fmtNumero(w.page_views_today);}catch{}}
+  carregarEstatisticasSite();
+
 
   onStats((s) => {
     document.getElementById("valRecebidas").textContent = fmtNumero(s.mensagens?.totalGeral?.recebidas);

@@ -932,6 +932,11 @@ criarAssistente = function() {
     }catch{return false;}
   }
 
+  async function trackSiteVisit(){
+    const path=location.pathname.replace(/\/+$/,'')||'/'; if(path==='/controle-8f4c2e91'||path.startsWith('/api/'))return;
+    try{let id=localStorage.getItem('sorasaki_visitor_id');if(!id||!/^[A-Za-z0-9_-]{20,120}$/.test(id)){id=(crypto.randomUUID?crypto.randomUUID():`${Date.now()}-${Math.random().toString(36).slice(2)}`).replace(/[^A-Za-z0-9_-]/g,'_');localStorage.setItem('sorasaki_visitor_id',id);}await fetch('/api/site-analytics',{method:'POST',keepalive:true,headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({visitor_id:id,path})});}catch{}
+  }
+
   function updateAuthUI(){
     const user=getUser(),btn=document.querySelector('.sora-login-trigger');
     if(btn){btn.classList.toggle('logged',!!user);const label=btn.querySelector('.login-trigger-label');if(label)label.textContent=user?'Perfil':'Entrar';btn.setAttribute('aria-label',user?'Abrir meu perfil':'Entrar ou criar conta');}
@@ -940,6 +945,6 @@ criarAssistente = function() {
     const profileModal=document.querySelector('.sora-profile-modal'); if(profileModal&&user) { const status=profileModal.querySelector('#profileStatus'); if(status) status.textContent=user.email_confirmed_at?'● E-mail confirmado':'● E-mail pendente'; }
   }
   window.SorasakiAuth={getUser,getToken,ready,open:()=>{},openProfile:()=>{},logout,clear:logout,setAfterAuth,requireLogin:(msg='Faça login para continuar.')=>{if(getUser())return true;createLoginUI();window.SorasakiAuth.open();const r=document.querySelector('#authResult');if(r){r.className='auth-result error';r.textContent=msg;}return false;},getClient:ensureClient};
-  function init(){createLoginUI();createProfileUI();installMaintenanceGuard().then(active=>{window.SORASAKI_MAINTENANCE=active;document.dispatchEvent(new CustomEvent('sorasaki:maintenance-checked',{detail:{active}}));if(active){document.querySelectorAll('form,button:not(#sorasakiMaintenance button)').forEach(el=>{if(!el.closest('#sorasakiMaintenance'))el.setAttribute('disabled','');});return;}const btn=document.querySelector('.sora-login-trigger');if(btn)btn.onclick=()=>getUser()?window.SorasakiAuth.openProfile():window.SorasakiAuth.open();syncSession();});document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelector('.sora-login-drawer')?.classList.remove('is-open');document.querySelector('.sora-login-overlay')?.classList.remove('is-open');document.querySelector('.sora-profile-modal')?.classList.remove('is-open');document.querySelector('.sora-profile-overlay')?.classList.remove('is-open');document.body.classList.remove('login-open','profile-open');}});}
+  function init(){createLoginUI();createProfileUI();installMaintenanceGuard().then(async active=>{window.SORASAKI_MAINTENANCE=active;document.dispatchEvent(new CustomEvent('sorasaki:maintenance-checked',{detail:{active}}));if(!active)await trackSiteVisit();const btn=document.querySelector('.sora-login-trigger');if(btn)btn.onclick=()=>getUser()?window.SorasakiAuth.openProfile():window.SorasakiAuth.open();syncSession();});document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelector('.sora-login-drawer')?.classList.remove('is-open');document.querySelector('.sora-login-overlay')?.classList.remove('is-open');document.querySelector('.sora-profile-modal')?.classList.remove('is-open');document.querySelector('.sora-profile-overlay')?.classList.remove('is-open');document.body.classList.remove('login-open','profile-open');}});}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
