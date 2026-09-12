@@ -7,9 +7,7 @@ const KEYS = new Set([
   'maintenance_start_at',
   'maintenance_title',
   'maintenance_message',
-  'maintenance_return_at',
-  'ga_measurement_id',
-  'turnstile_site_key'
+  'maintenance_return_at'
 ]);
 
 // Erros de validação carregam uma mensagem que pode ir para a tela.
@@ -40,16 +38,6 @@ function cleanValue(key, value) {
     const text = String(value ?? '').trim();
     if (text.length > 1000) throw new ValidationError('A mensagem da manutenção é muito longa.');
     return text || 'O site está passando por algumas melhorias no momento.';
-  }
-  if (key === 'ga_measurement_id') {
-    const text = String(value ?? '').trim();
-    if (text && !/^G-[A-Z0-9]{6,}$/i.test(text)) throw new ValidationError('O ID do Google Analytics deve ter o formato G-XXXXXXXXXX.');
-    return text || null;
-  }
-  if (key === 'turnstile_site_key') {
-    const text = String(value ?? '').trim();
-    if (text.length > 100) throw new ValidationError('A site key do Turnstile parece inválida.');
-    return text || null;
   }
   throw new ValidationError('Configuração não permitida.');
 }

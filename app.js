@@ -11,7 +11,7 @@
    Páginas usam window.Sora (utilidades) e window.SorasakiAuth (conta).
    ========================================================================= */
 
-/* ===== 0. Analytics e proteção contra robôs (config vem do Supabase, não do código) ===== */
+/* ===== 0. Analytics e proteção contra robôs ===== */
 (function () {
   try {
     if (!sessionStorage.getItem("sora_entry_page")) {
@@ -21,14 +21,8 @@
   } catch {}
 })();
 
-let configPublicaPromise = null;
-function carregarConfigPublica() {
-  if (!configPublicaPromise) {
-    configPublicaPromise = fetch("/api/public-settings", { cache: "no-store" })
-      .then((r) => (r.ok ? r.json() : null))
-      .catch(() => null);
-  }
-  return configPublicaPromise;
+function iniciarConfigPublica() {
+  if (window.SORASAKI_GA_ID) ligarGoogleAnalytics(window.SORASAKI_GA_ID);
 }
 
 function ligarGoogleAnalytics(id) {
@@ -62,10 +56,6 @@ function garantirScriptTurnstile() {
     });
   }
   return turnstileScriptPromise;
-}
-
-function iniciarConfigPublica() {
-  carregarConfigPublica().then((cfg) => { if (cfg?.ga_measurement_id) ligarGoogleAnalytics(cfg.ga_measurement_id); });
 }
 
 /* ===== 1. Utilidades ===== */
@@ -726,16 +716,16 @@ const ICONE_GOOGLE = '<svg viewBox="0 0 18 18" aria-hidden="true" width="18" hei
     const validEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
 
     // Turnstile (anti-robô) no cadastro: só é ativado se houver uma site key
-    // configurada no Supabase. Sem ela, o cadastro continua funcionando
-    // normalmente — o Turnstile é uma camada extra, não uma trava dura.
+    // configurada. Sem ela, o cadastro continua funcionando normalmente —
+    // o Turnstile é uma camada extra, não uma trava dura.
     let turnstileWidgetId = null;
     let turnstileToken = "";
     function resetTurnstile() {
       turnstileToken = "";
       if (turnstileWidgetId !== null && window.turnstile) { try { window.turnstile.reset(turnstileWidgetId); } catch {} }
     }
-    carregarConfigPublica().then(async (cfg) => {
-      const siteKey = cfg?.turnstile_site_key;
+    (async () => {
+      const siteKey = window.SORASAKI_TURNSTILE_SITE_KEY;
       const box = $("turnstileBox");
       if (!siteKey || !box) return;
       const ok = await garantirScriptTurnstile();
@@ -747,7 +737,7 @@ const ICONE_GOOGLE = '<svg viewBox="0 0 18 18" aria-hidden="true" width="18" hei
         "expired-callback": () => { turnstileToken = ""; },
         "error-callback": () => { turnstileToken = ""; }
       });
-    });
+    })();
 
     // Login com Google: o Supabase cuida do OAuth e da volta para o site
     // (detectSessionInUrl já está ligado no cliente). Se a conta ainda não
