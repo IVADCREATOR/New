@@ -1,2 +1,5 @@
 User-agent: *
-Disallow: /controle-8f4c2e91.html
+Allow: /
+Disallow: /api/
+
+Sitemap: https://www.sorasakiplatform.store/sitemap.xml

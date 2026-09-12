@@ -1,276 +1,969 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://xwrsjfxsmpuqneriptfw.supabase.co https://ponte-m7br.onrender.com; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests" />
-<meta http-equiv="X-Content-Type-Options" content="nosniff" /><meta name="referrer" content="strict-origin-when-cross-origin" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Grupos — Sorasaki</title>
-<link rel="stylesheet" href="style.css?v=20260908d" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self'; connect-src 'self' https://ponte-m7br.onrender.com https://xwrsjfxsmpuqneriptfw.supabase.co wss://xwrsjfxsmpuqneriptfw.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Grupos e comunidades — Sorasaki</title>
+<meta name="description" content="Encontre comunidades de WhatsApp, Telegram e Discord revisadas pela equipe do Sorasaki — ou envie o seu grupo para a vitrine.">
+<link rel="canonical" href="https://www.sorasakiplatform.store/grupos">
+<meta name="theme-color" content="#0c0b10">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Sorasaki">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:url" content="https://www.sorasakiplatform.store/grupos">
+<meta property="og:title" content="Grupos e comunidades — Sorasaki">
+<meta property="og:description" content="Comunidades revisadas pela equipe, separadas por categoria. Encontre um grupo ou divulgue o seu.">
+<meta property="og:image" content="https://www.sorasakiplatform.store/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Sorasaki — vitrine de comunidades">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Grupos e comunidades — Sorasaki">
+<meta name="twitter:description" content="Comunidades revisadas pela equipe, separadas por categoria. Encontre um grupo ou divulgue o seu.">
+<meta name="twitter:image" content="https://www.sorasakiplatform.store/og-image.jpg">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="preload" href="/fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/style.css?v=20260911">
 </head>
 <body>
-<div class="topbar"><div class="brand"><span class="dot"></span><div>Sorasaki<small>Comunidades organizadas</small></div></div><nav>
-<a href="/">Resumo</a><a href="/grupos" class="active">Grupos</a><a href="/catalogo">Catálogo</a><a href="/estatisticas">Estatísticas</a><a href="/status">Status</a><a href="/erros">Erros</a><a href="/uptime">Uptime</a><a href="/sobre">Sobre</a><a href="/suporte">Suporte</a>
-</nav></div>
-<main>
-<section class="groups-hero"><div><span class="eyebrow">✦ CENTRAL DE COMUNIDADES</span><h1>Encontre um grupo para <span>entrar e participar.</span></h1><p>Explore comunidades por categoria e encontre um espaço que combine com você.</p><div class="groups-hero-stats"><div><strong id="groupCount">—</strong><span>grupos publicados</span></div><div><strong id="memberCount">—</strong><span>membros somados</span></div><div><strong>⭐</strong><span>seleção oficial</span></div></div></div><div class="groups-mascot" aria-hidden="true"><span>✦</span><span>♡</span><span>✧</span><div>💜</div></div></section>
 
-<section class="official-section groups-official-banner" id="officialSection"><div class="section-heading"><div><span class="eyebrow">⭐ DESTAQUE DA EQUIPE</span><h2>Grupos Oficiais dos Donos</h2></div><span>Comunidades oficiais indicadas pela equipe do SORASAKI.</span></div><div id="officialGrid" class="official-grid"><div class="groups-empty"><div>★</div><strong>Carregando grupos oficiais</strong><span>Um instante...</span></div></div></section>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="/" aria-label="Sorasaki, página inicial"><span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.1 7.4 7.4 2.1-7.4 2.1L12 21.5l-2.1-7.4L2.5 12l7.4-2.1z" fill="currentColor"/></svg></span><span class="brand-name">SORASAKI</span></a>
+    <nav class="site-nav" aria-label="Principal"><a href="/grupos">Grupos</a><a href="/catalogo">Catálogo</a><a href="/noticias">Notícias</a><a href="/status">Status</a><a href="/estatisticas">Estatísticas</a><a href="/suporte">Suporte</a></nav>
+    <div class="topbar-actions">
+      <span class="bot-status" data-bot-status><span class="status-dot"></span><span data-bot-status-text>Verificando o bot</span></span>
+      <button class="sora-login-trigger" type="button" aria-label="Entrar ou criar conta"><span class="login-avatar" aria-hidden="true"></span><span class="login-trigger-label">Entrar</span></button>
+      <button class="menu-trigger" type="button" aria-label="Abrir menu" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg></button>
+    </div>
+  </div>
+</header>
 
-<section class="groups-actions panel"><div class="group-auth-copy"><strong>Tem um grupo para divulgar?</strong><span>Crie uma divulgação completa, veja a prévia e acompanhe tudo pela sua conta.</span></div><button id="submitGroupBtn" class="auth-primary" type="button">Divulgar meu grupo <span>→</span></button></section>
+<main id="conteudo">
+  <div id="payNotice" hidden></div>
 
-<section class="groups-toolbar panel"><div class="group-search-wrap"><span>⌕</span><input id="groupSearch" type="search" placeholder="Pesquisar grupo..." autocomplete="off"></div><div class="group-filters" role="group" aria-label="Filtrar grupos"><button class="group-filter active" data-filter="todos" type="button">Todos</button><button class="group-filter" data-filter="freefire" type="button">Free Fire</button><button class="group-filter" data-filter="divulgacao" type="button">Divulgação</button><button class="group-filter" data-filter="vendas" type="button">Vendas</button><button class="group-filter" data-filter="comunidade" type="button">Comunidade</button><button class="group-filter" data-filter="jogos" type="button">Jogos</button><button class="group-filter" data-filter="estudos" type="button">Estudos</button><button class="group-filter" data-filter="outros" type="button">Outros</button></div><select id="groupSort" aria-label="Ordenar grupos"><option value="newest">Mais recentes</option><option value="views">Mais vistos</option><option value="rating">Melhor avaliados</option><option value="name">Nome</option></select></section>
+  <div class="page-head-row">
+    <div class="page-head">
+      <span class="eyebrow">Comunidades</span>
+      <h1>Encontre um grupo para participar.</h1>
+      <p class="lead">Grupos de WhatsApp, Telegram e Discord enviados pela comunidade e revisados pela equipe antes de aparecer aqui.</p>
+      <div class="groups-head-stats" aria-live="polite"><span><strong id="groupCount">—</strong>grupos publicados</span><span><strong id="memberCount">—</strong>membros somados</span></div>
+    </div>
+    <button class="btn btn-primary" type="button" data-open-submit>Divulgar meu grupo <span aria-hidden="true">→</span></button>
+  </div>
 
-<section class="panel groups-plans" id="productsSection" hidden><div class="section-heading"><div><span class="eyebrow">💰 PRODUTOS</span><h2>Produtos e preços</h2></div><span>Confira as opções disponíveis.</span></div><div id="productsGrid" class="plans-grid"></div></section>
-<section class="panel groups-plans" id="plansSection"><div class="section-heading"><div><span class="eyebrow">🚀 MAIS VISIBILIDADE</span><h2>Planos de destaque</h2></div><span>O destaque não substitui a análise.</span></div><p class="subtitle">Escolha um plano para aumentar a exposição de um grupo já aprovado.</p><div id="plansGrid" class="plans-grid"><div class="groups-empty"><div>◌</div><strong>Carregando planos</strong><span>Um instante...</span></div></div></section>
-
-<section class="official-section"><div class="section-heading"><div><span class="eyebrow">📢 COMUNIDADE</span><h2>Divulgações da comunidade</h2></div><span>Publicações feitas por usuários e aprovadas pela equipe.</span></div></section>
-<div id="groupsLoading" class="groups-empty"><div>◌</div><strong>Carregando comunidades</strong><span>Um instante...</span></div><div id="groupsGrid" class="groups-grid" hidden></div><div id="groupsEmpty" class="groups-empty" hidden><div>⌕</div><strong>Nenhum grupo encontrado</strong><span>Tente outro nome ou altere o filtro.</span></div>
-
-<section id="myGroupsSection" class="my-groups panel" hidden><div class="section-heading"><div><span class="eyebrow">✦ SUA CONTA</span><h2>Minhas divulgações</h2></div><span>Edite ou remova seus próprios anúncios.</span></div><div id="myGroupsList"></div></section>
-<section id="myOrdersSection" class="my-groups panel" hidden><div class="section-heading"><div><span class="eyebrow">💳 COMPRAS</span><h2>Meus pedidos</h2></div><span>Acompanhe seus pedidos de destaque.</span></div><div id="myOrdersList"></div></section>
-<section class="groups-note panel"><div class="groups-note-icon">🛡️</div><div><strong>Uma área feita para crescer</strong><p>As divulgações passam por análise antes de aparecerem no catálogo.</p></div></section>
-</main><div class="footer">Sorasaki — comunidades organizadas em um só lugar</div>
-
-<div class="group-modal" id="loginGate" hidden>
-  <div class="group-modal-backdrop" data-close-login-gate></div>
-  <section class="group-modal-card" role="dialog" aria-modal="true" aria-labelledby="loginGateTitle">
-    <button class="group-modal-close" type="button" aria-label="Fechar" data-close-login-gate>×</button>
-    <span class="eyebrow">🔐 CONTA NECESSÁRIA</span>
-    <h2 id="loginGateTitle">Entre na sua conta</h2>
-    <p>Para divulgar seu grupo no SORASAKI, você precisa estar conectado a uma conta.</p>
-    <button class="auth-primary" id="loginGateLink" type="button">Criar conta ou fazer login, clique aqui <span>→</span></button>
-    <button class="auth-secondary" id="loginGateBack" type="button">← Voltar</button>
+  <section class="section-sm" id="officialSection" hidden>
+    <div class="section-heading"><div><span class="eyebrow">Seleção da equipe</span><h2>Grupos oficiais</h2></div><span>Comunidades mantidas pelos donos do Sorasaki.</span></div>
+    <div id="officialGrid" class="official-grid"></div>
   </section>
-</div>
 
+  <section class="section-sm" aria-labelledby="communityTitle">
+    <div class="section-heading"><div><span class="eyebrow">Vitrine</span><h2 id="communityTitle">Divulgações da comunidade</h2></div></div>
+    <div class="groups-toolbar">
+      <label class="group-search-wrap"><span class="visually-hidden">Pesquisar grupo</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M16 16l4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <input id="groupSearch" type="search" placeholder="Pesquisar por nome, tema ou tag" autocomplete="off" enterkeyhint="search">
+      </label>
+      <div class="group-filters" role="group" aria-label="Filtrar por categoria">
+        <button class="group-filter active" data-filter="todos" type="button" aria-pressed="true">Todos</button>
+        <button class="group-filter" data-filter="freefire" type="button" aria-pressed="false">Free Fire</button>
+        <button class="group-filter" data-filter="jogos" type="button" aria-pressed="false">Jogos</button>
+        <button class="group-filter" data-filter="vendas" type="button" aria-pressed="false">Compra e venda</button>
+        <button class="group-filter" data-filter="divulgacao" type="button" aria-pressed="false">Divulgação</button>
+        <button class="group-filter" data-filter="comunidade" type="button" aria-pressed="false">Comunidade</button>
+        <button class="group-filter" data-filter="amizades" type="button" aria-pressed="false">Amizades</button>
+        <button class="group-filter" data-filter="estudos" type="button" aria-pressed="false">Estudos</button>
+        <button class="group-filter" data-filter="suporte" type="button" aria-pressed="false">Suporte</button>
+        <button class="group-filter" data-filter="outros" type="button" aria-pressed="false">Outros</button>
+      </div>
+      <label><span class="visually-hidden">Ordenar grupos</span>
+        <select id="groupSort"><option value="newest">Mais recentes</option><option value="views">Mais vistos</option><option value="rating">Melhor avaliados</option><option value="members">Mais membros</option><option value="name">Nome (A–Z)</option></select>
+      </label>
+    </div>
+    <div id="groupsLoading" class="groups-grid" aria-busy="true">
+      <div class="group-card"><div class="skeleton" style="height:52px;width:52px;border-radius:14px"></div><div class="skeleton" style="height:18px;width:60%"></div><div class="skeleton" style="height:56px"></div></div>
+      <div class="group-card"><div class="skeleton" style="height:52px;width:52px;border-radius:14px"></div><div class="skeleton" style="height:18px;width:50%"></div><div class="skeleton" style="height:56px"></div></div>
+      <div class="group-card"><div class="skeleton" style="height:52px;width:52px;border-radius:14px"></div><div class="skeleton" style="height:18px;width:70%"></div><div class="skeleton" style="height:56px"></div></div>
+    </div>
+    <div id="groupsGrid" class="groups-grid" hidden></div>
+    <div id="groupsEmpty" hidden></div>
+  </section>
+
+  <section class="section" id="divulgar" aria-labelledby="divulgarTitle">
+    <div class="section-heading">
+      <div><span class="eyebrow">Divulgação gratuita</span><h2 id="divulgarTitle">Como divulgar o seu grupo</h2></div>
+      <button class="btn btn-primary" type="button" data-open-submit>Divulgar meu grupo <span aria-hidden="true">→</span></button>
+    </div>
+    <div id="submissionsPaused" class="inline-alert" hidden style="margin-bottom:16px"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 11v5M12 8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><div><strong>Novas divulgações estão pausadas no momento.</strong>Os grupos já publicados continuam na vitrine. Volte em breve para enviar o seu.</div></div>
+    <ol class="steps">
+      <li><strong>Entre na sua conta</strong><p>É obrigatório estar conectado — assim cada divulgação tem um responsável.</p></li>
+      <li><strong>Preencha o formulário</strong><p>Nome, categoria, plataforma, descrição e o link de convite público.</p></li>
+      <li><strong>Análise da equipe</strong><p>A divulgação fica “Em análise” até alguém da equipe conferir o link e as informações.</p></li>
+      <li><strong>Publicado</strong><p>Aprovada, ela aparece aqui. Se for recusada, você vê o motivo em “Minhas divulgações”.</p></li>
+    </ol>
+    <div class="rules-grid section-sm">
+      <div class="panel">
+        <h3 style="margin-bottom:14px">O que precisa ter</h3>
+        <ul class="rule-list">
+          <li>Um link de convite público que funcione (WhatsApp, Telegram, Discord ou outra comunidade).</li>
+          <li>Uma descrição honesta: o que acontece no grupo e para quem ele é.</li>
+          <li>A categoria certa, para as pessoas encontrarem o grupo pelo filtro.</li>
+          <li>No máximo <b id="rulesLimit">5</b> divulgações por conta a cada 24 horas.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3 style="margin-bottom:14px">O que não é aceito</h3>
+        <ul class="rule-list no">
+          <li>Golpes, pirâmides, venda de contas roubadas ou de itens ilegais.</li>
+          <li>Conteúdo adulto, violento ou discurso de ódio.</li>
+          <li>Links que levam para outro lugar, encurtadores ou convites expirados.</li>
+          <li>Informações falsas. A equipe pode remover a divulgação a qualquer momento se as regras forem quebradas.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="plansSection" hidden>
+    <div class="section-heading"><div><span class="eyebrow">Mais visibilidade</span><h2>Planos de destaque</h2></div><span>Para grupos já aprovados. O destaque não substitui a análise da equipe.</span></div>
+    <div id="plansGrid" class="plans-grid"></div>
+  </section>
+
+  <section class="section" id="myGroupsSection" hidden>
+    <div class="section-heading"><div><span class="eyebrow">Sua conta</span><h2>Minhas divulgações</h2></div><span>Ao editar, a divulgação volta para análise.</span></div>
+    <div id="myGroupsList" class="my-list"></div>
+  </section>
+
+  <section class="section-sm" id="myOrdersSection" hidden>
+    <div class="section-heading"><div><span class="eyebrow">Compras</span><h2>Meus pedidos</h2></div></div>
+    <div id="myOrdersList" class="my-list"></div>
+  </section>
+</main>
+
+<!-- Janela de divulgação: login, pausa, formulário e confirmação -->
 <div class="group-modal" id="groupModal" hidden>
-  <div class="group-modal-backdrop" data-close-group-modal></div>
-  <section class="group-modal-card group-submit-card" role="dialog" aria-modal="true" aria-labelledby="groupModalTitle">
-    <button class="group-modal-close" type="button" aria-label="Fechar" data-close-group-modal>×</button>
-    <span class="eyebrow">✦ NOVA DIVULGAÇÃO</span><h2 id="groupModalTitle">Divulgue seu grupo</h2>
-    <p id="groupModalIntro">Apresente sua comunidade para outras pessoas e deixe sua divulgação disponível no SORASAKI.</p>
-    <div class="group-submit-layout">
-      <form id="groupForm">
-        <div class="form-required-title">INFORMAÇÕES OBRIGATÓRIAS</div>
-        <label>Nome do grupo<input id="groupName" maxlength="100" required placeholder="Ex.: Sorasaki Community"></label>
-        <label>Categoria<select id="groupCategory" required><option value="jogos">🎮 Jogos</option><option value="freefire">🔥 Free Fire</option><option value="comunidade">💬 Comunidade</option><option value="vendas">🛒 Compra e venda</option><option value="divulgacao">📢 Divulgação</option><option value="amizades">👥 Amizades</option><option value="suporte">🛠️ Suporte</option><option value="estudos">📚 Estudos</option><option value="outros">🌐 Outros</option></select></label>
-        <label>Plataforma / tipo do grupo<input id="groupPlatform" maxlength="80" required placeholder="Ex.: WhatsApp, Discord, Telegram, Comunidade"></label>
-        <label>Descrição<textarea id="groupDescription" maxlength="800" minlength="10" required placeholder="Explique o que as pessoas encontrarão no grupo."></textarea></label>
-        <label>Link do grupo<input id="groupLink" type="url" maxlength="1000" required placeholder="https://chat.whatsapp.com/... ou outro convite público"></label><div class="group-auto-status" id="groupAutoStatus" aria-live="polite"></div>
-        <div class="form-required-title optional-title">INFORMAÇÕES OPCIONAIS</div>
-        <label>Foto do grupo <span class="field-optional">automática quando disponível</span><input id="groupAvatarFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif"><small class="field-help">Você também pode adicionar uma imagem manualmente se a plataforma não disponibilizar uma foto pública.</small></label>
-        <label>Link de imagem <span class="field-optional">opcional</span><input id="groupAvatar" type="url" maxlength="1000" placeholder="https://..."></label>
-        <div class="group-image-status" id="groupImageStatus" aria-live="polite"><span>🔎</span><div><strong>Foto automática</strong><small>Informe o link do grupo para tentar identificar a imagem.</small></div><button id="groupRefreshImage" type="button" class="auth-secondary group-refresh-image">Atualizar</button></div>
-        <label>Tags <span class="field-optional">opcional · separe por vírgulas</span><input id="groupTags" type="text" maxlength="300" placeholder="freefire, amizade, ranked, comunidade"></label>
-        <label>Quantidade de membros <span class="field-optional">opcional</span><input id="groupMembers" type="number" min="0" max="10000000" inputmode="numeric" placeholder="Ex.: 1250"></label>
-        <label>Contato ou rede social <span class="field-optional">opcional</span><input id="groupContact" type="url" maxlength="1000" placeholder="https://..."></label>
-        <label>Frase de destaque <span class="field-optional">opcional</span><input id="groupHighlight" type="text" maxlength="160" placeholder="A maior comunidade de Free Fire da região!"></label>
-        <div class="group-form-note">✓ Categoria selecionada · ✓ Descrição preenchida · ✓ Link válido · ✓ Nome preenchido</div>
-        <button class="auth-primary" id="groupSubmitBtn" type="submit">Publicar divulgação <span>→</span></button>
-        <div id="groupFormResult" class="auth-result" aria-live="polite"></div>
-      </form>
-      <aside class="group-preview-wrap"><div class="preview-kicker">👁️ PRÉVIA DA DIVULGAÇÃO</div><article class="group-preview-card"><div class="preview-avatar" id="previewAvatar">🖼️</div><div class="preview-name" id="previewName">Nome do grupo</div><div class="preview-category" id="previewCategory">🎮 Jogos</div><div class="preview-highlight" id="previewHighlight" hidden></div><p id="previewDescription">A descrição da sua comunidade aparecerá aqui.</p><div class="preview-tags" id="previewTags"></div><div class="preview-members">👥 <span id="previewMembers">Membros não informados</span></div><div class="preview-join">ENTRAR NO GRUPO <span>↗</span></div></article><div class="preview-note">A prévia acompanha os dados enquanto você preenche.</div></aside>
+  <div class="group-modal-backdrop" data-close-modal></div>
+  <section class="group-modal-card" role="dialog" aria-modal="true" aria-labelledby="groupModalTitle">
+    <button class="icon-btn group-modal-close" type="button" aria-label="Fechar" data-close-modal>×</button>
+
+    <div data-state="gate" hidden>
+      <div class="modal-head"><span class="eyebrow">Conta necessária</span><h2 id="gateTitle">Entre para divulgar seu grupo</h2><p>Toda divulgação fica ligada a uma conta. Assim você acompanha a análise, edita quando quiser e a equipe consegue falar com você se precisar.</p></div>
+      <div class="form-actions">
+        <button class="btn btn-primary" type="button" data-gate="login">Entrar</button>
+        <button class="btn" type="button" data-gate="register">Criar conta grátis</button>
+      </div>
+      <p class="field-hint">Depois de entrar, o formulário abre automaticamente.</p>
+    </div>
+
+    <div data-state="paused" hidden>
+      <div class="modal-head"><span class="eyebrow">Divulgações pausadas</span><h2>Envios fechados por enquanto</h2><p>A equipe pausou temporariamente novas divulgações. Os grupos já publicados continuam na vitrine — volte em breve para enviar o seu.</p></div>
+      <button class="btn" type="button" data-close-modal>Entendi</button>
+    </div>
+
+    <div data-state="form" hidden>
+      <div class="modal-head">
+        <span class="eyebrow" id="groupModalKicker">Nova divulgação</span>
+        <h2 id="groupModalTitle">Divulgue seu grupo</h2>
+        <p id="groupModalIntro">Preencha as informações abaixo. Depois do envio, a equipe revisa antes de publicar.</p>
+      </div>
+      <div class="group-submit-layout">
+        <form id="groupForm" novalidate>
+          <div class="form-block">
+            <div class="form-block-title">Sobre o grupo</div>
+            <label>Nome do grupo<input id="groupName" maxlength="100" required placeholder="Ex.: Comunidade Free Fire BR"></label>
+            <div class="form-grid">
+              <label>Categoria<select id="groupCategory" required><option value="jogos">Jogos</option><option value="freefire">Free Fire</option><option value="comunidade">Comunidade</option><option value="vendas">Compra e venda</option><option value="divulgacao">Divulgação</option><option value="amizades">Amizades</option><option value="suporte">Suporte</option><option value="estudos">Estudos</option><option value="outros">Outros</option></select></label>
+              <label>Plataforma<input id="groupPlatform" maxlength="80" required list="platformList" placeholder="WhatsApp, Discord…"><datalist id="platformList"><option value="WhatsApp"><option value="Telegram"><option value="Discord"><option value="Instagram"><option value="Comunidade do WhatsApp"></datalist></label>
+            </div>
+            <label><span class="field-row"><span>Descrição</span><span class="char-count" id="descCount">0/800</span></span><textarea id="groupDescription" maxlength="800" required placeholder="O que acontece no grupo? Para quem ele é? Tem regras?"></textarea><span class="field-hint">Mínimo de 10 caracteres.</span></label>
+          </div>
+
+          <div class="form-block">
+            <div class="form-block-title">Link de convite</div>
+            <label>Link do grupo<input id="groupLink" type="url" inputmode="url" maxlength="1000" required placeholder="https://chat.whatsapp.com/…" autocapitalize="none" spellcheck="false"></label>
+            <div class="group-image-status" id="groupImageStatus" data-kind="idle" aria-live="polite"><span class="state-icon"></span><div><strong>Foto automática</strong><small>Cole o link de convite e tentamos buscar a foto pública do grupo.</small></div><button id="groupRefreshImage" type="button" class="btn btn-sm">Buscar</button></div>
+          </div>
+
+          <details class="form-block" id="optionalBlock">
+            <summary>Detalhes opcionais <span class="field-optional">foto, tags, membros, contato</span></summary>
+            <div class="form-block-body">
+              <label>Foto do grupo <span class="field-optional">JPG, PNG, WEBP ou GIF até 5 MB</span><input id="groupAvatarFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif"></label>
+              <label>Ou link de uma imagem<input id="groupAvatar" type="url" inputmode="url" maxlength="1000" placeholder="https://…" autocapitalize="none" spellcheck="false"></label>
+              <label>Tags <span class="field-optional">separe por vírgulas</span><input id="groupTags" type="text" maxlength="300" placeholder="freefire, ranked, amizade"></label>
+              <div class="form-grid">
+                <label>Membros<input id="groupMembers" type="number" min="0" max="10000000" inputmode="numeric" placeholder="Ex.: 250"></label>
+                <label>Contato ou rede social<input id="groupContact" type="url" inputmode="url" maxlength="1000" placeholder="https://instagram.com/…" autocapitalize="none" spellcheck="false"></label>
+              </div>
+              <label>Frase de destaque<input id="groupHighlight" type="text" maxlength="160" placeholder="Ex.: Torneios toda sexta às 20h"></label>
+            </div>
+          </details>
+
+          <label class="check" id="rulesCheckWrap"><input id="groupRules" type="checkbox"><span>Li as <a class="text-link" href="#divulgar" data-close-modal>regras de divulgação</a> e confirmo que as informações são verdadeiras.</span></label>
+          <div id="groupFormResult" class="auth-result" aria-live="polite"></div>
+          <div class="form-actions">
+            <button class="btn btn-primary" id="groupSubmitBtn" type="submit">Enviar para análise <span aria-hidden="true">→</span></button>
+            <button class="btn btn-ghost" type="button" data-close-modal>Cancelar</button>
+          </div>
+        </form>
+
+        <aside class="group-preview-wrap" id="previewWrap">
+          <button class="btn btn-sm preview-toggle" type="button" id="previewToggle" aria-expanded="false">Ver prévia</button>
+          <div class="preview-kicker">Prévia na vitrine</div>
+          <article class="group-preview-card">
+            <div class="preview-head"><div class="preview-avatar" id="previewAvatar">S</div><div class="group-title-block"><div class="preview-name" id="previewName">Nome do grupo</div><div class="preview-category" id="previewCategory">Jogos</div></div></div>
+            <div class="preview-highlight" id="previewHighlight" hidden></div>
+            <p id="previewDescription">A descrição da sua comunidade aparece aqui.</p>
+            <div class="preview-tags" id="previewTags"></div>
+            <div class="preview-members" id="previewMembers">Membros não informados</div>
+            <div class="preview-join">Entrar no grupo ↗</div>
+          </article>
+          <div class="preview-note">A prévia acompanha o que você digita.</div>
+        </aside>
+      </div>
+    </div>
+
+    <div data-state="success" hidden>
+      <div class="submit-success">
+        <span class="success-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <div class="modal-head" style="padding-right:0"><h2 id="successTitle">Divulgação enviada para análise</h2><p id="successText">Recebemos o seu grupo. Ele ainda não aparece na vitrine.</p></div>
+        <ol class="next-steps">
+          <li>A equipe confere o link de convite e as informações.</li>
+          <li>Se estiver tudo certo, o grupo passa a aparecer na vitrine.</li>
+          <li>Você acompanha o status em “Minhas divulgações”, nesta página ou no seu perfil.</li>
+        </ol>
+        <div class="form-actions"><button class="btn btn-primary" type="button" id="successMine">Ver minhas divulgações</button><button class="btn" type="button" data-close-modal>Fechar</button></div>
+      </div>
     </div>
   </section>
 </div>
 
-<div class="group-modal" id="reviewModal" hidden><div class="group-modal-backdrop" data-close-review></div><section class="group-modal-card"><button class="group-modal-close" type="button" data-close-review>×</button><span class="eyebrow">⭐ AVALIAÇÃO</span><h2>Avaliar grupo</h2><form id="reviewForm"><input id="reviewGroupId" type="hidden"><div class="rating-picker" id="ratingPicker"><button type="button" data-rating="1">★</button><button type="button" data-rating="2">★</button><button type="button" data-rating="3">★</button><button type="button" data-rating="4">★</button><button type="button" data-rating="5">★</button></div><textarea id="reviewComment" maxlength="600" placeholder="Comentário opcional"></textarea><button class="auth-primary" type="submit">Enviar avaliação <span>→</span></button><div id="reviewResult" class="auth-result"></div></form></section></div>
-<div class="group-modal" id="reportModal" hidden><div class="group-modal-backdrop" data-close-report></div><section class="group-modal-card"><button class="group-modal-close" type="button" data-close-report>×</button><span class="eyebrow">⚑ RELATAR</span><h2>Relatar grupo</h2><p>Use esta opção apenas quando houver um problema real com o anúncio.</p><form id="reportForm"><input id="reportGroupId" type="hidden"><select id="reportReason" required><option value="spam">Spam</option><option value="link_invalido">Link inválido</option><option value="conteudo_inadequado">Conteúdo inadequado</option><option value="fraude">Possível fraude</option><option value="outro">Outro</option></select><textarea id="reportDescription" maxlength="800" placeholder="Explique brevemente o que aconteceu"></textarea><button class="auth-primary" type="submit">Enviar relato <span>→</span></button><div id="reportResult" class="auth-result"></div></form></section></div>
+<div class="group-modal" id="reviewModal" hidden>
+  <div class="group-modal-backdrop" data-close-modal></div>
+  <section class="group-modal-card" role="dialog" aria-modal="true" aria-labelledby="reviewTitle">
+    <button class="icon-btn group-modal-close" type="button" aria-label="Fechar" data-close-modal>×</button>
+    <div class="modal-head"><span class="eyebrow">Avaliação</span><h2 id="reviewTitle">Avaliar grupo</h2><p id="reviewGroupName"></p></div>
+    <form id="reviewForm" novalidate style="display:grid;gap:16px">
+      <input id="reviewGroupId" type="hidden">
+      <div class="rating-picker" id="ratingPicker" role="radiogroup" aria-label="Nota de 1 a 5">
+        <button type="button" data-rating="1" aria-label="1 estrela">★</button><button type="button" data-rating="2" aria-label="2 estrelas">★</button><button type="button" data-rating="3" aria-label="3 estrelas">★</button><button type="button" data-rating="4" aria-label="4 estrelas">★</button><button type="button" data-rating="5" aria-label="5 estrelas">★</button>
+      </div>
+      <label>Comentário <span class="field-optional">opcional</span><textarea id="reviewComment" maxlength="600" placeholder="Como é a sua experiência no grupo?"></textarea></label>
+      <p class="field-hint">A avaliação aparece publicamente depois de uma checagem rápida da equipe.</p>
+      <div id="reviewResult" class="auth-result" aria-live="polite"></div>
+      <button class="btn btn-primary" id="reviewSubmit" type="submit">Enviar avaliação</button>
+    </form>
+  </section>
+</div>
 
-<script src="config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="app.js?v=20260909a"></script>
+<div class="group-modal" id="reportModal" hidden>
+  <div class="group-modal-backdrop" data-close-modal></div>
+  <section class="group-modal-card" role="dialog" aria-modal="true" aria-labelledby="reportTitle">
+    <button class="icon-btn group-modal-close" type="button" aria-label="Fechar" data-close-modal>×</button>
+    <div class="modal-head"><span class="eyebrow">Relatar</span><h2 id="reportTitle">Relatar um problema</h2><p>Use quando o link não funciona ou o grupo quebra as regras. A equipe analisa cada relato.</p></div>
+    <form id="reportForm" novalidate style="display:grid;gap:16px">
+      <input id="reportGroupId" type="hidden">
+      <label>Motivo<select id="reportReason"><option value="link_invalido">Link não funciona</option><option value="spam">Spam</option><option value="conteudo_inadequado">Conteúdo inadequado</option><option value="fraude">Possível golpe</option><option value="outro">Outro motivo</option></select></label>
+      <label>Detalhes <span class="field-optional">opcional</span><textarea id="reportDescription" maxlength="800" placeholder="Conte brevemente o que aconteceu"></textarea></label>
+      <div id="reportResult" class="auth-result" aria-live="polite"></div>
+      <button class="btn btn-primary" id="reportSubmit" type="submit">Enviar relato</button>
+    </form>
+  </section>
+</div>
+
+<div class="group-modal" id="planModal" hidden>
+  <div class="group-modal-backdrop" data-close-modal></div>
+  <section class="group-modal-card" role="dialog" aria-modal="true" aria-labelledby="planTitle">
+    <button class="icon-btn group-modal-close" type="button" aria-label="Fechar" data-close-modal>×</button>
+    <div class="modal-head"><span class="eyebrow" id="planKicker">Plano</span><h2 id="planTitle">Escolha o grupo</h2><p id="planInfo"></p></div>
+    <label>Cupom de desconto <span class="field-optional">opcional</span><input id="checkoutCoupon" maxlength="40" autocapitalize="characters" placeholder="Ex.: SORASAKI10"></label>
+    <div class="select-group-list" id="planGroupList"></div>
+    <div class="auth-result" id="planResult" aria-live="polite"></div>
+    <p class="field-hint">O pagamento é feito no Mercado Pago. O destaque é liberado assim que o pagamento é confirmado.</p>
+  </section>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand"><a class="brand" href="/"><span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.1 7.4 7.4 2.1-7.4 2.1L12 21.5l-2.1-7.4L2.5 12l7.4-2.1z" fill="currentColor"/></svg></span><span class="brand-name">SORASAKI</span></a><p>Um bot que protege grupos de WhatsApp e uma vitrine para comunidades. Trocas, vendas e serviços.</p></div>
+    <div class="footer-col"><h4>Explorar</h4><a href="/grupos">Grupos</a><a href="/catalogo">Catálogo</a><a href="/noticias">Notícias</a><a href="/sobre">Sobre</a></div>
+    <div class="footer-col"><h4>Bot e ajuda</h4><a href="/status">Status</a><a href="/estatisticas">Estatísticas</a><a href="/suporte">Suporte</a><a href="/feedback">Avaliações e bugs</a></div>
+  </div>
+  <div class="footer-bottom"><span>© 2026 Sorasaki</span><span>Trocas · Vendas · Serviços</span></div>
+</footer>
+
+<script src="/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/app.js?v=20260911"></script>
 <script>
-(function(){
-  const auth=window.SorasakiAuth, client=auth?.getClient?.();
-  if(!client)return;
-  const $=id=>document.getElementById(id);
-  const esc=v=>String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
-  const safeUrl=v=>{try{const u=new URL(v,location.origin);return /^https?:$/.test(u.protocol)?u.href:''}catch{return ''}};
-  const categoryLabel={vendas:'🛒 Compra e venda',comunidade:'💬 Comunidade',jogos:'🎮 Jogos',freefire:'🔥 Free Fire',divulgacao:'📢 Divulgação',amizades:'👥 Amizades',suporte:'🛠️ Suporte',estudos:'📚 Estudos',outros:'🌐 Outros'};
-  const iconFor={vendas:'🛒',comunidade:'💬',jogos:'🎮',freefire:'🔥',divulgacao:'📢',amizades:'👥',suporte:'🛠️',estudos:'📚',outros:'🌐'};
-  let groups=[],officialGroups=[],filter='todos',selectedRating=0,editingGroupId=null;
-  let previewTimer=null, previewBusy=false, autoImageUrl='', autoImageHash='';
-  const fallbackImage='';
+(function () {
+  const auth = window.SorasakiAuth;
+  const client = auth?.getClient?.();
+  const $ = (id) => document.getElementById(id);
+  const esc = escapeHtml;
+  const CAT = { vendas: "Compra e venda", comunidade: "Comunidade", jogos: "Jogos", freefire: "Free Fire", divulgacao: "Divulgação", amizades: "Amizades", suporte: "Suporte", estudos: "Estudos", outros: "Outros" };
+  const STATUS = { pending: "Em análise", approved: "Publicada", rejected: "Recusada", removed: "Removida" };
+  const ORDER_STATUS = { pending: "Aguardando pagamento", paid: "Pago", rejected: "Recusado", cancelled: "Cancelado", expired: "Expirado", refunded: "Estornado" };
 
-  function average(g){const r=g.reviews||[];if(!r.length)return {score:0,count:0};return {score:r.reduce((s,x)=>s+x.rating,0)/r.length,count:r.length};}
-  function groupCard(g){
-    const r=average(g),badge=g.admin_badge?`<span class="group-featured">${g.admin_badge==='oficial'?'★ Oficial':g.admin_badge==='parceiro'?'◆ Parceiro':'★ Indicado'}</span>`:'';
-    const promo=g.active_promotion?`<span class="group-promo">🚀 Destaque</span>`:'';
-    const img=safeUrl(g.avatar_url);
-    const tags=(g.tags||'').split(',').map(x=>x.trim()).filter(Boolean).slice(0,6);
-    return `<article class="group-card ${g.featured_by_admin?'featured':''}" data-group-card="${g.id}">
-      <div class="group-card-top"><div class="group-icon">${img?`<img src="${esc(img)}" alt="" loading="lazy">`:iconFor[g.category]||'✨'}</div><span class="group-category">${esc(categoryLabel[g.category]||g.category)}</span>${badge}${promo}</div>
-      ${g.highlight?`<div class="group-highlight">✦ ${esc(g.highlight)}</div>`:''}
-      <h2>${esc(g.name)}</h2><p>${esc(g.description)}</p>
-      ${tags.length?`<div class="group-tags">${tags.map(t=>`<span>#${esc(t.replace(/^#/,'').replace(/\s+/g,''))}</span>`).join('')}</div>`:''}
-      <div class="group-meta"><span>⭐ <strong>${r.count?r.score.toFixed(1):'Novo'}</strong>${r.count?` (${r.count})`:''}</span><span>👥 ${Number(g.member_count||0).toLocaleString('pt-BR')} membros</span><span>👁️ ${Number(g.view_count||0).toLocaleString('pt-BR')}</span></div>
-      <div class="group-card-actions"><button class="group-copy" data-link="${encodeURIComponent(g.invite_url)}" type="button">Copiar convite</button><a class="group-join" data-group-join="${g.id}" href="${esc(safeUrl(g.invite_url))}" target="_blank" rel="noopener noreferrer">Entrar <span>↗</span></a></div>
-      ${g.contact_url?`<div class="group-contact"><a href="${esc(safeUrl(g.contact_url))}" target="_blank" rel="noopener noreferrer">📱 Contato / rede social</a></div>`:''}
-      <div class="group-card-secondary"><button type="button" data-review="${g.id}">⭐ Avaliar</button><button type="button" data-report="${g.id}">⚑ Relatar</button></div>
+  let groups = [];
+  let filter = "todos";
+  let selectedRating = 0;
+  let editingGroupId = null;
+  let autoImageUrl = "";
+  let autoImageHash = "";
+  let previewTimer = null;
+  let previewBusy = false;
+  let state = { submissions_enabled: true, max_submissions_24h: 5 };
+  let myGroups = [];
+
+  if (!client) {
+    $("groupsLoading").hidden = true;
+    $("groupsEmpty").hidden = false;
+    $("groupsEmpty").innerHTML = Sora.emptyState("Não foi possível carregar as comunidades.", "Recarregue a página em alguns instantes.", { retry: true });
+    $("groupsEmpty").querySelector("[data-retry]").onclick = () => location.reload();
+  }
+
+  /* ---------- Janelas ---------- */
+  let modalFocus = null;
+  function openModal(id) {
+    const m = $(id);
+    modalFocus = document.activeElement;
+    m.hidden = false;
+    document.body.classList.add("group-modal-open");
+    setTimeout(() => m.querySelector(".group-modal-close")?.focus(), 40);
+  }
+  function closeModal(id) {
+    const m = $(id);
+    if (!m || m.hidden) return;
+    m.hidden = true;
+    if (![...document.querySelectorAll(".group-modal")].some((x) => !x.hidden)) document.body.classList.remove("group-modal-open");
+    modalFocus?.focus?.({ preventScroll: true });
+    if (id === "groupModal") resetSubmitForm();
+  }
+  document.querySelectorAll(".group-modal").forEach((m) => {
+    m.addEventListener("click", (e) => { if (e.target.closest("[data-close-modal]")) { if (e.target.closest("a")) e.preventDefault(); closeModal(m.id); if (e.target.closest('a[href="#divulgar"]')) $("divulgar").scrollIntoView({ behavior: "smooth" }); } });
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    const open = [...document.querySelectorAll(".group-modal")].filter((m) => !m.hidden).pop();
+    if (open) closeModal(open.id);
+  });
+  function showSubmitState(name) {
+    $("groupModal").querySelectorAll("[data-state]").forEach((el) => { el.hidden = el.dataset.state !== name; });
+    $("groupModal").querySelector(".group-modal-card").classList.toggle("group-submit-card", name === "form");
+  }
+
+  /* ---------- Cartões ---------- */
+  function average(g) {
+    const r = g.reviews || [];
+    return r.length ? { score: r.reduce((s, x) => s + x.rating, 0) / r.length, count: r.length } : { score: 0, count: 0 };
+  }
+  function avatar(g, cls) {
+    const img = Sora.safeUrl(g.avatar_url || g.image_url);
+    return `<div class="${cls}">${img ? `<img src="${esc(img)}" alt="" loading="lazy">` : esc(Sora.initials(g.name))}</div>`;
+  }
+  function groupCard(g) {
+    const r = average(g);
+    const tags = String(g.tags || "").split(",").map((x) => x.trim().replace(/^#/, "").replace(/\s+/g, "")).filter(Boolean).slice(0, 5);
+    const badges = [
+      g.admin_badge ? `<span class="group-featured">${g.admin_badge === "oficial" ? "Oficial" : g.admin_badge === "parceiro" ? "Parceiro" : "Indicado"}</span>` : "",
+      g.active_promotion ? '<span class="group-promo">Destaque</span>' : ""
+    ].join("");
+    const invite = Sora.safeUrl(g.invite_url);
+    return `<article class="group-card ${g.featured_by_admin ? "featured" : ""}">
+      <div class="group-card-top">${avatar(g, "group-icon")}<div class="group-title-block"><h3>${esc(g.name)}</h3><span class="group-category">${esc(CAT[g.category] || g.category)}${g.platform ? " · " + esc(g.platform) : ""}</span></div></div>
+      ${badges ? `<div class="group-badges">${badges}</div>` : ""}
+      ${g.highlight ? `<div class="group-highlight">${esc(g.highlight)}</div>` : ""}
+      <p>${esc(g.description)}</p>
+      ${tags.length ? `<div class="group-tags">${tags.map((t) => `<span>#${esc(t)}</span>`).join("")}</div>` : ""}
+      <div class="group-meta"><span>${r.count ? `<strong>★ ${r.score.toFixed(1).replace(".", ",")}</strong> (${r.count})` : "Sem avaliações"}</span>${Number(g.member_count) ? `<span><strong>${fmtNumero(g.member_count)}</strong> membros</span>` : ""}<span><strong>${fmtNumero(g.view_count || 0)}</strong> visitas</span></div>
+      <div class="group-card-actions">
+        <button class="btn btn-sm" type="button" data-copy="${esc(invite)}">Copiar convite</button>
+        <a class="btn btn-sm btn-primary" href="${esc(invite)}" target="_blank" rel="noopener noreferrer" data-join="${g.id}">Entrar <span aria-hidden="true">↗</span></a>
+      </div>
+      <div class="group-card-secondary">
+        <button type="button" data-review="${g.id}">Avaliar</button>
+        <button type="button" data-report="${g.id}">Relatar problema</button>
+        ${g.contact_url ? `<a href="${esc(Sora.safeUrl(g.contact_url))}" target="_blank" rel="noopener noreferrer">Contato ↗</a>` : ""}
+      </div>
     </article>`;
   }
-  function officialCard(g){
-    const img=safeUrl(g.avatar_url);
-    return `<article class="official-card"><div class="official-card-badge">⭐ GRUPO OFICIAL</div><div class="official-card-top"><div class="official-icon">${img?`<img src="${esc(img)}" alt="" loading="lazy">`:'👑'}</div><div><h3>${esc(g.name)}</h3><span>${esc(categoryLabel[g.category]||g.category)}</span></div></div>${g.highlight?`<div class="official-highlight">✦ ${esc(g.highlight)}</div>`:''}<p>${esc(g.description)}</p><a class="group-join" href="${esc(safeUrl(g.invite_url))}" target="_blank" rel="noopener noreferrer">Entrar no grupo <span>↗</span></a></article>`;
+  function officialCard(g) {
+    return `<article class="official-card"><div class="official-card-top">${avatar(g, "official-icon")}<div class="group-title-block"><h3>${esc(g.name)}</h3><span>${esc(CAT[g.category] || g.category)}</span></div></div>${(g.highlight_phrase || g.highlight) ? `<div class="official-highlight">${esc(g.highlight_phrase || g.highlight)}</div>` : ""}<p>${esc(g.description)}</p><a class="btn btn-primary" href="${esc(Sora.safeUrl(g.invite_url))}" target="_blank" rel="noopener noreferrer">Entrar no grupo <span aria-hidden="true">↗</span></a></article>`;
   }
-  function renderOfficial(){
-    const box=$('officialGrid'),section=$('officialSection');
-    if(!box||!section)return;
-    section.hidden=!officialGroups.length;
-    box.innerHTML=officialGroups.map(officialCard).join('');
-  }
-  function render(){
-    let list=groups.filter(g=>filter==='todos'||g.category===filter);
-    const q=$('groupSearch').value.trim().toLowerCase();
-    if(q)list=list.filter(g=>`${g.name} ${g.category} ${g.description} ${g.tags||''}`.toLowerCase().includes(q));
-    const sort=$('groupSort').value;
-    list.sort((a,b)=>sort==='name'?a.name.localeCompare(b.name,'pt-BR'):sort==='rating'?average(b).score-average(a).score:sort==='views'?Number(b.view_count||0)-Number(a.view_count||0):new Date(b.created_at)-new Date(a.created_at));
-    $('groupsGrid').innerHTML=list.map(groupCard).join('');$('groupsGrid').hidden=false;$('groupsEmpty').hidden=list.length>0;
-    document.querySelectorAll('.group-copy').forEach(b=>b.onclick=async()=>{try{await navigator.clipboard.writeText(decodeURIComponent(b.dataset.link));b.textContent='✓ Convite copiado';setTimeout(()=>b.textContent='Copiar convite',1600)}catch{b.textContent='Não foi possível copiar';setTimeout(()=>b.textContent='Copiar convite',1600)}});
-    document.querySelectorAll('[data-review]').forEach(b=>b.onclick=()=>openReview(Number(b.dataset.review)));
-    document.querySelectorAll('[data-report]').forEach(b=>b.onclick=()=>openReport(Number(b.dataset.report)));
-    document.querySelectorAll('[data-group-join]').forEach(a=>a.addEventListener('click',()=>{const id=Number(a.dataset.groupJoin),key=`sora-viewed-${id}`;if(!sessionStorage.getItem(key)){sessionStorage.setItem(key,'1');client.rpc('increment_group_view',{p_group_id:id}).catch(()=>{});}}));
-  }
-  async function loadOfficial(){
-    const {data,error}=await client.from('official_groups').select('id,name,description,category,avatar_url,invite_url,highlight,display_order,created_at').eq('active',true).order('display_order',{ascending:true}).order('created_at',{ascending:true});
-    if(error){$('officialSection').hidden=true;return} officialGroups=data||[];renderOfficial();
-  }
-  async function loadGroups(){
-    $('groupsLoading').hidden=false;$('groupsGrid').hidden=true;
-    const {data,error}=await client.from('groups').select('id,owner_id,name,description,category,avatar_url,member_count,invite_url,status,featured_by_admin,admin_badge,created_at,tags,contact_url,highlight,view_count,platform').eq('status','approved').order('created_at',{ascending:false});
-    if(error){$('groupsLoading').innerHTML='<div>!</div><strong>Não foi possível carregar as comunidades</strong><span>Tente novamente em alguns instantes.</span>';return}
-    groups=(data||[]).map(g=>({...g,reviews:[],active_promotion:false}));
-    $('groupCount').textContent=groups.length;$('memberCount').textContent=groups.reduce((s,g)=>s+(Number(g.member_count)||0),0).toLocaleString('pt-BR')+'+';
-    const ids=groups.map(g=>g.id);
-    if(ids.length){
-      const rr=await client.from('reviews').select('group_id,rating').in('group_id',ids).eq('status','visible');
-      (rr.data||[]).forEach(r=>{const g=groups.find(x=>x.id===r.group_id);if(g)g.reviews.push(r)});
-      const pp=await client.from('promotions').select('group_id,expires_at').in('group_id',ids).eq('active',true).gt('expires_at',new Date().toISOString());
-      (pp.data||[]).forEach(p=>{const g=groups.find(x=>x.id===p.group_id);if(g)g.active_promotion=true});
+
+  function render() {
+    let list = groups.filter((g) => filter === "todos" || g.category === filter);
+    const q = $("groupSearch").value.trim().toLowerCase();
+    if (q) list = list.filter((g) => `${g.name} ${CAT[g.category] || ""} ${g.platform || ""} ${g.description} ${g.tags || ""}`.toLowerCase().includes(q));
+    const sort = $("groupSort").value;
+    list.sort((a, b) => sort === "name" ? a.name.localeCompare(b.name, "pt-BR")
+      : sort === "rating" ? average(b).score - average(a).score
+      : sort === "views" ? Number(b.view_count || 0) - Number(a.view_count || 0)
+      : sort === "members" ? Number(b.member_count || 0) - Number(a.member_count || 0)
+      : new Date(b.created_at) - new Date(a.created_at));
+    // Grupos em destaque pago aparecem primeiro.
+    list.sort((a, b) => Number(Boolean(b.active_promotion)) - Number(Boolean(a.active_promotion)));
+    $("groupsGrid").innerHTML = list.map(groupCard).join("");
+    $("groupsGrid").hidden = !list.length;
+    $("groupsEmpty").hidden = Boolean(list.length);
+    if (!list.length) {
+      $("groupsEmpty").innerHTML = groups.length
+        ? Sora.emptyState("Nenhum grupo encontrado.", "Tente outro termo ou escolha outra categoria.", { icon: "search" })
+        : Sora.emptyState("A vitrine está esperando o primeiro grupo.", "Seja o primeiro a divulgar a sua comunidade.", { icon: "users" });
     }
-    const recommended=groups.filter(g=>g.featured_by_admin);
-    $('recommendedSection').hidden=!recommended.length;$('recommendedGrid').innerHTML=recommended.map(groupCard).join('');
-    $('groupsLoading').hidden=true;render();
   }
-  async function loadProducts(){const section=$('productsSection'),grid=$('productsGrid');if(!section||!grid)return;try{const r=await fetch('/api/public-content?type=products',{cache:'no-store',headers:{Accept:'application/json'}}),d=await r.json();const data=d?.products||[];if(!r.ok||!data.length){section.hidden=true;return;}section.hidden=false;grid.innerHTML=data.map(p=>{const price=Number(p.promo_price??p.price),old=p.promo_price!=null?Number(p.price):Number(p.previous_price||0);return `<article class="plan-card">${p.image_url?`<img src="${esc(p.image_url)}" alt="" loading="lazy" style="width:100%;height:150px;object-fit:cover;border-radius:12px;margin-bottom:10px">`:''}<span class="plan-name">${esc(p.name)}</span>${p.category?`<small class="admin-muted">${esc(p.category)}</small>`:''}${old>price?`<div class="admin-muted" style="text-decoration:line-through">R$ ${old.toFixed(2).replace('.',',')}</div>`:''}<h3>R$ ${price.toFixed(2).replace('.',',')}</h3><p>${esc(p.description||'')}</p></article>`}).join('')}catch(e){section.hidden=true;console.error('[SORASAKI] Produtos:',e)}}
-  async function loadPlans(){
-    const {data,error}=await client.from('promotion_plans').select('id,name,description,price,duration_days').eq('active',true).order('price');
-    if(error){$('plansGrid').innerHTML='<div class="groups-empty"><strong>Os planos não estão disponíveis agora.</strong><span>Tente novamente mais tarde.</span></div>';return}
-    const plans=data||[];
-    $('plansGrid').innerHTML=plans.map(p=>`<article class="plan-card"><span class="plan-name">${esc(p.name)}</span><h3>R$ ${Number(p.price).toFixed(2).replace('.',',')}</h3><p>${esc(p.description)}</p><span class="plan-duration">${p.duration_days} dias de destaque</span><button class="auth-primary plan-buy" data-plan="${p.id}" type="button">Escolher grupo e continuar <span>→</span></button></article>`).join('')||'<div class="groups-empty"><strong>Nenhum plano disponível</strong><span>Novas opções podem aparecer em breve.</span></div>';
-    document.querySelectorAll('.plan-buy').forEach(b=>b.onclick=()=>openPlan(Number(b.dataset.plan),plans.find(p=>p.id===Number(b.dataset.plan))));
-  }
-  function statusOrder(s){return {pending:'🟡 Aguardando pagamento',paid:'🟢 Pago',rejected:'🔴 Recusado',cancelled:'⚫ Cancelado',expired:'⚫ Expirado',refunded:'↩️ Estornado'}[s]||'Em atualização'}
-  async function loadMine(){
-    const user=auth.getUser();if(!user)return;
-    const {data}=await client.from('groups').select('id,name,category,status,admin_note,created_at,member_count,view_count,platform').eq('owner_id',user.id).order('created_at',{ascending:false});
-    const section=$('myGroupsSection'),listEl=$('myGroupsList');
-    section.hidden=!data?.length;
-    if(data?.length){const labels={pending:'🟡 Em análise',approved:'🟢 Aprovado',rejected:'🔴 Recusado',removed:'⚫ Removido'};listEl.innerHTML=data.map(g=>`<div class="my-group-row"><div><strong>${esc(g.name)}</strong><span>${esc(categoryLabel[g.category]||g.category)} · ${new Date(g.created_at).toLocaleDateString('pt-BR')}</span><small>👁️ ${Number(g.view_count||0).toLocaleString('pt-BR')} visualizações</small></div><div><b>${labels[g.status]||g.status}</b>${g.admin_note?`<small>${esc(g.admin_note)}</small>`:''}<div class="my-group-actions"><button class="auth-secondary" data-edit-group="${g.id}" type="button">✏️ Editar</button><button class="danger-button" data-delete-group="${g.id}" type="button">🗑️ Remover</button></div></div></div>`).join('');}
-    const orders=await client.from('orders').select('id,group_id,plan_id,amount,status,created_at,paid_at').eq('user_id',user.id).order('created_at',{ascending:false}).limit(20);
-    if(orders.data?.length){$('myOrdersSection').hidden=false;$('myOrdersList').innerHTML=orders.data.map(o=>`<div class="my-group-row"><div><strong>Pedido #${o.id}</strong><span>R$ ${Number(o.amount).toFixed(2).replace('.',',')} · ${new Date(o.created_at).toLocaleDateString('pt-BR')}</span></div><div><b>${statusOrder(o.status)}</b></div></div>`).join('')}
-    document.querySelectorAll('[data-edit-group]').forEach(b=>b.onclick=()=>startEditGroup(Number(b.dataset.editGroup),data.find(g=>g.id===Number(b.dataset.editGroup))));
-    document.querySelectorAll('[data-delete-group]').forEach(b=>b.onclick=()=>deleteMyGroup(Number(b.dataset.deleteGroup)));
-  }
-  function openLoginGate(){
-    sessionStorage.setItem('sorasaki_return_to_divulgacao','1');
-    auth.setAfterAuth(openGroupModal);
-    $('loginGate').hidden=false;document.body.classList.add('group-modal-open');
-  }
-  function closeLoginGate(){ $('loginGate').hidden=true;document.body.classList.remove('group-modal-open'); }
-  function openGroupModal(){
-    if(!auth.getUser()){openLoginGate();return;}
-    closeLoginGate();$('groupModal').hidden=false;document.body.classList.add('group-modal-open');setTimeout(()=>{($(editingGroupId?'groupName':'groupName'))?.focus()},50);updatePreview();
-  }
-  function closeGroupModal(){editingGroupId=null;autoImageUrl='';autoImageHash='';$('groupModal').hidden=true;document.body.classList.remove('group-modal-open');$('groupForm').reset();$('groupFormResult').textContent='';$('groupModalTitle').textContent='Divulgue seu grupo';$('groupModalIntro').textContent='Apresente sua comunidade para outras pessoas e deixe sua divulgação disponível no SORASAKI.';$('groupSubmitBtn').innerHTML='Publicar divulgação <span>→</span>';updatePreview();}
-  function startEditGroup(id,g){
-    if(!g||!auth.getUser())return;
-    editingGroupId=id;$('groupModalTitle').textContent='Editar divulgação';$('groupModalIntro').textContent='Ao salvar alterações, a divulgação volta para análise antes de aparecer novamente no catálogo.';$('groupSubmitBtn').innerHTML='Salvar alterações <span>✓</span>';
-    $('groupName').value=g.name||'';$('groupCategory').value=g.category||'outros';$('groupPlatform').value=g.platform||'';$('groupDescription').value=g.description||'';$('groupMembers').value=Number(g.member_count)||'';$('groupLink').value=g.invite_url||'';$('groupAvatar').value=g.avatar_url||'';autoImageUrl=g.avatar_source==='auto'?g.avatar_url||'':'';$('groupTags').value=g.tags||'';$('groupContact').value=g.contact_url||'';$('groupHighlight').value=g.highlight||'';$('groupFormResult').textContent='';openGroupModal();
-  }
-  async function deleteMyGroup(id){
-    if(!confirm('Remover esta divulgação?\n\nEla ficará marcada como removida e deixará de aparecer no catálogo.'))return;
-    const {error}=await client.from('groups').update({status:'removed',featured_by_admin:false,admin_badge:null,approved_at:null}).eq('id',id).eq('owner_id',auth.getUser().id);
-    if(error){alert('Não foi possível remover a divulgação. Tente novamente.');return}
-    await loadMine();await loadGroups();
-  }
-  function updatePreview(){
-    const name=$('groupName')?.value.trim()||'Nome do grupo';const category=$('groupCategory')?.value||'jogos';const platform=$('groupPlatform')?.value.trim()||'';const desc=$('groupDescription')?.value.trim()||'A descrição da sua comunidade aparecerá aqui.';const members=$('groupMembers')?.value?Number($('groupMembers').value).toLocaleString('pt-BR'):'—';const tags=($('groupTags')?.value||'').split(',').map(x=>x.trim()).filter(Boolean).slice(0,4);const highlight=$('groupHighlight')?.value.trim()||'';const img=safeUrl($('groupAvatar')?.value.trim())||safeUrl(autoImageUrl)||fallbackImage;
-    $('previewName').textContent=name;$('previewCategory').textContent=(categoryLabel[category]||category)+(platform?' · '+platform:'');$('previewDescription').textContent=desc;$('previewMembers').textContent=members==='—'?'Membros não informados':members+' membros';$('previewHighlight').textContent=highlight?'✦ '+highlight:'';$('previewHighlight').hidden=!highlight;$('previewTags').innerHTML=tags.map(t=>`<span>#${esc(t.replace(/^#/,'').replace(/\s+/g,''))}</span>`).join('');$('previewAvatar').innerHTML=img?`<img src="${esc(img)}" alt="Prévia da imagem do grupo">`:'🖼️';
-  }
-  function setImageStatus(kind,title,text){const box=$('groupImageStatus');if(!box)return;const icon={loading:'🔍',found:'✅',manual:'🖼️',not_found:'ℹ️',error:'⚠️'}[kind]||'🔎';box.innerHTML=`<span>${icon}</span><div><strong>${esc(title)}</strong><small>${esc(text)}</small></div><button type="button" class="auth-secondary group-refresh-image">Atualizar</button>`;box.querySelector('.group-refresh-image').onclick=()=>identifyGroup(true);}
-  async function identifyGroup(force=false){
-    const link=$('groupLink')?.value.trim()||'';
-    if(!/^https?:\/\//i.test(link)){if(force)setImageStatus('error','Link do grupo necessário','Informe um convite público válido para tentar identificar a foto.');return;}
-    clearTimeout(previewTimer);
-    if(previewBusy&&!force)return;
-    previewBusy=true;setImageStatus('loading','Identificando grupo...','Estamos procurando apenas informações públicas disponíveis no convite.');
-    try{
-      const token=await auth.getToken();
-      const response=await fetch('/api/group-preview',{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify({invite_url:link,entity:'group',id:editingGroupId||0})});
-      const result=await response.json().catch(()=>({}));
-      if(!response.ok){setImageStatus('error','Não foi possível identificar','Você pode continuar e adicionar uma imagem manualmente.');return;}
-      if(result.name&&!$('groupName').dataset.userEdited&&!$('groupName').value.trim()){$('groupName').value=result.name.slice(0,100);}
-      if(result.provider&&(!$('groupPlatform').value.trim()||$('groupPlatform').dataset.auto==='true')){$('groupPlatform').value=result.provider==='whatsapp'?'WhatsApp':result.provider==='telegram'?'Telegram':result.provider==='discord'?'Discord':$('groupPlatform').value;$('groupPlatform').dataset.auto='true';}
-      if(result.image_url){autoImageUrl=result.image_url;autoImageHash=result.image_hash||'';$('groupAvatar').value=result.image_url;setImageStatus('found','Foto do grupo identificada','A imagem pública encontrada foi salva no armazenamento do SORASAKI.');}
-      else setImageStatus(result.image_status==='error'?'error':'not_found',result.image_status==='error'?'Não foi possível concluir':'Foto automática indisponível',result.message||'Você pode adicionar uma imagem manualmente.');
-      updatePreview();
-    }catch{setImageStatus('error','Não foi possível identificar agora','Você pode continuar normalmente e adicionar uma imagem manualmente.');}
-    finally{previewBusy=false;}
-  }
-  function scheduleIdentify(){clearTimeout(previewTimer);const link=$('groupLink')?.value.trim()||'';if(!/^https?:\/\//i.test(link)){updatePreview();return;}previewTimer=setTimeout(()=>identifyGroup(false),700);}
-  async function uploadManualImage(file){
-    if(!file)return;
-    if(!['image/jpeg','image/png','image/webp','image/gif'].includes(file.type)||file.size>5*1024*1024){setImageStatus('error','Imagem não aceita','Use JPG, PNG, WEBP ou GIF de até 5 MB.');$('groupAvatarFile').value='';return;}
-    const user=auth.getUser();if(!user){openLoginGate();return;}
-    setImageStatus('loading','Salvando imagem...','Estamos armazenando sua imagem com segurança.');
-    try{const path=`groups/${user.id}/manual-${crypto.randomUUID()}.${file.type.split('/')[1].replace('jpeg','jpg')}`;const up=await client.storage.from('group-images').upload(path,file,{contentType:file.type,cacheControl:'31536000',upsert:false});if(up.error)throw up.error;const pub=client.storage.from('group-images').getPublicUrl(path).data.publicUrl;autoImageUrl='';$('groupAvatar').value=pub;setImageStatus('manual','Imagem manual salva','Ela será usada nesta divulgação.');updatePreview();}catch{setImageStatus('error','Não foi possível salvar a imagem','Tente novamente ou use um link de imagem.');}
-  }
-  function resetFormForNew(){editingGroupId=null;autoImageUrl='';autoImageHash='';$('groupForm').reset();$('groupModalTitle').textContent='Divulgue seu grupo';$('groupModalIntro').textContent='Apresente sua comunidade para outras pessoas e deixe sua divulgação disponível no SORASAKI.';$('groupSubmitBtn').innerHTML='Publicar divulgação <span>→</span>';updatePreview();}
-  $('submitGroupBtn').onclick=async()=>{await auth.ready;auth.getUser()?openGroupModal():openLoginGate();};
-  document.querySelectorAll('[data-close-login-gate]').forEach(x=>x.onclick=closeLoginGate);
-  $('loginGateLink').onclick=()=>{closeLoginGate();auth.setAfterAuth(openGroupModal);auth.open();};
-  $('loginGateBack').onclick=closeLoginGate;
-  document.querySelectorAll('[data-close-group-modal]').forEach(x=>x.onclick=closeGroupModal);
-  ['groupCategory','groupDescription','groupMembers','groupAvatar','groupTags','groupContact','groupHighlight'].forEach(id=>$(id)?.addEventListener('input',updatePreview));
-  $('groupName')?.addEventListener('input',()=>{$('groupName').dataset.userEdited='true';updatePreview()});
-  $('groupPlatform')?.addEventListener('input',()=>{$('groupPlatform').dataset.userEdited='true';updatePreview()});
-  $('groupLink')?.addEventListener('input',scheduleIdentify);
-  $('groupRefreshImage')?.addEventListener('click',()=>identifyGroup(true));
-  $('groupAvatar')?.addEventListener('input',()=>{autoImageUrl='';updatePreview()});
-  $('groupAvatarFile')?.addEventListener('change',e=>uploadManualImage(e.target.files?.[0]));
-  $('groupForm').onsubmit=async e=>{
-    e.preventDefault();await auth.ready;if(!auth.getUser()){openLoginGate();return;}
-    const user=auth.getUser(),name=$('groupName').value.trim(),platform=$('groupPlatform').value.trim(),description=$('groupDescription').value.trim(),category=$('groupCategory').value,invite_url=$('groupLink').value.trim(),avatar_url=$('groupAvatar').value.trim()||null,avatar_source=avatar_url?(autoImageUrl&&avatar_url===autoImageUrl?'auto':'manual'):'fallback',avatar_status=avatar_url?(avatar_source==='auto'?'found':'manual'):'fallback',tags=$('groupTags').value.trim()||null,contact_url=$('groupContact').value.trim()||null,highlight=$('groupHighlight').value.trim()||null,member_count=Math.max(0,Math.min(10000000,Number($('groupMembers').value)||0));
-    if(name.length<2||platform.length<2||description.length<10||!invite_url){$('groupFormResult').className='auth-result error';$('groupFormResult').textContent='Confira nome, plataforma/tipo, descrição e link do grupo.';return}
-    if(!/^https?:\/\//i.test(invite_url)|| (avatar_url&&!/^https?:\/\//i.test(avatar_url)) || (contact_url&&!/^https?:\/\//i.test(contact_url))){$('groupFormResult').className='auth-result error';$('groupFormResult').textContent='Confira os links informados.';return}
-    if(!editingGroupId&&!confirm('📢 Publicar divulgação?\n\nConfira as informações antes de continuar. A divulgação será enviada para análise.'))return;
-    const button=$('groupSubmitBtn');button.disabled=true;button.textContent=editingGroupId?'Salvando alterações...':'Publicando...';$('groupFormResult').className='auth-result';$('groupFormResult').textContent=editingGroupId?'Salvando alterações...':'Enviando sua divulgação para análise...';
-    let result;
-    if(editingGroupId){result=await client.from('groups').update({name,platform,description,category,member_count,invite_url,avatar_url,avatar_source,avatar_status,avatar_checked_at:avatar_source==='auto'?new Date().toISOString():null,avatar_hash:autoImageHash||null,tags,contact_url,highlight,status:'pending',featured_by_admin:false,admin_badge:null,admin_note:null,approved_at:null}).eq('id',editingGroupId).eq('owner_id',user.id);}
-    else{result=await client.from('groups').insert({owner_id:user.id,name,platform,description,category,member_count,invite_url,avatar_url,avatar_source,avatar_status,avatar_checked_at:avatar_source==='auto'?new Date().toISOString():null,avatar_hash:autoImageHash||null,tags,contact_url,highlight,status:'pending'});}
-    button.disabled=false;button.innerHTML=editingGroupId?'Salvar alterações <span>✓</span>':'Publicar divulgação <span>→</span>';
-    if(result.error){$('groupFormResult').className='auth-result error';$('groupFormResult').textContent='Não foi possível concluir essa ação. Confira os dados e tente novamente.';return}
-    $('groupFormResult').className='auth-result ok';$('groupFormResult').textContent=editingGroupId?'✓ Alterações salvas. A divulgação voltou para análise.':'✓ Divulgação enviada com sucesso! Ela ficará em análise antes de ser publicada.';sessionStorage.removeItem('sorasaki_return_to_divulgacao');await loadMine();if(!editingGroupId)$('groupForm').reset();setTimeout(closeGroupModal,1000);
-  };
-  let planToBuy=null;
-  function openPlan(planId,plan){
-    if(!auth.requireLogin('Você precisa estar conectado para comprar um plano.'))return;planToBuy={planId,plan};client.from('groups').select('id,name').eq('owner_id',auth.getUser().id).eq('status','approved').order('name').then(({data})=>{const list=data||[];if(!list.length){alert('Você ainda não tem um grupo aprovado para destacar.');return}const options=list.map(g=>`<button class="select-group-option" data-group-buy="${g.id}"><strong>${esc(g.name)}</strong><span>Grupo aprovado</span></button>`).join('');const modal=document.createElement('div');modal.className='group-modal';modal.innerHTML=`<div class="group-modal-backdrop"></div><section class="group-modal-card"><button class="group-modal-close" type="button">×</button><span class="eyebrow">🚀 ${esc(plan.name)}</span><h2>Escolha o grupo</h2><p>O plano dura ${plan.duration_days} dias. A compra não substitui a análise do anúncio.</p><label style="display:block;margin:12px 0 8px">Cupom de desconto <span class="field-optional">opcional</span><input id="checkoutCoupon" maxlength="40" placeholder="Ex.: SORASAKI10"></label><div class="select-group-list">${options}</div><div class="auth-result" id="planResult"></div></section>`;document.body.appendChild(modal);const close=()=>modal.remove();modal.querySelector('.group-modal-backdrop').onclick=close;modal.querySelector('.group-modal-close').onclick=close;modal.querySelectorAll('[data-group-buy]').forEach(b=>b.onclick=async()=>{b.disabled=true;b.textContent='Abrindo pagamento...';const token=await auth.getToken();const response=await fetch('/api/create-preference',{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify({plan_id:planId,group_id:Number(b.dataset.groupBuy),coupon_code:modal.querySelector('#checkoutCoupon')?.value.trim()||''})});const result=await response.json().catch(()=>({}));if(response.ok&&result.checkout_url){location.href=result.checkout_url;return}const box=modal.querySelector('#planResult');box.className='auth-result error';box.textContent=result.message||'Não foi possível iniciar o pagamento.';b.disabled=false;b.textContent='Escolher este grupo';});});
-  }
-  function openReview(id){if(!auth.requireLogin('Você precisa estar conectado para avaliar um grupo.'))return;$('reviewGroupId').value=id;$('reviewModal').hidden=false;selectedRating=0;document.querySelectorAll('#ratingPicker button').forEach(b=>b.classList.remove('selected'))}
-  function closeReview(){$('reviewModal').hidden=true;$('reviewResult').textContent=''}
-  document.querySelectorAll('[data-close-review]').forEach(x=>x.onclick=closeReview);
-  document.querySelectorAll('#ratingPicker button').forEach(b=>b.onclick=()=>{selectedRating=Number(b.dataset.rating);document.querySelectorAll('#ratingPicker button').forEach(x=>x.classList.toggle('selected',Number(x.dataset.rating)<=selectedRating))});
-  $('reviewForm').onsubmit=async e=>{e.preventDefault();if(!auth.requireLogin('Você precisa estar conectado para avaliar um grupo.'))return;if(!selectedRating){$('reviewResult').className='auth-result error';$('reviewResult').textContent='Escolha uma nota de 1 a 5.';return}const btn=$('reviewForm').querySelector('button[type=submit]');if(btn)btn.disabled=true;try{const token=await auth.getToken();const response=await fetch('/api/submit-review',{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify({group_id:Number($('reviewGroupId').value),rating:selectedRating,comment:$('reviewComment').value.trim()||null})});const result=await response.json().catch(()=>({}));$('reviewResult').className=`auth-result ${result.ok?'ok':'error'}`;$('reviewResult').textContent=result.message||(result.ok?'Avaliação enviada!':'Não foi possível enviar agora.');if(result.ok){$('reviewForm').reset();setTimeout(()=>{closeReview();loadGroups()},1200)}}finally{if(btn)btn.disabled=false}};
-  function openReport(id){if(!auth.requireLogin('Você precisa estar conectado para enviar um relato.'))return;$('reportGroupId').value=id;$('reportModal').hidden=false}
-  function closeReport(){$('reportModal').hidden=true;$('reportResult').textContent=''}
-  document.querySelectorAll('[data-close-report]').forEach(x=>x.onclick=closeReport);
-  $('reportForm').onsubmit=async e=>{e.preventDefault();if(!auth.requireLogin('Você precisa estar conectado para enviar um relato.'))return;const {error}=await client.from('reports').insert({group_id:Number($('reportGroupId').value),reporter_id:auth.getUser().id,reason:$('reportReason').value,description:$('reportDescription').value.trim()||null});$('reportResult').className=`auth-result ${error?'error':'ok'}`;$('reportResult').textContent=error?'Não foi possível enviar o relato agora.':'Relato enviado. Obrigado por ajudar a manter a área organizada.';if(!error){$('reportForm').reset();setTimeout(closeReport,900)}};
-  document.querySelectorAll('.group-filter').forEach(b=>b.onclick=()=>{document.querySelectorAll('.group-filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');filter=b.dataset.filter;render()});
-  $('groupSearch').oninput=render;$('groupSort').onchange=render;
-  auth.ready.then(async()=>{
-    await Promise.all([loadOfficial(),loadGroups(),loadPlans(),loadProducts(),loadMine()]);
-    const params=new URLSearchParams(location.search);if(params.get('pagamento')){const s=params.get('pagamento');const text=s==='sucesso'?'Pagamento recebido! A liberação acontece após a confirmação.':s==='pendente'?'Pagamento pendente. Assim que for confirmado, o benefício será atualizado.':'O pagamento não foi concluído.';const box=document.createElement('div');box.className='aviso';box.style.display='block';box.textContent=text;document.querySelector('main').prepend(box)}
-    if(auth.getUser()&&sessionStorage.getItem('sorasaki_return_to_divulgacao')==='1'){sessionStorage.removeItem('sorasaki_return_to_divulgacao');setTimeout(openGroupModal,250)} else if(location.hash==='#divulgar'){setTimeout(openGroupModal,250)} else if(new URLSearchParams(location.search).get('editar')){setTimeout(async()=>{const id=Number(new URLSearchParams(location.search).get('editar'));const {data}=await client.from('groups').select('*').eq('id',id).eq('owner_id',auth.getUser().id).maybeSingle();if(data)startEditGroup(id,data)},250)}
+
+  $("groupsGrid").addEventListener("click", async (e) => {
+    const copy = e.target.closest("[data-copy]");
+    if (copy) {
+      try { await navigator.clipboard.writeText(copy.dataset.copy); copy.textContent = "Convite copiado"; }
+      catch { copy.textContent = "Não foi possível copiar"; }
+      setTimeout(() => { copy.textContent = "Copiar convite"; }, 1800);
+      return;
+    }
+    const join = e.target.closest("[data-join]");
+    if (join) {
+      const id = Number(join.dataset.join), key = `sora-viewed-${id}`;
+      try {
+        if (!sessionStorage.getItem(key)) {
+          sessionStorage.setItem(key, "1");
+          client.rpc("increment_group_view", { p_group_id: id }).then(() => {}, () => {});
+        }
+      } catch {}
+      return;
+    }
+    const rev = e.target.closest("[data-review]");
+    if (rev) return openReview(Number(rev.dataset.review));
+    const rep = e.target.closest("[data-report]");
+    if (rep) return openReport(Number(rep.dataset.report));
   });
+
+  document.querySelectorAll(".group-filter").forEach((b) => {
+    b.onclick = () => {
+      document.querySelectorAll(".group-filter").forEach((x) => { x.classList.toggle("active", x === b); x.setAttribute("aria-pressed", String(x === b)); });
+      filter = b.dataset.filter;
+      render();
+    };
+  });
+  let searchTimer = null;
+  $("groupSearch").addEventListener("input", () => { clearTimeout(searchTimer); searchTimer = setTimeout(render, 120); });
+  $("groupSort").addEventListener("change", render);
+
+  /* ---------- Carregamento ---------- */
+  async function loadOfficial() {
+    try {
+      const { data, error } = await client.from("official_groups").select("id,name,description,category,avatar_url,image_url,invite_url,highlight,highlight_phrase,display_order,created_at").eq("active", true).order("display_order", { ascending: true }).order("created_at", { ascending: true });
+      if (error) throw error;
+      $("officialGrid").innerHTML = (data || []).map(officialCard).join("");
+      $("officialSection").hidden = !data?.length;
+    } catch (e) {
+      console.warn("[SORASAKI] Grupos oficiais:", e);
+      $("officialSection").hidden = true;
+    }
+  }
+
+  async function loadGroups() {
+    try {
+      const { data, error } = await client.from("groups")
+        .select("id,name,description,category,platform,avatar_url,member_count,invite_url,featured_by_admin,admin_badge,created_at,tags,contact_url,highlight,view_count")
+        .eq("status", "approved").order("created_at", { ascending: false }).limit(500);
+      if (error) throw error;
+      groups = (data || []).map((g) => ({ ...g, reviews: [], active_promotion: false }));
+      $("groupCount").textContent = fmtNumero(groups.length);
+      $("memberCount").textContent = fmtNumero(groups.reduce((s, g) => s + (Number(g.member_count) || 0), 0));
+      const ids = groups.map((g) => g.id);
+      if (ids.length) {
+        const [rr, pp] = await Promise.all([
+          client.from("reviews").select("group_id,rating").in("group_id", ids).eq("status", "visible"),
+          client.from("promotions").select("group_id,expires_at").in("group_id", ids).eq("active", true).gt("expires_at", new Date().toISOString())
+        ]);
+        const byId = new Map(groups.map((g) => [g.id, g]));
+        (rr.data || []).forEach((r) => byId.get(r.group_id)?.reviews.push(r));
+        (pp.data || []).forEach((p) => { const g = byId.get(p.group_id); if (g) g.active_promotion = true; });
+      }
+      $("groupsLoading").hidden = true;
+      render();
+    } catch (e) {
+      console.warn("[SORASAKI] Comunidades:", e);
+      $("groupsLoading").hidden = true;
+      $("groupsGrid").hidden = true;
+      $("groupsEmpty").hidden = false;
+      $("groupsEmpty").innerHTML = Sora.emptyState("Não foi possível carregar as comunidades.", "Verifique sua conexão e tente novamente.", { retry: true });
+      $("groupsEmpty").querySelector("[data-retry]").onclick = () => { $("groupsEmpty").hidden = true; $("groupsLoading").hidden = false; loadGroups(); };
+    }
+  }
+
+  async function loadPlans() {
+    try {
+      const { data, error } = await client.from("promotion_plans").select("id,name,description,price,duration_days").eq("active", true).gt("price", 0).order("price");
+      if (error) throw error;
+      const plans = data || [];
+      $("plansSection").hidden = !plans.length;
+      $("plansGrid").innerHTML = plans.map((p) => `<article class="plan-card"><span class="plan-name">${esc(p.name)}</span><h3>${fmtMoeda(p.price)}</h3><p>${esc(p.description)}</p><span class="plan-duration">${p.duration_days} ${p.duration_days === 1 ? "dia" : "dias"} de destaque</span><button class="btn btn-primary" type="button" data-plan="${p.id}">Escolher grupo <span aria-hidden="true">→</span></button></article>`).join("");
+      $("plansGrid").querySelectorAll("[data-plan]").forEach((b) => { b.onclick = () => openPlan(plans.find((p) => p.id === Number(b.dataset.plan))); });
+    } catch (e) {
+      console.warn("[SORASAKI] Planos:", e);
+      $("plansSection").hidden = true;
+    }
+  }
+
+  async function loadMine() {
+    const user = auth.getUser();
+    if (!user) { myGroups = []; $("myGroupsSection").hidden = true; $("myOrdersSection").hidden = true; return; }
+    try {
+      const { data, error } = await client.from("groups")
+        .select("id,name,platform,description,category,invite_url,avatar_url,avatar_source,member_count,tags,contact_url,highlight,status,admin_note,created_at,view_count")
+        .eq("owner_id", user.id).order("created_at", { ascending: false });
+      if (error) throw error;
+      myGroups = data || [];
+      $("myGroupsSection").hidden = !myGroups.length;
+      $("myGroupsList").innerHTML = myGroups.map((g) => `
+        <div class="my-group-row">
+          <div><strong>${esc(g.name)}</strong><span>${esc(CAT[g.category] || g.category)} · enviada em ${fmtData(g.created_at)} · ${fmtNumero(g.view_count || 0)} visitas</span>${g.admin_note && g.status !== "approved" ? `<small class="admin-note">Nota da equipe: ${esc(g.admin_note)}</small>` : ""}</div>
+          <div class="my-group-actions"><span class="status-badge ${esc(g.status)}">${STATUS[g.status] || esc(g.status)}</span><button class="btn btn-sm" type="button" data-edit-group="${g.id}">Editar</button><button class="btn btn-sm btn-danger" type="button" data-delete-group="${g.id}">Remover</button></div>
+        </div>`).join("");
+    } catch (e) {
+      console.warn("[SORASAKI] Minhas divulgações:", e);
+      $("myGroupsSection").hidden = false;
+      $("myGroupsList").innerHTML = Sora.emptyState("Não foi possível carregar suas divulgações.", "Tente novamente em instantes.");
+    }
+    try {
+      const { data } = await client.from("orders").select("id,amount,status,created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(20);
+      $("myOrdersSection").hidden = !data?.length;
+      $("myOrdersList").innerHTML = (data || []).map((o) => `<div class="my-group-row"><div><strong>Pedido #${o.id}</strong><span>${fmtMoeda(o.amount)} · ${fmtData(o.created_at)}</span></div><div class="my-group-actions"><span class="status-badge ${esc(o.status)}">${ORDER_STATUS[o.status] || esc(o.status)}</span></div></div>`).join("");
+    } catch (e) { console.warn("[SORASAKI] Pedidos:", e); }
+  }
+
+  $("myGroupsList").addEventListener("click", async (e) => {
+    const edit = e.target.closest("[data-edit-group]");
+    if (edit) { const g = myGroups.find((x) => x.id === Number(edit.dataset.editGroup)); if (g) startEditGroup(g); return; }
+    const del = e.target.closest("[data-delete-group]");
+    if (del) {
+      if (!Sora.confirmTap(del, "Confirmar remoção")) return;
+      Sora.setBusy(del, true);
+      const { error } = await client.from("groups").delete().eq("id", Number(del.dataset.deleteGroup)).eq("owner_id", auth.getUser()?.id);
+      if (error) { console.warn("[SORASAKI] Remover divulgação:", error); Sora.setBusy(del, false); Sora.toast("Não foi possível remover a divulgação. Tente novamente.", "error"); return; }
+      Sora.toast("Divulgação removida.", "ok");
+      loadMine(); loadGroups();
+    }
+  });
+  document.addEventListener("sorasaki:groups-changed", () => { loadMine(); loadGroups(); });
+
+  /* ---------- Divulgação ---------- */
+  async function openSubmit() {
+    await auth.ready;
+    if (!auth.getUser()) {
+      showSubmitState("gate");
+      openModal("groupModal");
+      return;
+    }
+    if (!editingGroupId && state.submissions_enabled === false) {
+      showSubmitState("paused");
+      openModal("groupModal");
+      return;
+    }
+    showSubmitState("form");
+    $("rulesCheckWrap").hidden = Boolean(editingGroupId);
+    openModal("groupModal");
+    updatePreview();
+    updateCount();
+  }
+  document.querySelectorAll("[data-open-submit]").forEach((b) => { b.onclick = () => { editingGroupId = null; openSubmit(); }; });
+  $("groupModal").querySelectorAll("[data-gate]").forEach((b) => {
+    b.onclick = () => {
+      auth.setAfterAuth(() => openSubmit());
+      try { sessionStorage.setItem("sorasaki_return_to_divulgacao", "1"); } catch {}
+      closeModal("groupModal");
+      auth.open(b.dataset.gate, b.dataset.gate === "login" ? "Entre para continuar a sua divulgação." : "");
+    };
+  });
+  $("successMine").onclick = () => { closeModal("groupModal"); $("myGroupsSection").hidden = false; $("myGroupsSection").scrollIntoView({ behavior: "smooth" }); };
+
+  function startEditGroup(g) {
+    editingGroupId = g.id;
+    $("groupModalKicker").textContent = "Editar divulgação";
+    $("groupModalTitle").textContent = g.name;
+    $("groupModalIntro").textContent = "Ao salvar, a divulgação volta para análise e sai da vitrine até ser aprovada novamente.";
+    $("groupSubmitBtn").innerHTML = "Salvar e reenviar para análise";
+    $("groupName").value = g.name || "";
+    $("groupCategory").value = g.category || "outros";
+    $("groupPlatform").value = g.platform || "";
+    $("groupDescription").value = g.description || "";
+    $("groupMembers").value = Number(g.member_count) || "";
+    $("groupLink").value = g.invite_url || "";
+    $("groupAvatar").value = g.avatar_url || "";
+    autoImageUrl = g.avatar_source === "auto" ? g.avatar_url || "" : "";
+    $("groupTags").value = g.tags || "";
+    $("groupContact").value = g.contact_url || "";
+    $("groupHighlight").value = g.highlight || "";
+    if (g.avatar_url || g.tags || g.contact_url || g.highlight || g.member_count) $("optionalBlock").open = true;
+    openSubmit();
+  }
+
+  function resetSubmitForm() {
+    editingGroupId = null;
+    autoImageUrl = "";
+    autoImageHash = "";
+    $("groupForm").reset();
+    $("optionalBlock").open = false;
+    $("groupModalKicker").textContent = "Nova divulgação";
+    $("groupModalTitle").textContent = "Divulgue seu grupo";
+    $("groupModalIntro").textContent = "Preencha as informações abaixo. Depois do envio, a equipe revisa antes de publicar.";
+    $("groupSubmitBtn").innerHTML = 'Enviar para análise <span aria-hidden="true">→</span>';
+    Sora.showResult($("groupFormResult"), "", "");
+    $("groupForm").querySelectorAll("[aria-invalid]").forEach((el) => el.removeAttribute("aria-invalid"));
+    setImageStatus("idle", "Foto automática", "Cole o link de convite e tentamos buscar a foto pública do grupo.");
+    updatePreview();
+    updateCount();
+  }
+
+  function updateCount() {
+    const n = $("groupDescription").value.length;
+    $("descCount").textContent = `${n}/800`;
+    $("descCount").classList.toggle("near", n > 720);
+  }
+
+  function updatePreview() {
+    const name = $("groupName").value.trim() || "Nome do grupo";
+    const category = $("groupCategory").value;
+    const platform = $("groupPlatform").value.trim();
+    const desc = $("groupDescription").value.trim() || "A descrição da sua comunidade aparece aqui.";
+    const members = Number($("groupMembers").value);
+    const tags = $("groupTags").value.split(",").map((x) => x.trim().replace(/^#/, "").replace(/\s+/g, "")).filter(Boolean).slice(0, 5);
+    const highlight = $("groupHighlight").value.trim();
+    const img = Sora.safeUrl($("groupAvatar").value.trim()) || Sora.safeUrl(autoImageUrl);
+    $("previewName").textContent = name;
+    $("previewCategory").textContent = (CAT[category] || category) + (platform ? " · " + platform : "");
+    $("previewDescription").textContent = desc;
+    $("previewMembers").textContent = members > 0 ? `${fmtNumero(members)} membros` : "Membros não informados";
+    $("previewHighlight").textContent = highlight;
+    $("previewHighlight").hidden = !highlight;
+    $("previewTags").innerHTML = tags.map((t) => `<span>#${esc(t)}</span>`).join("");
+    $("previewAvatar").innerHTML = img ? `<img src="${esc(img)}" alt="">` : esc(Sora.initials(name === "Nome do grupo" ? "S" : name));
+  }
+  ["groupName", "groupCategory", "groupPlatform", "groupDescription", "groupMembers", "groupTags", "groupHighlight"].forEach((id) => $(id).addEventListener("input", () => { updatePreview(); $(id).removeAttribute("aria-invalid"); }));
+  $("groupDescription").addEventListener("input", updateCount);
+  $("groupAvatar").addEventListener("input", () => { autoImageUrl = ""; updatePreview(); });
+  $("groupContact").addEventListener("input", () => $("groupContact").removeAttribute("aria-invalid"));
+  $("previewToggle").onclick = () => {
+    const open = $("previewWrap").classList.toggle("open");
+    $("previewToggle").setAttribute("aria-expanded", String(open));
+    $("previewToggle").textContent = open ? "Ocultar prévia" : "Ver prévia";
+  };
+
+  function setImageStatus(kind, title, text) {
+    const box = $("groupImageStatus");
+    box.dataset.kind = kind;
+    box.querySelector("strong").textContent = title;
+    box.querySelector("small").textContent = text;
+  }
+  async function identifyGroup(force = false) {
+    const link = $("groupLink").value.trim();
+    if (!/^https?:\/\//i.test(link)) { if (force) setImageStatus("error", "Informe o link primeiro", "Cole um link de convite completo, começando com https://"); return; }
+    clearTimeout(previewTimer);
+    if (previewBusy && !force) return;
+    previewBusy = true;
+    const btn = $("groupRefreshImage");
+    Sora.setBusy(btn, true);
+    setImageStatus("loading", "Buscando informações…", "Consultamos apenas o que o convite mostra publicamente.");
+    try {
+      const token = await auth.getToken();
+      const r = await Sora.fetchJson("/api/group-preview", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ invite_url: link, entity: "group", id: editingGroupId || 0 }) }, 20000);
+      const result = r.body || {};
+      if (!r.ok) { setImageStatus("error", "Não foi possível buscar agora", result.message || "Você pode continuar e adicionar uma imagem nos detalhes opcionais."); return; }
+      if (result.name && !$("groupName").value.trim()) $("groupName").value = result.name.slice(0, 100);
+      if (result.provider && result.provider !== "unknown" && !$("groupPlatform").value.trim()) $("groupPlatform").value = { whatsapp: "WhatsApp", telegram: "Telegram", discord: "Discord" }[result.provider] || "";
+      if (result.image_url) {
+        autoImageUrl = result.image_url;
+        autoImageHash = result.image_hash || "";
+        $("groupAvatar").value = result.image_url;
+        setImageStatus("found", "Foto do grupo encontrada", "Ela aparece na prévia. Você pode trocar nos detalhes opcionais.");
+      } else {
+        setImageStatus("error", "Foto não encontrada", result.message || "Você pode adicionar uma imagem nos detalhes opcionais.");
+      }
+      updatePreview();
+    } catch (e) {
+      console.warn("[SORASAKI] Foto automática:", e);
+      setImageStatus("error", "Não foi possível buscar agora", "Você pode continuar normalmente e adicionar uma imagem depois.");
+    } finally {
+      previewBusy = false;
+      Sora.setBusy(btn, false);
+    }
+  }
+  $("groupLink").addEventListener("input", () => {
+    $("groupLink").removeAttribute("aria-invalid");
+    clearTimeout(previewTimer);
+    if (/^https?:\/\/\S{6,}/i.test($("groupLink").value.trim())) previewTimer = setTimeout(() => identifyGroup(false), 900);
+  });
+  $("groupRefreshImage").onclick = () => identifyGroup(true);
+
+  $("groupAvatarFile").addEventListener("change", async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!["image/jpeg", "image/png", "image/webp", "image/gif"].includes(file.type) || file.size > 5 * 1024 * 1024) {
+      setImageStatus("error", "Imagem não aceita", "Use JPG, PNG, WEBP ou GIF de até 5 MB.");
+      e.target.value = "";
+      return;
+    }
+    const user = auth.getUser();
+    if (!user) return;
+    setImageStatus("loading", "Enviando imagem…", "Só um instante.");
+    try {
+      const ext = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif" }[file.type];
+      const id = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      // A regra do armazenamento exige que a primeira pasta seja o ID do usuário.
+      const path = `${user.id}/manual-${id}.${ext}`;
+      const up = await client.storage.from("group-images").upload(path, file, { contentType: file.type, cacheControl: "31536000", upsert: false });
+      if (up.error) throw up.error;
+      autoImageUrl = "";
+      $("groupAvatar").value = client.storage.from("group-images").getPublicUrl(path).data.publicUrl;
+      setImageStatus("manual", "Imagem enviada", "Ela será usada nesta divulgação.");
+      updatePreview();
+    } catch (err) {
+      console.warn("[SORASAKI] Upload de imagem:", err);
+      setImageStatus("error", "Não foi possível enviar a imagem", "Tente outra imagem ou use um link de imagem.");
+    }
+  });
+
+  function validUrl(v) { try { const u = new URL(v); return /^https?:$/.test(u.protocol) && u.hostname.includes("."); } catch { return false; } }
+  function submitErrorMessage(error) {
+    const m = String(error?.message || "").toLowerCase();
+    if (error?.code === "23505" || m.includes("duplicate")) return "Este link de convite já está cadastrado no Sorasaki.";
+    if (m.includes("limite")) return `Você atingiu o limite de ${state.max_submissions_24h} divulgações em 24 horas. Tente novamente mais tarde.`;
+    if (m.includes("desativadas")) return "Novas divulgações estão pausadas no momento.";
+    if (m.includes("suspensa")) return "Sua conta está suspensa e não pode enviar divulgações. Fale com o suporte.";
+    if (error?.code === "23514") return "Algum campo está fora do formato aceito. Confira as informações e tente novamente.";
+    return Sora.friendlyError(error, "Não foi possível enviar agora. Confira os dados e tente novamente.");
+  }
+
+  $("groupForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    await auth.ready;
+    const user = auth.getUser();
+    if (!user) { showSubmitState("gate"); return; }
+    const res = $("groupFormResult");
+    const v = {
+      name: $("groupName").value.trim(),
+      platform: $("groupPlatform").value.trim(),
+      description: $("groupDescription").value.trim(),
+      category: $("groupCategory").value,
+      invite_url: $("groupLink").value.trim(),
+      avatar_url: $("groupAvatar").value.trim() || null,
+      tags: $("groupTags").value.trim() || null,
+      contact_url: $("groupContact").value.trim() || null,
+      highlight: $("groupHighlight").value.trim() || null,
+      member_count: Math.max(0, Math.min(10000000, Math.floor(Number($("groupMembers").value) || 0)))
+    };
+    const erros = [];
+    const marcar = (id, msg) => { $(id).setAttribute("aria-invalid", "true"); erros.push({ id, msg }); };
+    if (v.name.length < 2) marcar("groupName", "Informe o nome do grupo.");
+    if (v.platform.length < 2) marcar("groupPlatform", "Informe a plataforma (ex.: WhatsApp).");
+    if (v.description.length < 10) marcar("groupDescription", "A descrição precisa ter pelo menos 10 caracteres.");
+    if (!validUrl(v.invite_url) || v.invite_url.length < 10) marcar("groupLink", "Informe um link de convite válido, começando com https://");
+    if (v.avatar_url && !validUrl(v.avatar_url)) { $("optionalBlock").open = true; marcar("groupAvatar", "O link da imagem não parece válido."); }
+    if (v.contact_url && !validUrl(v.contact_url)) { $("optionalBlock").open = true; marcar("groupContact", "O link de contato não parece válido."); }
+    if (!editingGroupId && !$("groupRules").checked) erros.push({ id: "groupRules", msg: "Confirme que leu as regras de divulgação." });
+    if (erros.length) {
+      Sora.showResult(res, "error", erros.map((x) => x.msg).join(" "));
+      $(erros[0].id).focus();
+      return;
+    }
+    const avatar_source = v.avatar_url ? (autoImageUrl && v.avatar_url === autoImageUrl ? "auto" : "manual") : "fallback";
+    const payload = {
+      ...v,
+      avatar_source,
+      // O banco só aceita pending/found/not_found/error/manual aqui ("fallback" quebrava o envio sem foto).
+      avatar_status: v.avatar_url ? (avatar_source === "auto" ? "found" : "manual") : "not_found",
+      avatar_checked_at: avatar_source === "auto" ? new Date().toISOString() : null,
+      avatar_hash: avatar_source === "auto" ? autoImageHash || null : null,
+      status: "pending"
+    };
+    const btn = $("groupSubmitBtn");
+    Sora.setBusy(btn, true, editingGroupId ? "Salvando…" : "Enviando…");
+    Sora.showResult(res, "", "");
+    try {
+      const wasEditing = Boolean(editingGroupId);
+      const result = wasEditing
+        ? await client.from("groups").update({ ...payload, featured_by_admin: false, admin_badge: null, admin_note: null, approved_at: null }).eq("id", editingGroupId).eq("owner_id", user.id).select("id")
+        : await client.from("groups").insert({ ...payload, owner_id: user.id }).select("id");
+      if (result.error) {
+        console.warn("[SORASAKI] Envio de divulgação:", result.error);
+        Sora.showResult(res, "error", submitErrorMessage(result.error));
+        return;
+      }
+      if (wasEditing && !result.data?.length) { Sora.showResult(res, "error", "Não encontramos esta divulgação na sua conta."); return; }
+      try { sessionStorage.removeItem("sorasaki_return_to_divulgacao"); } catch {}
+      $("successTitle").textContent = wasEditing ? "Alterações enviadas para análise" : "Divulgação enviada para análise";
+      $("successText").textContent = wasEditing ? "A divulgação saiu da vitrine e volta assim que a equipe aprovar as alterações." : "Recebemos o seu grupo. Ele ainda não aparece na vitrine.";
+      editingGroupId = null;
+      $("groupForm").reset();
+      showSubmitState("success");
+      loadMine();
+      loadGroups();
+    } catch (err) {
+      console.error("[SORASAKI] Envio de divulgação:", err);
+      Sora.showResult(res, "error", submitErrorMessage(err));
+    } finally {
+      Sora.setBusy(btn, false);
+    }
+  });
+
+  /* ---------- Avaliar e relatar ---------- */
+  function groupName(id) { return groups.find((g) => g.id === id)?.name || ""; }
+  function openReview(id) {
+    if (!auth.requireLogin("Entre na sua conta para avaliar um grupo.")) return;
+    $("reviewForm").reset();
+    $("reviewGroupId").value = id;
+    $("reviewGroupName").textContent = groupName(id);
+    selectedRating = 0;
+    document.querySelectorAll("#ratingPicker button").forEach((b) => { b.classList.remove("selected"); b.setAttribute("aria-checked", "false"); });
+    Sora.showResult($("reviewResult"), "", "");
+    openModal("reviewModal");
+  }
+  document.querySelectorAll("#ratingPicker button").forEach((b) => {
+    b.setAttribute("role", "radio");
+    b.onclick = () => {
+      selectedRating = Number(b.dataset.rating);
+      document.querySelectorAll("#ratingPicker button").forEach((x) => { const on = Number(x.dataset.rating) <= selectedRating; x.classList.toggle("selected", on); x.setAttribute("aria-checked", String(Number(x.dataset.rating) === selectedRating)); });
+    };
+  });
+  $("reviewForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!auth.requireLogin("Entre na sua conta para avaliar um grupo.")) return;
+    const res = $("reviewResult");
+    if (!selectedRating) return Sora.showResult(res, "error", "Escolha uma nota de 1 a 5 estrelas.");
+    const btn = $("reviewSubmit");
+    Sora.setBusy(btn, true, "Enviando…");
+    try {
+      const token = await auth.getToken();
+      const r = await Sora.fetchJson("/api/submit-review", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ group_id: Number($("reviewGroupId").value), rating: selectedRating, comment: $("reviewComment").value.trim() || null }) });
+      const ok = r.ok && r.body?.ok;
+      Sora.showResult(res, ok ? "ok" : "error", r.body?.message || (ok ? "Avaliação enviada." : "Não foi possível enviar agora. Tente novamente."));
+      if (ok) setTimeout(() => closeModal("reviewModal"), 1600);
+    } catch (err) {
+      console.warn("[SORASAKI] Avaliação:", err);
+      Sora.showResult(res, "error", Sora.friendlyError(err, "Não foi possível enviar agora. Tente novamente."));
+    } finally { Sora.setBusy(btn, false); }
+  });
+
+  function openReport(id) {
+    if (!auth.requireLogin("Entre na sua conta para relatar um problema.")) return;
+    $("reportForm").reset();
+    $("reportGroupId").value = id;
+    Sora.showResult($("reportResult"), "", "");
+    openModal("reportModal");
+  }
+  $("reportForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const user = auth.getUser();
+    if (!user) return auth.requireLogin("Entre na sua conta para relatar um problema.");
+    const res = $("reportResult");
+    const btn = $("reportSubmit");
+    Sora.setBusy(btn, true, "Enviando…");
+    try {
+      const { error } = await client.from("reports").insert({ group_id: Number($("reportGroupId").value), reporter_id: user.id, reason: $("reportReason").value, description: $("reportDescription").value.trim() || null });
+      if (error) {
+        console.warn("[SORASAKI] Relato:", error);
+        const m = String(error.message || "").toLowerCase();
+        return Sora.showResult(res, "error", error.code === "23505" ? "Você já relatou este grupo. A equipe está analisando." : m.includes("limite") ? "Você enviou muitos relatos hoje. Tente novamente amanhã." : Sora.friendlyError(error, "Não foi possível enviar o relato agora."));
+      }
+      Sora.showResult(res, "ok", "Relato enviado. Obrigado por ajudar a manter a vitrine confiável.");
+      setTimeout(() => closeModal("reportModal"), 1500);
+    } catch (err) {
+      Sora.showResult(res, "error", Sora.friendlyError(err, "Não foi possível enviar o relato agora."));
+    } finally { Sora.setBusy(btn, false); }
+  });
+
+  /* ---------- Planos ---------- */
+  async function openPlan(plan) {
+    if (!plan || !auth.requireLogin("Entre na sua conta para comprar um plano.")) return;
+    $("planKicker").textContent = plan.name;
+    $("planInfo").textContent = `${fmtMoeda(plan.price)} por ${plan.duration_days} ${plan.duration_days === 1 ? "dia" : "dias"} de destaque. Escolha qual grupo aprovado vai receber o destaque.`;
+    $("checkoutCoupon").value = "";
+    Sora.showResult($("planResult"), "", "");
+    $("planGroupList").innerHTML = '<div class="skeleton" style="height:52px"></div>';
+    openModal("planModal");
+    const { data, error } = await client.from("groups").select("id,name").eq("owner_id", auth.getUser().id).eq("status", "approved").order("name");
+    if (error) { $("planGroupList").innerHTML = Sora.emptyState("Não foi possível carregar seus grupos.", "Tente novamente em instantes."); return; }
+    if (!data?.length) { $("planGroupList").innerHTML = Sora.emptyState("Você ainda não tem um grupo aprovado.", "O destaque só pode ser aplicado depois que a equipe aprovar a divulgação."); return; }
+    $("planGroupList").innerHTML = data.map((g) => `<button class="select-group-option" type="button" data-group-buy="${g.id}"><strong>${esc(g.name)}</strong><span>Continuar →</span></button>`).join("");
+    $("planGroupList").querySelectorAll("[data-group-buy]").forEach((b) => {
+      b.onclick = async () => {
+        Sora.setBusy(b, true, "Abrindo pagamento…");
+        try {
+          const token = await auth.getToken();
+          const r = await Sora.fetchJson("/api/create-preference", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ plan_id: plan.id, group_id: Number(b.dataset.groupBuy), coupon_code: $("checkoutCoupon").value.trim() }) }, 20000);
+          if (r.ok && r.body?.checkout_url) { location.href = r.body.checkout_url; return; }
+          Sora.showResult($("planResult"), "error", r.body?.message || "Não foi possível iniciar o pagamento. Tente novamente.");
+        } catch (err) {
+          console.warn("[SORASAKI] Pagamento:", err);
+          Sora.showResult($("planResult"), "error", Sora.friendlyError(err, "Não foi possível iniciar o pagamento. Tente novamente."));
+        }
+        Sora.setBusy(b, false);
+      };
+    });
+  }
+
+  /* ---------- Início ---------- */
+  function showPaymentReturn() {
+    const s = new URLSearchParams(location.search).get("pagamento");
+    if (!s) return;
+    const box = $("payNotice");
+    const map = {
+      sucesso: ["success", "Pagamento recebido.", "O destaque é liberado assim que o Mercado Pago confirmar — normalmente em poucos minutos."],
+      pendente: ["info", "Pagamento pendente.", "Assim que for confirmado, o destaque é aplicado automaticamente."],
+      erro: ["danger", "O pagamento não foi concluído.", "Nenhum valor foi cobrado. Você pode tentar novamente quando quiser."]
+    };
+    const [tipo, titulo, texto] = map[s] || map.erro;
+    box.className = `notice-banner ${tipo}`;
+    box.innerHTML = `<div><strong>${titulo}</strong>${texto}</div>`;
+    box.hidden = false;
+  }
+
+  function handleHash() {
+    if (location.hash === "#divulgar") { editingGroupId = null; openSubmit(); }
+  }
+  window.addEventListener("hashchange", handleHash);
+
+  auth.onAuthChange((user, event) => {
+    if (event === "INITIAL") return;
+    loadMine();
+    if (user && !$("groupModal").hidden && !$("groupModal").querySelector('[data-state="gate"]').hidden) openSubmit();
+  });
+
+  if (client) {
+    Sora.siteState().then((s) => {
+      state = { ...state, ...s };
+      $("rulesLimit").textContent = state.max_submissions_24h;
+      $("submissionsPaused").hidden = state.submissions_enabled !== false;
+    });
+    showPaymentReturn();
+    loadOfficial();
+    loadGroups();
+    loadPlans();
+    auth.ready.then(async () => {
+      await loadMine();
+      const params = new URLSearchParams(location.search);
+      let voltar = false;
+      try { voltar = sessionStorage.getItem("sorasaki_return_to_divulgacao") === "1"; } catch {}
+      if (params.get("editar") && auth.getUser()) {
+        const id = Number(params.get("editar"));
+        const g = myGroups.find((x) => x.id === id);
+        if (g) startEditGroup(g); else Sora.toast("Não encontramos esta divulgação na sua conta.", "error");
+      } else if (auth.getUser() && voltar) {
+        try { sessionStorage.removeItem("sorasaki_return_to_divulgacao"); } catch {}
+        openSubmit();
+      } else {
+        handleHash();
+      }
+    });
+  }
 })();
-</script></body></html>
+</script>
+</body>
+</html>

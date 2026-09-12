@@ -1,155 +1,293 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://ponte-m7br.onrender.com https://xwrsjfxsmpuqneriptfw.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests" />
-<meta http-equiv="X-Content-Type-Options" content="nosniff" />
-<meta name="referrer" content="strict-origin-when-cross-origin" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self'; connect-src 'self' https://ponte-m7br.onrender.com https://xwrsjfxsmpuqneriptfw.supabase.co wss://xwrsjfxsmpuqneriptfw.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Estatísticas — Sorasaki</title>
-<link rel="stylesheet" href="style.css?v=20260907c" />
+<meta name="description" content="Números reais do Sorasaki: mensagens processadas, comandos mais usados, horários de pico e visitas ao site.">
+<link rel="canonical" href="https://www.sorasakiplatform.store/estatisticas">
+<meta name="theme-color" content="#0c0b10">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Sorasaki">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:url" content="https://www.sorasakiplatform.store/estatisticas">
+<meta property="og:title" content="Estatísticas do Sorasaki">
+<meta property="og:description" content="Mensagens processadas, comandos mais usados e horários de pico — atualizados enquanto você olha.">
+<meta property="og:image" content="https://www.sorasakiplatform.store/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Estatísticas do Sorasaki">
+<meta name="twitter:description" content="Mensagens processadas, comandos mais usados e horários de pico — atualizados enquanto você olha.">
+<meta name="twitter:image" content="https://www.sorasakiplatform.store/og-image.jpg">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="preload" href="/fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/style.css?v=20260911">
 </head>
-<body>
+<body data-live="true">
 
-<div class="topbar">
-  <div class="brand">
-    <span class="dot" id="dotStatus"></span>
-    <div>Sorasaki<small>Central Sorasaki</small></div>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="/" aria-label="Sorasaki, página inicial"><span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.1 7.4 7.4 2.1-7.4 2.1L12 21.5l-2.1-7.4L2.5 12l7.4-2.1z" fill="currentColor"/></svg></span><span class="brand-name">SORASAKI</span></a>
+    <nav class="site-nav" aria-label="Principal"><a href="/grupos">Grupos</a><a href="/catalogo">Catálogo</a><a href="/noticias">Notícias</a><a href="/status">Status</a><a href="/estatisticas">Estatísticas</a><a href="/suporte">Suporte</a></nav>
+    <div class="topbar-actions">
+      <span class="bot-status" data-bot-status><span class="status-dot"></span><span data-bot-status-text>Verificando o bot</span></span>
+      <button class="sora-login-trigger" type="button" aria-label="Entrar ou criar conta"><span class="login-avatar" aria-hidden="true"></span><span class="login-trigger-label">Entrar</span></button>
+      <button class="menu-trigger" type="button" aria-label="Abrir menu" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg></button>
+    </div>
   </div>
-  <nav>
-    <a href="/catalogo">Catálogo</a><a href="/grupos">Grupos</a><a href="/noticias">Notícias</a>
-    <a href="/">Resumo</a>
-    <a href="/estatisticas" class="active">Estatísticas</a>
-    <a href="/status">Status</a>
-    <a href="/erros">Ocorrências</a>
-    <a href="/uptime">Disponibilidade</a>
-    <a href="/sobre">Sobre</a>
-    <a href="/suporte">Suporte</a>
-  </nav>
-</div>
+</header>
 
-<main>
-  <div class="aviso" id="avisoConexao"></div>
-
-  <h1>Estatísticas</h1>
-  <p class="subtitle">Volume de uso desde sempre, comandos e horários de maior movimento.</p>
-
-  <div class="grid">
-    <div class="card"><div class="label">Visitantes únicos no site</div><div class="value" id="valSiteVisitantes">—</div></div>
-    <div class="card"><div class="label">Visualizações de páginas</div><div class="value" id="valSiteViews">—</div></div>
-    <div class="card"><div class="label">Visitantes hoje</div><div class="value" id="valSiteVisitantesHoje">—</div></div>
-    <div class="card"><div class="label">Visualizações hoje</div><div class="value" id="valSiteViewsHoje">—</div></div>
-    <div class="card"><div class="label">Mensagens recebidas (total)</div><div class="value" id="valRecebidas">—</div></div>
-    <div class="card"><div class="label">Mensagens enviadas (total)</div><div class="value" id="valEnviadas">—</div></div>
-    <div class="card"><div class="label">Comandos executados (total)</div><div class="value" id="valComandos">—</div></div>
-    <div class="card"><div class="label">Comandos hoje</div><div class="value" id="valComandosHoje">—</div></div>
-    <div class="card"><div class="label">Usuários únicos (total)</div><div class="value" id="valUsuarios">—</div></div>
-    <div class="card"><div class="label">Tempo médio de resposta</div><div class="value" id="valTempoResposta">—</div></div>
+<main id="conteudo">
+  <div class="page-head-row">
+    <div class="page-head">
+      <span class="eyebrow">Estatísticas</span>
+      <h1>Os números do Sorasaki.</h1>
+      <p class="lead">Uso do bot nos grupos e visitas a este site. Os dados do bot se atualizam sozinhos enquanto a página está aberta.</p>
+    </div>
   </div>
 
-  <div class="panel">
-    <h2>Atividade por dia (últimos 30 dias)</h2>
-    <canvas id="graficoDiario" height="90"></canvas>
+  <div class="stats-toolbar section-sm">
+    <div class="segmented" role="group" aria-label="Período dos gráficos diários">
+      <button type="button" data-days="7" aria-pressed="true">7 dias</button>
+      <button type="button" data-days="14" aria-pressed="false">14 dias</button>
+      <button type="button" data-days="30" aria-pressed="false">30 dias</button>
+    </div>
+    <span class="updated-at" id="updatedAt" aria-live="polite">Carregando dados…</span>
   </div>
 
-  <div class="panel">
-    <h2>Mensagens de hoje, por hora</h2>
-    <canvas id="graficoHoje" height="80"></canvas>
-  </div>
+  <section class="section-sm" aria-labelledby="botTitle">
+    <div class="section-heading"><div><span class="eyebrow">Bot</span><h2 id="botTitle">Atividade nos grupos</h2></div></div>
+    <div class="aviso" id="avisoConexao" role="status"></div>
+    <div class="kpi-grid">
+      <div class="kpi"><span class="kpi-label">Mensagens recebidas</span><span class="kpi-value skeleton" id="valRecebidas">—</span><span class="kpi-foot">desde o início</span></div>
+      <div class="kpi"><span class="kpi-label">Mensagens enviadas</span><span class="kpi-value skeleton" id="valEnviadas">—</span><span class="kpi-foot">desde o início</span></div>
+      <div class="kpi"><span class="kpi-label">Comandos executados</span><span class="kpi-value skeleton" id="valComandos">—</span><span class="kpi-foot">desde o início</span></div>
+      <div class="kpi"><span class="kpi-label">Comandos hoje</span><span class="kpi-value skeleton" id="valComandosHoje">—</span><span class="kpi-foot" id="valMsgHoje">&nbsp;</span></div>
+      <div class="kpi"><span class="kpi-label">Pessoas diferentes</span><span class="kpi-value skeleton" id="valUsuarios">—</span><span class="kpi-foot" id="valUsuariosHoje">&nbsp;</span></div>
+      <div class="kpi"><span class="kpi-label">Tempo médio de resposta</span><span class="kpi-value skeleton" id="valTempoResposta">—</span><span class="kpi-foot">por comando</span></div>
+    </div>
 
-  <div class="panel">
-    <h2>Comandos mais usados</h2>
-    <table>
-      <thead><tr><th>Comando</th><th>Execuções</th><th>Taxa de sucesso</th><th>Tempo médio</th></tr></thead>
-      <tbody id="tabelaComandos"></tbody>
-    </table>
-  </div>
+    <div class="panel section-sm">
+      <h2 class="panel-title">Atividade por dia</h2>
+      <div class="chart-box"><canvas id="graficoDiario" aria-label="Gráfico de mensagens e comandos por dia" role="img"></canvas><div class="chart-empty" id="diarioEmpty">Carregando…</div></div>
+    </div>
+
+    <div class="two-col section-sm">
+      <div class="panel">
+        <h2 class="panel-title">Mensagens de hoje, por hora</h2>
+        <div class="chart-box short"><canvas id="graficoHoje" aria-label="Gráfico de mensagens por hora hoje" role="img"></canvas><div class="chart-empty" id="hojeEmpty">Carregando…</div></div>
+      </div>
+      <div class="panel">
+        <h2 class="panel-title">Comandos mais usados</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Comando</th><th class="num">Usos</th><th class="num">Sucesso</th><th class="num">Tempo</th></tr></thead>
+            <tbody id="tabelaComandos"><tr><td colspan="4" class="empty">Carregando…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="siteTitle">
+    <div class="section-heading"><div><span class="eyebrow">Site</span><h2 id="siteTitle">Visitas ao Sorasaki</h2></div><span>Contadas de forma anônima, sem guardar endereço IP.</span></div>
+    <div id="siteError" hidden></div>
+    <div class="kpi-grid">
+      <div class="kpi"><span class="kpi-label">Visitantes únicos</span><span class="kpi-value skeleton" id="valSiteVisitantes">—</span><span class="kpi-foot">desde o início</span></div>
+      <div class="kpi"><span class="kpi-label">Páginas vistas</span><span class="kpi-value skeleton" id="valSiteViews">—</span><span class="kpi-foot">desde o início</span></div>
+      <div class="kpi"><span class="kpi-label">Visitantes hoje</span><span class="kpi-value skeleton" id="valSiteVisitantesHoje">—</span><span class="kpi-foot">&nbsp;</span></div>
+      <div class="kpi"><span class="kpi-label">Páginas vistas hoje</span><span class="kpi-value skeleton" id="valSiteViewsHoje">—</span><span class="kpi-foot">&nbsp;</span></div>
+    </div>
+    <div class="two-col section-sm">
+      <div class="panel">
+        <h2 class="panel-title">Visitantes por dia</h2>
+        <div class="chart-box short"><canvas id="graficoSite" aria-label="Gráfico de visitantes por dia" role="img"></canvas><div class="chart-empty" id="siteEmpty">Carregando…</div></div>
+      </div>
+      <div class="panel">
+        <h2 class="panel-title">Páginas mais acessadas</h2>
+        <ul class="top-pages" id="topPages"><li class="muted">Carregando…</li></ul>
+      </div>
+    </div>
+  </section>
 </main>
 
-<div class="footer">Sorasaki — informações atualizadas automaticamente</div>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand"><a class="brand" href="/"><span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.1 7.4 7.4 2.1-7.4 2.1L12 21.5l-2.1-7.4L2.5 12l7.4-2.1z" fill="currentColor"/></svg></span><span class="brand-name">SORASAKI</span></a><p>Um bot que protege grupos de WhatsApp e uma vitrine para comunidades. Trocas, vendas e serviços.</p></div>
+    <div class="footer-col"><h4>Explorar</h4><a href="/grupos">Grupos</a><a href="/catalogo">Catálogo</a><a href="/noticias">Notícias</a><a href="/sobre">Sobre</a></div>
+    <div class="footer-col"><h4>Bot e ajuda</h4><a href="/status">Status</a><a href="/estatisticas">Estatísticas</a><a href="/suporte">Suporte</a><a href="/feedback">Avaliações e bugs</a></div>
+  </div>
+  <div class="footer-bottom"><span>© 2026 Sorasaki</span><span>Trocas · Vendas · Serviços</span></div>
+</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
-<script src="config.js"></script>
+<script src="/config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="app.js?v=20260909a"></script>
+<script src="/app.js?v=20260911"></script>
 <script>
-  onConnection((c) => {
-    const dot = document.getElementById("dotStatus");
-    if (!dot) return;
-    dot.style.background = !c.bridgeOnline ? "var(--danger)" : !c.botDataReceived ? "var(--warn)" : "var(--ok)";
-    dot.title = !c.bridgeOnline ? "Serviço indisponível" : !c.botDataReceived ? "Aguardando atualização" : "Tudo funcionando normalmente";
-  });
-</script>
-<script>
-  let chartDiario, chartHoje;
-  async function carregarEstatisticasSite(){try{const r=await fetch('/api/site-analytics',{cache:'no-store'}),d=await r.json(),w=d?.website||{};document.getElementById('valSiteVisitantes').textContent=fmtNumero(w.unique_visitors_total);document.getElementById('valSiteViews').textContent=fmtNumero(w.page_views_total);document.getElementById('valSiteVisitantesHoje').textContent=fmtNumero(w.unique_visitors_today);document.getElementById('valSiteViewsHoje').textContent=fmtNumero(w.page_views_today);}catch{}}
-  carregarEstatisticasSite();
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const hasChart = Sora.applyChartDefaults();
+  const t = Sora.chartTheme();
+  let dias = 7;
+  let ultimo = null;
+  let site = null;
+  let chartDiario = null, chartHoje = null, chartSite = null;
 
+  const setVal = (id, text) => { const el = $(id); el.textContent = text; el.classList.remove("skeleton"); };
+  const diaCurto = (iso) => { const [, m, d] = String(iso).slice(0, 10).split("-"); return `${d}/${m}`; };
+  function chartEmpty(id, msg) { const el = $(id); el.hidden = !msg; el.textContent = msg || ""; }
 
-  onStats((s) => {
-    document.getElementById("valRecebidas").textContent = fmtNumero(s.mensagens?.totalGeral?.recebidas);
-    document.getElementById("valEnviadas").textContent = fmtNumero(s.mensagens?.totalGeral?.enviadas);
-    document.getElementById("valComandos").textContent = fmtNumero(s.comandos?.totalGeral);
-    document.getElementById("valComandosHoje").textContent = fmtNumero(s.comandos?.totalHoje);
-    document.getElementById("valUsuarios").textContent = fmtNumero(s.usuarios?.unicosTotal);
+  function recorte(lista) {
+    return (lista || []).slice(-dias);
+  }
 
-    const ranking = s.comandos?.ranking || [];
-    const totalUsos = ranking.reduce((acc, c) => acc + c.usos, 0);
-    const somaTempo = ranking.reduce((acc, c) => acc + c.tempoMedioMs * c.usos, 0);
-    const tempoMedioGeral = totalUsos > 0 ? Math.round(somaTempo / totalUsos) : 0;
-    document.getElementById("valTempoResposta").textContent = `${fmtNumero(tempoMedioGeral)}ms`;
-
-    const corpo = document.getElementById("tabelaComandos");
-    corpo.innerHTML = "";
-    if (!ranking.length) {
-      corpo.innerHTML = `<tr><td colspan="4" class="empty">Sem execuções registradas ainda</td></tr>`;
-    } else {
-      for (const c of ranking) {
-        corpo.innerHTML += `<tr><td>${escapeHtml(c.nome)}</td><td>${fmtNumero(c.usos)}</td><td>${c.taxaSucesso}%</td><td>${fmtNumero(c.tempoMedioMs)}ms</td></tr>`;
-      }
-    }
-
-    const porHora = s.mensagens?.hoje?.porHora || new Array(24).fill(0);
-    const labelsHora = porHora.map((_, h) => `${h}h`);
-    if (!chartHoje) {
-      chartHoje = new Chart(document.getElementById("graficoHoje"), {
-        type: "bar",
-        data: { labels: labelsHora, datasets: [{ label: "Mensagens", data: porHora, backgroundColor: "#22d3ee" }] },
-        options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: "#22293a" } }, x: { grid: { display: false } } } }
+  function desenharDiario() {
+    if (!ultimo) return;
+    const diario = recorte(ultimo.historico?.diario);
+    if (!diario.length) { chartEmpty("diarioEmpty", "Ainda não há histórico diário registrado."); return; }
+    chartEmpty("diarioEmpty", !hasChart ? "Não foi possível exibir o gráfico agora." : "");
+    if (!hasChart) return;
+    const labels = diario.map((d) => diaCurto(d.dia));
+    const msgs = diario.map((d) => d.mensagensProcessadas || 0);
+    const cmds = diario.map((d) => d.comandosExecutados || 0);
+    if (!chartDiario) {
+      chartDiario = new Chart($("graficoDiario"), {
+        type: "line",
+        data: { labels, datasets: [
+          { label: "Mensagens processadas", data: msgs, borderColor: t.accent, backgroundColor: t.accentSoft, fill: true, tension: .35, pointRadius: 3, pointHoverRadius: 5, borderWidth: 2, yAxisID: "y" },
+          { label: "Comandos", data: cmds, borderColor: t.second, backgroundColor: "transparent", tension: .35, pointRadius: 3, borderWidth: 2, yAxisID: "y1" }
+        ] },
+        options: {
+          interaction: { mode: "index", intersect: false },
+          plugins: { legend: { position: "bottom" } },
+          scales: {
+            y: { beginAtZero: true, grid: { color: t.grid }, ticks: { precision: 0 } },
+            y1: { beginAtZero: true, position: "right", grid: { display: false }, ticks: { precision: 0 } },
+            x: { grid: { display: false } }
+          }
+        }
       });
     } else {
-      chartHoje.data.datasets[0].data = porHora;
-      chartHoje.update();
+      chartDiario.data.labels = labels;
+      chartDiario.data.datasets[0].data = msgs;
+      chartDiario.data.datasets[1].data = cmds;
+      chartDiario.update("none");
+    }
+  }
+
+  function desenharSite() {
+    if (!site) return;
+    const daily = recorte(site.daily);
+    if (!daily.length) { chartEmpty("siteEmpty", "Ainda não há visitas registradas."); return; }
+    chartEmpty("siteEmpty", !hasChart ? "Não foi possível exibir o gráfico agora." : "");
+    if (!hasChart) return;
+    const labels = daily.map((d) => diaCurto(d.day));
+    const data = daily.map((d) => d.visitors || 0);
+    if (!chartSite) {
+      chartSite = new Chart($("graficoSite"), {
+        type: "bar",
+        data: { labels, datasets: [{ label: "Visitantes", data, backgroundColor: t.accent, borderRadius: 4, maxBarThickness: 22 }] },
+        options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: t.grid }, ticks: { precision: 0 } }, x: { grid: { display: false } } } }
+      });
+    } else {
+      chartSite.data.labels = labels;
+      chartSite.data.datasets[0].data = data;
+      chartSite.update("none");
+    }
+  }
+
+  document.querySelectorAll("[data-days]").forEach((b) => {
+    b.onclick = () => {
+      dias = Number(b.dataset.days);
+      document.querySelectorAll("[data-days]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+      desenharDiario();
+      desenharSite();
+    };
+  });
+
+  onStats((s) => {
+    ultimo = s;
+    setVal("valRecebidas", fmtNumero(s.mensagens?.totalGeral?.recebidas));
+    setVal("valEnviadas", fmtNumero(s.mensagens?.totalGeral?.enviadas));
+    setVal("valComandos", fmtNumero(s.comandos?.totalGeral));
+    setVal("valComandosHoje", fmtNumero(s.comandos?.totalHoje));
+    $("valMsgHoje").textContent = `${fmtNumero(s.mensagens?.hoje?.mensagensProcessadas)} mensagens hoje`;
+    setVal("valUsuarios", fmtNumero(s.usuarios?.unicosTotal));
+    $("valUsuariosHoje").textContent = `${fmtNumero(s.usuarios?.unicosHoje)} hoje`;
+
+    const ranking = s.comandos?.ranking || [];
+    const totalUsos = ranking.reduce((acc, c) => acc + (c.usos || 0), 0);
+    const somaTempo = ranking.reduce((acc, c) => acc + (c.tempoMedioMs || 0) * (c.usos || 0), 0);
+    setVal("valTempoResposta", totalUsos ? `${(somaTempo / totalUsos / 1000).toFixed(1).replace(".", ",")} s` : "—");
+    $("tabelaComandos").innerHTML = ranking.length
+      ? ranking.slice(0, 10).map((c) => `<tr><td>!${escapeHtml(c.nome)}</td><td class="num">${fmtNumero(c.usos)}</td><td class="num">${Number(c.taxaSucesso ?? 0).toLocaleString("pt-BR")}%</td><td class="num">${((c.tempoMedioMs || 0) / 1000).toFixed(1).replace(".", ",")} s</td></tr>`).join("")
+      : '<tr><td colspan="4" class="empty">Nenhum comando executado ainda.</td></tr>';
+
+    const porHora = s.mensagens?.hoje?.porHora || [];
+    const temHora = porHora.some((n) => n > 0);
+    chartEmpty("hojeEmpty", !porHora.length ? "Sem dados de hoje ainda." : !hasChart ? "Não foi possível exibir o gráfico agora." : "");
+    if (hasChart && porHora.length) {
+      if (!chartHoje) {
+        chartHoje = new Chart($("graficoHoje"), {
+          type: "bar",
+          data: { labels: porHora.map((_, h) => `${h}h`), datasets: [{ label: "Mensagens", data: porHora, backgroundColor: t.second, borderRadius: 3, maxBarThickness: 14 }] },
+          options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: t.grid }, ticks: { precision: 0 } }, x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkipPadding: 8 } } } }
+        });
+      } else { chartHoje.data.datasets[0].data = porHora; chartHoje.update("none"); }
+    }
+    if (!temHora && porHora.length) chartEmpty("hojeEmpty", "Nenhuma mensagem registrada hoje ainda.");
+
+    desenharDiario();
+    $("updatedAt").textContent = `Atualizado às ${new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}`;
+  });
+
+  onFetchError(() => {
+    if (!ultimo) {
+      ["valRecebidas", "valEnviadas", "valComandos", "valComandosHoje", "valUsuarios", "valTempoResposta"].forEach((id) => setVal(id, "—"));
+      $("tabelaComandos").innerHTML = '<tr><td colspan="4" class="empty">Os dados do bot estão indisponíveis agora.</td></tr>';
+      chartEmpty("diarioEmpty", "Os dados do bot estão indisponíveis agora.");
+      chartEmpty("hojeEmpty", "Os dados do bot estão indisponíveis agora.");
+      $("updatedAt").textContent = "Tentando reconectar…";
     }
   });
 
-  async function carregarHistoricoDiario() {
-    onStats((s) => {
-      const diario = s.historico?.diario || [];
-      const labels = diario.map((d) => d.dia.slice(5));
-
-      if (!chartDiario) {
-        chartDiario = new Chart(document.getElementById("graficoDiario"), {
-          type: "line",
-          data: {
-            labels,
-            datasets: [
-              { label: "Mensagens processadas", data: diario.map((d) => d.mensagensProcessadas), borderColor: "#7c5cff", backgroundColor: "transparent", tension: 0.3 },
-              { label: "Comandos", data: diario.map((d) => d.comandosExecutados), borderColor: "#22d3ee", backgroundColor: "transparent", tension: 0.3 }
-            ]
-          },
-          options: { scales: { y: { beginAtZero: true, grid: { color: "#22293a" } }, x: { grid: { display: false } } } }
-        });
-      } else {
-        chartDiario.data.labels = labels;
-        chartDiario.data.datasets[0].data = diario.map((d) => d.mensagensProcessadas);
-        chartDiario.data.datasets[1].data = diario.map((d) => d.comandosExecutados);
-        chartDiario.update();
-      }
-    });
+  async function carregarSite() {
+    $("siteError").hidden = true;
+    try {
+      const r = await Sora.fetchJson("/api/site-analytics");
+      if (!r.ok || !r.body?.website) throw new Error("estatísticas do site indisponíveis");
+      site = r.body.website;
+      setVal("valSiteVisitantes", fmtNumero(site.unique_visitors_total));
+      setVal("valSiteViews", fmtNumero(site.page_views_total));
+      setVal("valSiteVisitantesHoje", fmtNumero(site.unique_visitors_today));
+      setVal("valSiteViewsHoje", fmtNumero(site.page_views_today));
+      const nomes = { "/": "Início", "/grupos": "Grupos", "/catalogo": "Catálogo", "/noticias": "Notícias", "/estatisticas": "Estatísticas", "/status": "Status", "/uptime": "Disponibilidade", "/erros": "Ocorrências", "/sobre": "Sobre", "/suporte": "Suporte", "/feedback": "Avaliações e bugs", "/recursos": "Recursos", "/configuracoes": "Configurações" };
+      const top = (site.top_pages || []).slice(0, 6);
+      const max = Math.max(1, ...top.map((p) => p.page_views || 0));
+      $("topPages").innerHTML = top.length
+        ? top.map((p) => `<li><div class="row"><span>${escapeHtml(nomes[String(p.path).replace(/\.html$/, "")] || p.path)}</span><span>${fmtNumero(p.page_views)}</span></div><div class="bar-track"><div class="bar-fill" style="width:${Math.round((p.page_views / max) * 100)}%"></div></div></li>`).join("")
+        : '<li class="muted">Nenhuma visita registrada ainda.</li>';
+      desenharSite();
+    } catch (e) {
+      console.warn("[SORASAKI] Visitas do site:", e);
+      ["valSiteVisitantes", "valSiteViews", "valSiteVisitantesHoje", "valSiteViewsHoje"].forEach((id) => setVal(id, "—"));
+      chartEmpty("siteEmpty", "Não foi possível carregar as visitas agora.");
+      $("topPages").innerHTML = '<li class="muted">Indisponível no momento.</li>';
+      $("siteError").hidden = false;
+      $("siteError").innerHTML = Sora.emptyState("Não foi possível carregar as visitas ao site.", "Tente novamente em alguns instantes.", { retry: true });
+      $("siteError").querySelector("[data-retry]").onclick = carregarSite;
+    }
   }
-  carregarHistoricoDiario();
+  carregarSite();
+})();
 </script>
-
 </body>
 </html>

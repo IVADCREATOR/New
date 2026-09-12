@@ -2,107 +2,181 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://ponte-m7br.onrender.com https://xwrsjfxsmpuqneriptfw.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests" />
-<meta http-equiv="X-Content-Type-Options" content="nosniff" />
-<meta name="referrer" content="strict-origin-when-cross-origin" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sorasaki — Avaliações & Bugs</title>
-<link rel="stylesheet" href="style.css?v=20260907c">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self'; connect-src 'self' https://ponte-m7br.onrender.com https://xwrsjfxsmpuqneriptfw.supabase.co wss://xwrsjfxsmpuqneriptfw.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Avaliações e bugs — Sorasaki</title>
+<meta name="description" content="Avalie o Sorasaki, sugira uma função nova ou relate um problema no bot ou no site.">
+<link rel="canonical" href="https://www.sorasakiplatform.store/feedback">
+<meta name="theme-color" content="#0c0b10">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Sorasaki">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:url" content="https://www.sorasakiplatform.store/feedback">
+<meta property="og:title" content="O que você acha do Sorasaki?">
+<meta property="og:description" content="Avalie, sugira uma função ou relate um problema.">
+<meta property="og:image" content="https://www.sorasakiplatform.store/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://www.sorasakiplatform.store/og-image.jpg">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="preload" href="/fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/style.css?v=20260911">
 </head>
 <body>
-<div class="topbar">
-  <div class="brand"><span class="dot"></span><div>Sorasaki<small>Central de feedback</small></div></div>
-  <nav><a href="/">Resumo</a><a href="/feedback" class="active">Feedback</a></nav>
-</div>
 
-<main class="feedback-page">
-  <div class="auth-required-note"><span>🔐</span><div><strong>Login necessário para enviar</strong><p>Você pode navegar normalmente sem conta. Para avaliar o Sorasaki, enviar sugestões ou relatar bugs, entre ou crie uma conta pelo botão <b>Entrar</b>.</p></div></div>
-  <section class="feedback-hero">
-    <div class="feedback-copy">
-      <span class="eyebrow">✦ OUÇA A COMUNIDADE</span>
-      <h1>O que você acha do <span>Sorasaki?</span></h1>
-      <p>Este é o cantinho para avaliar o bot, sugerir ideias e avisar quando alguma coisa não estiver funcionando como deveria.</p>
-      <div class="feedback-chips"><span>⭐ Avaliações</span><span>🐛 Bugs</span><span>💡 Sugestões</span></div>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="/" aria-label="Sorasaki, página inicial"><span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.1 7.4 7.4 2.1-7.4 2.1L12 21.5l-2.1-7.4L2.5 12l7.4-2.1z" fill="currentColor"/></svg></span><span class="brand-name">SORASAKI</span></a>
+    <nav class="site-nav" aria-label="Principal"><a href="/grupos">Grupos</a><a href="/catalogo">Catálogo</a><a href="/noticias">Notícias</a><a href="/status">Status</a><a href="/estatisticas">Estatísticas</a><a href="/suporte">Suporte</a></nav>
+    <div class="topbar-actions">
+      <span class="bot-status" data-bot-status><span class="status-dot"></span><span data-bot-status-text>Verificando o bot</span></span>
+      <button class="sora-login-trigger" type="button" aria-label="Entrar ou criar conta"><span class="login-avatar" aria-hidden="true"></span><span class="login-trigger-label">Entrar</span></button>
+      <button class="menu-trigger" type="button" aria-label="Abrir menu" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg></button>
     </div>
-    <div class="feedback-character-wrap">
-      <div class="feedback-character-glow"></div>
-      <img src="sorasaki-feedback.png" alt="Assistente do Sorasaki pensando em melhorias" class="feedback-character" draggable="false">
-      <div class="feedback-character-caption"><b>Hmm... 🤔</b><span>Me conta o que posso melhorar!</span></div>
+  </div>
+</header>
+
+<main id="conteudo">
+  <section class="split-hero">
+    <div class="page-head">
+      <span class="eyebrow">Avaliações e bugs</span>
+      <h1>O que você acha do Sorasaki?</h1>
+      <p class="lead">Avalie o bot, sugira uma função nova ou avise quando algo não funcionar como deveria. É daqui que saem as próximas melhorias.</p>
     </div>
+    <div class="art"><img class="art-framed" src="/img/sorasaki-feedback.webp" alt="Sorasaki pensativa, com balões dizendo: me diz o que adicionar no site, relata bugs e avalia o bot" width="720" height="720" loading="lazy" draggable="false" style="width:min(100%,320px)"></div>
   </section>
 
-  <section class="feedback-grid" id="avaliacao">
-    <article class="feedback-card rating-card">
-      <span class="eyebrow">⭐ AVALIE</span>
-      <h2>Como está sua experiência?</h2>
-      <p class="muted">Sua nota ajuda a entender o que está funcionando e o que precisa de atenção.</p>
-      <div class="star-rating" role="radiogroup" aria-label="Avaliação de 1 a 5 estrelas">
-        <button type="button" data-rating="1" aria-label="1 estrela">★</button><button type="button" data-rating="2" aria-label="2 estrelas">★</button><button type="button" data-rating="3" aria-label="3 estrelas">★</button><button type="button" data-rating="4" aria-label="4 estrelas">★</button><button type="button" data-rating="5" aria-label="5 estrelas">★</button>
+  <div class="inline-alert section-sm" data-when-guest><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 11v5M12 8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><div><strong>É preciso estar conectado para enviar.</strong>Assim evitamos spam e conseguimos responder você.<div style="margin-top:10px"><button class="btn btn-sm" type="button" data-login>Entrar ou criar conta</button></div></div></div>
+
+  <section class="feedback-grid section-sm" id="avaliacao">
+    <form class="panel feedback-card" id="ratingForm" novalidate>
+      <div><span class="eyebrow">Avaliação</span><h2 style="margin-top:10px">Como está sua experiência?</h2></div>
+      <div class="star-rating" role="radiogroup" aria-label="Nota de 1 a 5">
+        <button type="button" data-rating="1" role="radio" aria-checked="false" aria-label="1 estrela">★</button><button type="button" data-rating="2" role="radio" aria-checked="false" aria-label="2 estrelas">★</button><button type="button" data-rating="3" role="radio" aria-checked="false" aria-label="3 estrelas">★</button><button type="button" data-rating="4" role="radio" aria-checked="false" aria-label="4 estrelas">★</button><button type="button" data-rating="5" role="radio" aria-checked="false" aria-label="5 estrelas">★</button>
       </div>
       <span id="ratingText" class="rating-text">Escolha uma nota</span>
-      <label>Comentário <textarea id="ratingComment" rows="4" maxlength="1200" placeholder="O que você mais gostou ou mudaria?"></textarea></label>
-      <label>E-mail <span class="optional">opcional</span><input id="ratingEmail" type="email" maxlength="160" placeholder="seuemail@exemplo.com"></label>
-      <button class="hero-btn primary feedback-submit" id="sendRating" type="button">Enviar avaliação <span>→</span></button>
+      <label>Comentário <span class="optional">opcional</span><textarea id="ratingComment" rows="4" maxlength="1200" placeholder="O que você mais gostou ou mudaria?"></textarea></label>
+      <label>E-mail para retorno <span class="optional">opcional</span><input id="ratingEmail" type="email" inputmode="email" maxlength="160" placeholder="voce@exemplo.com"></label>
       <div class="form-result" id="ratingResult" aria-live="polite"></div>
-    </article>
+      <div class="form-actions"><button class="btn btn-primary" id="sendRating" type="submit">Enviar avaliação</button></div>
+    </form>
 
-    <article class="feedback-card suggestion-card">
-      <span class="eyebrow">💡 IDEIA</span>
-      <h2>Tem uma sugestão?</h2>
-      <p class="muted">Pode ser uma função nova, mudança visual, comando ou qualquer coisa que deixe o Sorasaki melhor.</p>
-      <label>Título <input id="suggestTitle" maxlength="120" placeholder="Ex.: adicionar uma central de comandos"></label>
-      <label>Detalhes <textarea id="suggestMessage" rows="6" maxlength="1800" placeholder="Explique sua ideia..."></textarea></label>
-      <button class="hero-btn feedback-submit" id="sendSuggestion" type="button">Enviar sugestão <span>↗</span></button>
+    <form class="panel feedback-card" id="suggestForm" novalidate>
+      <div><span class="eyebrow">Sugestão</span><h2 style="margin-top:10px">Tem uma ideia?</h2></div>
+      <p class="muted">Uma função nova, um comando, uma mudança no site — pode mandar.</p>
+      <label>Título<input id="suggestTitle" maxlength="120" placeholder="Ex.: comando para sortear membros"></label>
+      <label>Detalhes<textarea id="suggestMessage" rows="6" maxlength="1800" placeholder="Explique a ideia e como ela ajudaria"></textarea></label>
       <div class="form-result" id="suggestResult" aria-live="polite"></div>
-    </article>
+      <div class="form-actions"><button class="btn btn-primary" id="sendSuggestion" type="submit">Enviar sugestão</button></div>
+    </form>
   </section>
 
-  <section class="feedback-card bug-card" id="bug">
-    <div class="bug-heading"><div><span class="eyebrow">🐛 RELATAR BUG</span><h2>Encontrou algo quebrado?</h2><p class="muted">Quanto mais detalhes você enviar, mais fácil fica reproduzir e corrigir o problema.</p></div><span class="bug-badge">Detalhes do problema</span></div>
-    <div class="bug-form-grid">
-      <label>Título <input id="bugTitle" maxlength="120" placeholder="Ex.: botão de grupos não abre no celular"></label>
-      <label>Onde aconteceu? <select id="bugPage"><option value="site">No site</option><option value="bot">No bot</option><option value="ponte">Na conexão</option></select></label>
-      <label>Gravidade <select id="bugSeverity"><option value="baixa">Baixa</option><option value="media" selected>Média</option><option value="alta">Alta</option><option value="critica">Crítica</option></select></label>
-      <label class="full">Descrição <textarea id="bugMessage" rows="6" maxlength="3000" placeholder="O que aconteceu? O que você esperava que acontecesse? Se puder, informe a página, aparelho e passos para reproduzir."></textarea></label>
-      <label class="full">E-mail para retorno <span class="optional">opcional</span><input id="bugEmail" type="email" maxlength="160" placeholder="seuemail@exemplo.com"></label>
+  <form class="panel feedback-card section-sm" id="bug" novalidate>
+    <div><span class="eyebrow">Relatar bug</span><h2 style="margin-top:10px">Encontrou algo quebrado?</h2><p class="muted" style="margin-top:6px">Quanto mais detalhes, mais rápido dá para reproduzir e corrigir.</p></div>
+    <div class="form-grid">
+      <label class="full">Título<input id="bugTitle" maxlength="120" placeholder="Ex.: botão de grupos não abre no celular"></label>
+      <label>Onde aconteceu?<select id="bugPage"><option value="site">No site</option><option value="bot">No bot, dentro do grupo</option><option value="ponte">Nas estatísticas ou no status</option></select></label>
+      <label>Gravidade<select id="bugSeverity"><option value="baixa">Baixa — só incomoda</option><option value="media" selected>Média — atrapalha o uso</option><option value="alta">Alta — impede de usar</option><option value="critica">Crítica — afeta todo mundo</option></select></label>
+      <label class="full">O que aconteceu?<textarea id="bugMessage" rows="6" maxlength="3000" placeholder="O que você fez, o que esperava e o que aconteceu. Diga também a página e o aparelho (ex.: iPhone, Android, computador)."></textarea></label>
+      <label class="full">E-mail para retorno <span class="optional">opcional</span><input id="bugEmail" type="email" inputmode="email" maxlength="160" placeholder="voce@exemplo.com"></label>
     </div>
-    <button class="hero-btn primary feedback-submit" id="sendBug" type="button">Enviar relato <span>→</span></button>
     <div class="form-result" id="bugResult" aria-live="polite"></div>
-  </section>
+    <div class="form-actions"><button class="btn btn-primary" id="sendBug" type="submit">Enviar relato</button></div>
+  </form>
 
-  <section class="privacy-note">
-    <span>🔐</span><div><strong>Privacidade primeiro</strong><p>O e-mail é opcional nos relatos. Se no futuro houver contas, o banco de dados deve guardar somente <b>hashes de senha</b>, nunca senhas em texto puro.</p></div>
-  </section>
+  <p class="muted section-sm">Seu e-mail é opcional e só é usado para responder este envio.</p>
 </main>
 
-<div class="footer">Sorasaki — feedback, melhorias e relatos da comunidade</div>
-<script src="config.js"></script>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand"><a class="brand" href="/"><span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.1 7.4 7.4 2.1-7.4 2.1L12 21.5l-2.1-7.4L2.5 12l7.4-2.1z" fill="currentColor"/></svg></span><span class="brand-name">SORASAKI</span></a><p>Um bot que protege grupos de WhatsApp e uma vitrine para comunidades. Trocas, vendas e serviços.</p></div>
+    <div class="footer-col"><h4>Explorar</h4><a href="/grupos">Grupos</a><a href="/catalogo">Catálogo</a><a href="/noticias">Notícias</a><a href="/sobre">Sobre</a></div>
+    <div class="footer-col"><h4>Bot e ajuda</h4><a href="/status">Status</a><a href="/estatisticas">Estatísticas</a><a href="/suporte">Suporte</a><a href="/feedback">Avaliações e bugs</a></div>
+  </div>
+  <div class="footer-bottom"><span>© 2026 Sorasaki</span><span>Trocas · Vendas · Serviços</span></div>
+</footer>
+
+<script src="/config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="app.js?v=20260909a"></script>
+<script src="/app.js?v=20260911"></script>
 <script>
-(() => {
-  const stars=[...document.querySelectorAll('.star-rating button')]; let rating=0;
-  const ratingText=document.getElementById('ratingText');
-  const labels={1:'Muito ruim',2:'Ruim',3:'Ok',4:'Muito bom',5:'Excelente'};
-  stars.forEach(btn=>btn.addEventListener('click',()=>{rating=Number(btn.dataset.rating);stars.forEach(s=>s.classList.toggle('selected',Number(s.dataset.rating)<=rating));ratingText.textContent=`${rating}/5 — ${labels[rating]}`;}));
-  async function submit(type,payload,resultEl,btn){
-    await window.SorasakiAuth?.ready;
-    if(!window.SorasakiAuth?.getUser()){window.SorasakiAuth?.requireLogin('Faça login para enviar avaliações, sugestões ou relatos de bugs.');resultEl.className='form-result error';resultEl.textContent='Login obrigatório para enviar este formulário.';return;}
-    const c=window.SorasakiAuth?.getClient?.(); if(!c){resultEl.className='form-result error';resultEl.textContent='Não foi possível conectar ao sistema de contas.';return;}
-    if(btn){ if(btn.disabled) return; btn.disabled=true; btn.dataset.originalText=btn.innerHTML; btn.innerHTML='Enviando...'; }
-    try{
-      let result;
-      if(type==='bug') result=await c.from('bug_reports').insert({user_id:window.SorasakiAuth.getUser().id,title:payload.title,message:payload.message,page:payload.page,severity:payload.severity,email:payload.email||null});
-      else result=await c.from('feedback').insert({user_id:window.SorasakiAuth.getUser().id,type,rating:payload.rating||null,title:payload.title||null,message:payload.message||payload.comment||null,email:payload.email||null});
-      if(result.error){resultEl.className='form-result error';resultEl.textContent=/limite|rate/i.test(result.error.message||'')?'Muitos envios em pouco tempo. Aguarde um instante e tente novamente.':'Não foi possível salvar agora. Tente novamente em alguns instantes.';return;}
-      resultEl.className='form-result ok';resultEl.textContent='Enviado com sucesso. Obrigado por ajudar o Sorasaki! 💜';
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const auth = window.SorasakiAuth;
+  const stars = [...document.querySelectorAll(".star-rating button")];
+  const labels = { 1: "Muito ruim", 2: "Ruim", 3: "Ok", 4: "Muito bom", 5: "Excelente" };
+  let rating = 0;
+  document.querySelector("[data-login]").onclick = () => auth.open("login");
+
+  stars.forEach((btn) => btn.addEventListener("click", () => {
+    rating = Number(btn.dataset.rating);
+    stars.forEach((s) => { s.classList.toggle("selected", Number(s.dataset.rating) <= rating); s.setAttribute("aria-checked", String(Number(s.dataset.rating) === rating)); });
+    $("ratingText").textContent = `${rating} de 5 — ${labels[rating]}`;
+  }));
+
+  const emailOk = (v) => !v || /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+
+  async function enviar(tipo, payload, form, resultEl, btn) {
+    await auth.ready;
+    const user = auth.getUser();
+    if (!user) {
+      Sora.showResult(resultEl, "error", "Você precisa entrar na sua conta para enviar.");
+      auth.requireLogin("Entre na sua conta para enviar avaliações, sugestões ou relatos.");
+      return;
+    }
+    const c = auth.getClient();
+    if (!c) return Sora.showResult(resultEl, "error", "Não foi possível enviar agora. Recarregue a página e tente novamente.");
+    Sora.setBusy(btn, true, "Enviando…");
+    Sora.showResult(resultEl, "", "");
+    try {
+      const result = tipo === "bug"
+        ? await c.from("bug_reports").insert({ user_id: user.id, title: payload.title, message: payload.message, page: payload.page, severity: payload.severity, email: payload.email || null })
+        : await c.from("feedback").insert({ user_id: user.id, type: tipo, rating: payload.rating || null, title: payload.title || null, message: payload.message || null, email: payload.email || null });
+      if (result.error) {
+        console.warn("[SORASAKI] Feedback:", result.error);
+        const m = String(result.error.message || "").toLowerCase();
+        return Sora.showResult(resultEl, "error", /limite|rate/.test(m) ? "Muitos envios em pouco tempo. Aguarde um instante e tente novamente." : Sora.friendlyError(result.error, "Não foi possível enviar agora. Tente novamente em alguns instantes."));
+      }
+      form.reset();
+      if (tipo === "rating") { rating = 0; stars.forEach((s) => { s.classList.remove("selected"); s.setAttribute("aria-checked", "false"); }); $("ratingText").textContent = "Escolha uma nota"; }
+      Sora.showResult(resultEl, "ok", tipo === "bug" ? "Relato enviado. Obrigado por avisar!" : "Enviado. Obrigado por ajudar o Sorasaki a melhorar!");
+    } catch (err) {
+      console.error("[SORASAKI] Feedback:", err);
+      Sora.showResult(resultEl, "error", Sora.friendlyError(err, "Não foi possível enviar agora. Tente novamente em alguns instantes."));
     } finally {
-      if(btn){ setTimeout(()=>{btn.disabled=false;btn.innerHTML=btn.dataset.originalText;},1500); }
+      Sora.setBusy(btn, false);
     }
   }
-  document.getElementById('sendRating').onclick=(ev)=>{const out=document.getElementById('ratingResult');if(!rating){out.className='form-result error';out.textContent='Escolha uma nota antes de enviar.';return;}submit('rating',{rating,comment:document.getElementById('ratingComment').value.trim(),email:document.getElementById('ratingEmail').value.trim()||null},out,ev.currentTarget);};
-  document.getElementById('sendSuggestion').onclick=(ev)=>{const title=document.getElementById('suggestTitle').value.trim(),message=document.getElementById('suggestMessage').value.trim(),out=document.getElementById('suggestResult');if(!title||!message){out.className='form-result error';out.textContent='Preencha o título e os detalhes da sugestão.';return;}submit('suggestion',{title,message},out,ev.currentTarget);};
-  document.getElementById('sendBug').onclick=(ev)=>{const title=document.getElementById('bugTitle').value.trim(),message=document.getElementById('bugMessage').value.trim(),out=document.getElementById('bugResult');if(!title||!message){out.className='form-result error';out.textContent='Preencha o título e a descrição do problema.';return;}submit('bug',{title,message,page:document.getElementById('bugPage').value,severity:document.getElementById('bugSeverity').value,email:document.getElementById('bugEmail').value.trim()||null},out,ev.currentTarget);};
+
+  $("ratingForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const out = $("ratingResult");
+    const email = $("ratingEmail").value.trim();
+    if (!rating) return Sora.showResult(out, "error", "Escolha uma nota antes de enviar.");
+    if (!emailOk(email)) return Sora.showResult(out, "error", "Confira o e-mail digitado.");
+    enviar("rating", { rating, message: $("ratingComment").value.trim(), email }, $("ratingForm"), out, $("sendRating"));
+  });
+  $("suggestForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const out = $("suggestResult");
+    const title = $("suggestTitle").value.trim(), message = $("suggestMessage").value.trim();
+    if (!title || !message) return Sora.showResult(out, "error", "Preencha o título e os detalhes da sugestão.");
+    enviar("suggestion", { title, message }, $("suggestForm"), out, $("sendSuggestion"));
+  });
+  $("bug").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const out = $("bugResult");
+    const title = $("bugTitle").value.trim(), message = $("bugMessage").value.trim(), email = $("bugEmail").value.trim();
+    if (!title || !message) return Sora.showResult(out, "error", "Preencha o título e o que aconteceu.");
+    if (!emailOk(email)) return Sora.showResult(out, "error", "Confira o e-mail digitado.");
+    enviar("bug", { title, message, page: $("bugPage").value, severity: $("bugSeverity").value, email }, $("bug"), out, $("sendBug"));
+  });
 })();
 </script>
 </body>

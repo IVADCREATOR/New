@@ -1,196 +1,241 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://ponte-m7br.onrender.com https://xwrsjfxsmpuqneriptfw.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests" />
-<meta http-equiv="X-Content-Type-Options" content="nosniff" />
-<meta name="referrer" content="strict-origin-when-cross-origin" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Sorasaki — Painel</title>
-<link rel="stylesheet" href="style.css?v=20260908d" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self'; connect-src 'self' https://ponte-m7br.onrender.com https://xwrsjfxsmpuqneriptfw.supabase.co wss://xwrsjfxsmpuqneriptfw.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Sorasaki — proteção para o seu grupo, vitrine para a sua comunidade</title>
+<meta name="description" content="Bot que protege e organiza grupos de WhatsApp, vitrine de comunidades revisadas pela equipe e status do bot ao vivo. Trocas, vendas e serviços.">
+<link rel="canonical" href="https://www.sorasakiplatform.store/">
+<meta name="theme-color" content="#0c0b10">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Sorasaki">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:url" content="https://www.sorasakiplatform.store/">
+<meta property="og:title" content="Sorasaki — proteção para o seu grupo, vitrine para a sua comunidade">
+<meta property="og:description" content="O bot que cuida dos seus grupos de WhatsApp, uma vitrine de comunidades revisadas pela equipe e o status do bot ao vivo.">
+<meta property="og:image" content="https://www.sorasakiplatform.store/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Sorasaki — proteção para grupos e vitrine de comunidades">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Sorasaki — proteção para o seu grupo, vitrine para a sua comunidade">
+<meta name="twitter:description" content="O bot que cuida dos seus grupos de WhatsApp, uma vitrine de comunidades revisadas pela equipe e o status do bot ao vivo.">
+<meta name="twitter:image" content="https://www.sorasakiplatform.store/og-image.jpg">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="preload" href="/fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/img/sorasaki-cafe.webp" as="image" type="image/webp">
+<link rel="stylesheet" href="/style.css?v=20260911">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Sorasaki","url":"https://www.sorasakiplatform.store/","inLanguage":"pt-BR","description":"Bot que protege e organiza grupos de WhatsApp e vitrine de comunidades."}</script>
 </head>
-<body>
+<body data-live="true">
 
-<div class="topbar">
-  <div class="brand">
-    <span class="dot" id="dotStatus"></span>
-    <div>Sorasaki<small>Central Sorasaki</small></div>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="/" aria-label="Sorasaki, página inicial"><span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.1 7.4 7.4 2.1-7.4 2.1L12 21.5l-2.1-7.4L2.5 12l7.4-2.1z" fill="currentColor"/></svg></span><span class="brand-name">SORASAKI</span></a>
+    <nav class="site-nav" aria-label="Principal"><a href="/grupos">Grupos</a><a href="/catalogo">Catálogo</a><a href="/noticias">Notícias</a><a href="/status">Status</a><a href="/estatisticas">Estatísticas</a><a href="/suporte">Suporte</a></nav>
+    <div class="topbar-actions">
+      <span class="bot-status" data-bot-status><span class="status-dot"></span><span data-bot-status-text>Verificando o bot</span></span>
+      <button class="sora-login-trigger" type="button" aria-label="Entrar ou criar conta"><span class="login-avatar" aria-hidden="true"></span><span class="login-trigger-label">Entrar</span></button>
+      <button class="menu-trigger" type="button" aria-label="Abrir menu" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg></button>
+    </div>
   </div>
-  <nav>
-    <a href="/grupos">Grupos</a><a href="/catalogo">Catálogo</a><a href="/noticias">Notícias</a>
-    <a href="/" class="active">Resumo</a>
-    <a href="/estatisticas">Estatísticas</a>
-    <a href="/status">Status</a>
-    <a href="/erros">Ocorrências</a>
-    <a href="/uptime">Disponibilidade</a>
-    <a href="/sobre">Sobre</a>
-    <a href="/suporte">Suporte</a>
-  </nav>
-</div>
+</header>
 
-<main>
-  <div class="aviso" id="avisoConexao"></div>
-
-  <section class="hero-panel">
-    <div class="hero-copy">
-      <span class="eyebrow">✦ CENTRAL DO SORASAKI</span>
-      <div class="hero-status"><span class="hero-status-dot"></span><span id="heroStatusText">Monitorando agora</span></div>
-      <h1>Seu grupo, <span>mais seguro</span> e fácil de acompanhar.</h1>
-      <p class="hero-subtitle">Uma central compacta para acompanhar conexão, atividade, desempenho e estabilidade do Sorasaki.</p>
+<main id="conteudo">
+  <section class="home-hero">
+    <div class="home-hero-copy">
+      <span class="eyebrow">Trocas · Vendas · Serviços</span>
+      <h1>Proteção para o seu grupo. <em>Vitrine</em> para a sua comunidade.</h1>
+      <p class="lead">O Sorasaki é o bot que cuida da segurança e da organização dos seus grupos de WhatsApp — e o lugar onde comunidades revisadas pela equipe encontram gente nova.</p>
       <div class="hero-actions">
-        <a class="hero-btn primary" href="/status">Ver status <span>→</span></a>
-        <a class="hero-btn" href="/estatisticas">Explorar dados <span>↗</span></a>
+        <a class="btn btn-primary" href="/grupos#divulgar">Divulgar meu grupo <span aria-hidden="true">→</span></a>
+        <a class="btn" href="/grupos">Explorar comunidades</a>
       </div>
-      <div class="hero-mini-stats">
-        <div><strong id="heroPing">—</strong><span>ping atual</span></div>
-        <div><strong id="heroAvailability">—</strong><span>disponibilidade</span></div>
-        <div><strong id="heroCommands">—</strong><span>comandos hoje</span></div>
+      <div class="live-strip" data-bot-status aria-live="polite">
+        <span class="live-state"><span class="status-dot"></span><span data-bot-status-text>Verificando o bot</span></span>
+        <span class="live-item">ping <b id="heroPing">—</b></span>
+        <span class="live-item"><b id="heroAvailability">—</b> disponível</span>
+        <span class="live-item"><b id="heroCommands">—</b> comandos hoje</span>
       </div>
     </div>
-    <div class="hero-character-wrap">
-      <div class="hero-orbit orbit-one"></div><div class="hero-orbit orbit-two"></div>
-      <span class="hero-spark spark-a">✦</span><span class="hero-spark spark-b">♡</span>
-      <img src="assistente-cafe.png" alt="Sorasaki segurando uma xícara" class="hero-character" draggable="false">
-      <div class="hero-note">☕ <span>Um café e um painel em dia. ☕</span></div>
+    <div class="home-hero-art">
+      <img src="/img/sorasaki-cafe.webp" alt="Sorasaki, a personagem do projeto, segurando uma xícara de café" width="760" height="1020" fetchpriority="high" draggable="false">
     </div>
   </section>
 
+  <div id="homeNoticeArea" class="notice-list section-sm" hidden></div>
 
-  <section class="official-section groups-official-banner">
-    <div class="section-heading"><div><span class="eyebrow">⭐ DESTAQUE DA EQUIPE</span><h2>Grupos Oficiais dos Donos</h2></div><span>Comunidades oficiais indicadas pela equipe do SORASAKI.</span></div>
-    <div id="officialHomeGrid" class="official-grid"><div class="groups-empty"><div>★</div><strong>Carregando grupos oficiais</strong><span>Um instante...</span></div></div>
+  <section class="section" data-reveal>
+    <div class="section-heading">
+      <div><span class="eyebrow">Agora no Sorasaki</span><h2>O bot, em tempo real.</h2></div>
+      <a class="btn btn-sm" href="/estatisticas">Estatísticas completas <span aria-hidden="true">→</span></a>
+    </div>
+    <div class="aviso" id="avisoConexao" role="status"></div>
+    <div class="live-board">
+      <div class="kpi-grid">
+        <div class="kpi"><span class="kpi-label">Status</span><span class="kpi-value small" id="valStatus">—</span></div>
+        <div class="kpi"><span class="kpi-label">Ping atual</span><span class="kpi-value" id="valPing">—</span></div>
+        <div class="kpi"><span class="kpi-label">Disponibilidade</span><span class="kpi-value" id="valDisponibilidade">—</span></div>
+        <div class="kpi"><span class="kpi-label">Mensagens hoje</span><span class="kpi-value" id="valMensagensHoje">—</span></div>
+        <div class="kpi"><span class="kpi-label">Comandos hoje</span><span class="kpi-value" id="valComandosHoje">—</span></div>
+        <div class="kpi"><span class="kpi-label">Conectado há</span><span class="kpi-value" id="valUptimeSessao">—</span></div>
+      </div>
+      <div class="panel">
+        <h2 class="panel-title">Últimos acontecimentos</h2>
+        <ul class="timeline" id="tabelaEventos"><li class="empty">Carregando…</li></ul>
+      </div>
+    </div>
   </section>
 
-  <section id="homeProductsArea" class="panel" hidden><div class="section-heading"><div><span class="eyebrow">💰 PRODUTOS</span><h2>Produtos e preços</h2></div><a class="hero-btn" href="/catalogo">Ver catálogo <span>→</span></a></div><div id="homeProductsGrid" class="plans-grid"></div></section>
-  <section id="homeNoticeArea" class="panel" hidden></section>
-  <section id="homeNewsArea" class="panel" hidden>
-    <div class="section-heading"><div><span class="eyebrow">📰 NOVIDADES</span><h2>Últimas atualizações</h2></div><a class="hero-btn" href="/noticias">Ver todas <span>→</span></a></div>
-    <div id="homeNewsGrid" class="news-grid"></div>
+  <section class="section" id="officialHomeSection" data-reveal>
+    <div class="section-heading">
+      <div><span class="eyebrow">Seleção da equipe</span><h2>Grupos oficiais</h2></div>
+      <span>Comunidades mantidas pelos donos do Sorasaki.</span>
+    </div>
+    <div id="officialHomeGrid" class="official-grid"><div class="empty-state"><strong>Carregando grupos oficiais…</strong></div></div>
   </section>
 
-  <section class="groups-promo groups-promo-highlight">
-    <div><span class="eyebrow">📢 DIVULGUE SEU GRUPO</span><h2>Apresente sua comunidade.</h2><p>Envie seu grupo para análise e deixe sua divulgação disponível para quem visita o SORASAKI.</p></div>
-    <a class="hero-btn primary" href="/grupos#divulgar">Divulgar meu grupo <span>→</span></a>
+  <section class="section" data-reveal>
+    <div class="section-heading">
+      <div><span class="eyebrow">Divulgação</span><h2>Como seu grupo entra na vitrine</h2></div>
+      <a class="btn btn-primary btn-sm" href="/grupos#divulgar">Começar agora <span aria-hidden="true">→</span></a>
+    </div>
+    <ol class="steps">
+      <li><strong>Entre na sua conta</strong><p>Criar uma conta é grátis e leva menos de um minuto.</p></li>
+      <li><strong>Conte sobre o grupo</strong><p>Nome, categoria, descrição e o link de convite. A prévia aparece enquanto você preenche.</p></li>
+      <li><strong>A equipe confere</strong><p>Todo envio é revisado antes de ir ao ar — sem golpe, sem spam, sem link quebrado.</p></li>
+      <li><strong>Seu grupo aparece</strong><p>Aprovado, ele entra na vitrine. Você acompanha tudo em “Minhas divulgações”.</p></li>
+    </ol>
   </section>
 
-  <div class="section-heading">
-    <div><span class="eyebrow">VISÃO RÁPIDA</span><h2>Resumo geral</h2></div>
-    <span class="pill" id="pillStatus">🔴 Carregando...</span>
-  </div>
-  <p class="subtitle">Os números abaixo são atualizados automaticamente.</p>
-
-  <div class="grid">
-    <div class="card"><div class="label">Uptime da sessão</div><div class="value" id="valUptimeSessao">—</div></div>
-    <div class="card"><div class="label">Disponibilidade</div><div class="value" id="valDisponibilidade">—</div></div>
-    <div class="card"><div class="label">Mensagens hoje</div><div class="value" id="valMensagensHoje">—</div></div>
-    <div class="card"><div class="label">Comandos hoje</div><div class="value" id="valComandosHoje">—</div></div>
-    <div class="card"><div class="label">Erros hoje</div><div class="value" id="valErrosHoje">—</div></div>
-    <div class="card"><div class="label">Ping atual</div><div class="value" id="valPing">—</div></div>
-  </div>
-
-  <section class="groups-promo">
-    <div><span class="eyebrow">✦ COMUNIDADES</span><h2>Explore as divulgações.</h2><p>Veja grupos da comunidade, filtre por categoria e encontre uma comunidade para participar.</p></div>
-    <a class="hero-btn primary" href="/grupos">Explorar grupos <span>→</span></a>
+  <section class="section" id="homeNewsArea" hidden data-reveal>
+    <div class="section-heading">
+      <div><span class="eyebrow">Novidades</span><h2>O que mudou por aqui</h2></div>
+      <a class="btn btn-sm" href="/noticias">Todas as notícias <span aria-hidden="true">→</span></a>
+    </div>
+    <div id="homeNewsGrid" class="news-list"></div>
   </section>
 
-  <div class="panel">
-    <h2>Últimos acontecimentos</h2>
-    <table>
-      <thead><tr><th>Quando</th><th>Evento</th></tr></thead>
-      <tbody id="tabelaEventos"></tbody>
-    </table>
-  </div>
+  <section class="section" id="homeProductsArea" hidden data-reveal>
+    <div class="section-heading">
+      <div><span class="eyebrow">Catálogo</span><h2>Produtos e serviços</h2></div>
+      <a class="btn btn-sm" href="/catalogo">Ver catálogo <span aria-hidden="true">→</span></a>
+    </div>
+    <div id="homeProductsGrid" class="catalog-grid"></div>
+  </section>
+
+  <section class="section cta-band" data-reveal>
+    <div><h2>Tem um grupo que merece ser encontrado?</h2><p>Envie para a vitrine do Sorasaki. A divulgação é gratuita e passa pela revisão da equipe antes de aparecer.</p></div>
+    <a class="btn btn-primary" href="/grupos#divulgar">Divulgar meu grupo <span aria-hidden="true">→</span></a>
+  </section>
 </main>
 
-<div class="footer">Sorasaki — informações atualizadas automaticamente</div>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand"><a class="brand" href="/"><span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.1 7.4 7.4 2.1-7.4 2.1L12 21.5l-2.1-7.4L2.5 12l7.4-2.1z" fill="currentColor"/></svg></span><span class="brand-name">SORASAKI</span></a><p>Um bot que protege grupos de WhatsApp e uma vitrine para comunidades. Trocas, vendas e serviços.</p></div>
+    <div class="footer-col"><h4>Explorar</h4><a href="/grupos">Grupos</a><a href="/catalogo">Catálogo</a><a href="/noticias">Notícias</a><a href="/sobre">Sobre</a></div>
+    <div class="footer-col"><h4>Bot e ajuda</h4><a href="/status">Status</a><a href="/estatisticas">Estatísticas</a><a href="/suporte">Suporte</a><a href="/feedback">Avaliações e bugs</a></div>
+  </div>
+  <div class="footer-bottom"><span>© 2026 Sorasaki</span><span>Trocas · Vendas · Serviços</span></div>
+</footer>
 
-<script src="config.js"></script>
+<script src="/config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="app.js?v=20260909a"></script>
+<script src="/app.js?v=20260911"></script>
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
 
-<script>
-(async()=>{
-  try{
-    const r=await fetch('/api/public-content?type=all',{cache:'no-store',headers:{Accept:'application/json'}});
-    const d=await r.json(); if(!r.ok||!d?.ok)return;
-    const esc=v=>String(v??'').replace(/[&<>'"]/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[x]));
-    const pr=d.products||[],pa=document.getElementById('homeProductsArea'),pg=document.getElementById('homeProductsGrid');
-    if(pa&&pg&&pr.length){pa.hidden=false;pg.innerHTML=pr.slice(0,8).map(x=>{const price=Number(x.promo_price??x.price),old=x.promo_price!=null?Number(x.price):Number(x.previous_price||0);return `<article class="plan-card">${x.image_url?`<img src="${esc(x.image_url)}" alt="" loading="lazy" style="width:100%;height:130px;object-fit:cover;border-radius:12px;margin-bottom:10px">`:''}<span class="plan-name">${esc(x.name)}</span>${x.category?`<small class="admin-muted">${esc(x.category)}</small>`:''}${old>price?`<div class="admin-muted" style="text-decoration:line-through">R$ ${old.toFixed(2).replace('.',',')}</div>`:''}<h3>R$ ${price.toFixed(2).replace('.',',')}</h3><p>${esc(x.description||'')}</p></article>`}).join('')}
-    const n=d.notices||[],na=document.getElementById('homeNoticeArea');
-    if(na&&n.length){na.hidden=false;na.innerHTML=n.map(x=>`<div class="notice-preview"><strong>📌 ${esc(x.title)}</strong><p>${esc(x.message)}</p></div>`).join('')}
-    const rnews=d.news||[],area=document.getElementById('homeNewsArea'),grid=document.getElementById('homeNewsGrid');
-    if(area&&grid&&rnews.length){area.hidden=false;grid.innerHTML=rnews.slice(0,3).map(x=>`<article class="panel news-card">${x.image_url?`<img src="${esc(x.image_url)}" alt="" loading="lazy">`:''}<div class="news-meta">${esc(x.category)} · ${new Date(x.publish_at).toLocaleDateString('pt-BR')}</div><h3>${esc(x.title)}</h3><p>${esc(x.summary||String(x.content||'').slice(0,180))}</p></article>`).join('')}
-  }catch(e){console.error('[SORASAKI] Conteúdo público:',e)}
-})();
-</script>
-<script>
-  onConnection((c) => {
-    const dot = document.getElementById("dotStatus");
-    if (!dot) return;
-    dot.style.background = !c.bridgeOnline ? "var(--danger)" : !c.botDataReceived ? "var(--warn)" : "var(--ok)";
-    dot.title = !c.bridgeOnline ? "Serviço indisponível" : !c.botDataReceived ? "Aguardando atualização" : "Tudo funcionando normalmente";
-  });
-</script>
-<script>
+  // Bot ao vivo
   onStats((s) => {
     const status = statusEfetivo(s);
     const info = statusInfo(status);
-    document.getElementById("pillStatus").textContent = `${info.emoji} ${info.texto}`;
-    document.getElementById("pillStatus").className = `pill ${info.classe}`;
-    document.getElementById("dotStatus").style.background =
-      info.classe === "online" ? "var(--ok)" : (info.classe === "instavel" || info.classe === "reconectando") ? "var(--warn)" : info.classe === "conectando" ? "var(--accent)" : "var(--danger)";
-
-    document.getElementById("valUptimeSessao").textContent = fmtUptime(s.uptime?.uptimeSessaoMs);
-    document.getElementById("valDisponibilidade").textContent = s.uptime?.disponibilidadePercentual != null ? `${s.uptime.disponibilidadePercentual}%` : "—";
-    document.getElementById("valMensagensHoje").textContent = fmtNumero(s.mensagens?.hoje?.mensagensProcessadas);
-    document.getElementById("valComandosHoje").textContent = fmtNumero(s.comandos?.totalHoje);
-    document.getElementById("valErrosHoje").textContent = fmtNumero(s.erros?.hoje);
-    document.getElementById("valPing").textContent = s.ping?.atual != null ? `${s.ping.atual}ms` : "—";
-    document.getElementById("heroPing").textContent = s.ping?.atual != null ? `${s.ping.atual}ms` : "—";
-    document.getElementById("heroAvailability").textContent = s.uptime?.disponibilidadePercentual != null ? `${s.uptime.disponibilidadePercentual}%` : "—";
-    document.getElementById("heroCommands").textContent = fmtNumero(s.comandos?.totalHoje);
-    document.getElementById("heroStatusText").textContent = info.texto;
+    const ping = fmtPing(s.ping?.atual);
+    const disp = s.uptime?.disponibilidadePercentual != null ? `${String(s.uptime.disponibilidadePercentual).replace(".", ",")}%` : "—";
+    $("valStatus").textContent = info.curto;
+    $("valPing").textContent = ping;
+    $("valDisponibilidade").textContent = disp;
+    $("valMensagensHoje").textContent = fmtNumero(s.mensagens?.hoje?.mensagensProcessadas);
+    $("valComandosHoje").textContent = fmtNumero(s.comandos?.totalHoje);
+    $("valUptimeSessao").textContent = s.status === "online" ? fmtUptime(s.uptime?.uptimeSessaoMs) : "—";
+    $("heroPing").textContent = ping;
+    $("heroAvailability").textContent = disp;
+    $("heroCommands").textContent = fmtNumero(s.comandos?.totalHoje);
 
     const eventos = [];
-
-    if (s.uptime?.ultimaReconexao) {
-      eventos.push({ ts: s.uptime.ultimaReconexao, texto: "Última reconexão bem-sucedida" });
-    }
-    if (s.uptime?.ultimaDesconexao) {
-      eventos.push({ ts: s.uptime.ultimaDesconexao, texto: "Última queda de conexão" });
-    }
-    if (s.erros?.ultimoErro) {
-      eventos.push({ ts: s.erros.ultimoErro, texto: `Último erro: ${escapeHtml(s.erros.ultimaMensagem || "sem detalhe")}` });
-    }
-    if (s.autodisparo?.proximoDisparoEm) {
-      eventos.push({ ts: s.autodisparo.proximoDisparoEm, texto: "Próximo disparo de divulgação agendado" });
-    }
-
-    eventos.sort((a, b) => (b.ts || 0) - (a.ts || 0));
-
-    const corpo = document.getElementById("tabelaEventos");
-    corpo.innerHTML = "";
-    if (!eventos.length) {
-      corpo.innerHTML = `<tr><td colspan="2" class="empty">Nada registrado ainda</td></tr>`;
-    } else {
-      for (const e of eventos) {
-        corpo.innerHTML += `<tr><td>${fmtHora(e.ts)}</td><td>${e.texto}</td></tr>`;
-      }
-    }
+    if (s.uptime?.ultimaReconexao) eventos.push({ ts: s.uptime.ultimaReconexao, texto: "Conexão restabelecida" });
+    if (s.uptime?.ultimaDesconexao) eventos.push({ ts: s.uptime.ultimaDesconexao, texto: "Queda rápida de conexão" });
+    const ultimoErro = typeof s.erros?.ultimoErro === "object" ? (s.erros.ultimoErro?.ts || s.erros.ultimoErro?.timestamp) : s.erros?.ultimoErro;
+    if (ultimoErro) eventos.push({ ts: ultimoErro, texto: "Falha registrada em um comando" });
+    if (s.autodisparo?.ultimoDisparoEm) eventos.push({ ts: s.autodisparo.ultimoDisparoEm, texto: "Divulgação automática enviada" });
+    if (s.autodisparo?.proximoDisparoEm) eventos.push({ ts: s.autodisparo.proximoDisparoEm, texto: "Próxima divulgação automática" });
+    eventos.sort((a, b) => new Date(b.ts) - new Date(a.ts));
+    $("tabelaEventos").innerHTML = eventos.length
+      ? eventos.slice(0, 5).map((e) => `<li><time>${fmtHora(e.ts)}</time><span>${escapeHtml(e.texto)}</span></li>`).join("")
+      : '<li class="empty">Nenhum acontecimento recente. Tudo tranquilo.</li>';
   });
-</script>
+  onFetchError(() => {
+    if ($("tabelaEventos").textContent.includes("Carregando")) $("tabelaEventos").innerHTML = '<li class="empty">Os dados do bot aparecem aqui assim que a conexão voltar.</li>';
+  });
 
-<script>
-(async function(){
-  const auth=window.SorasakiAuth, c=auth?.getClient?.(), box=document.getElementById('officialHomeGrid'); if(!c||!box)return;
-  const cats={vendas:'Compra e venda',comunidade:'Comunidade',jogos:'Jogos',freefire:'Free Fire',divulgacao:'Divulgação',amizades:'Amizades',suporte:'Suporte',estudos:'Estudos',outros:'Outros'};
-  const icons={vendas:'🛒',comunidade:'💬',jogos:'🎮',freefire:'🔥',divulgacao:'📢',amizades:'👥',suporte:'🛠️',estudos:'📚',outros:'🌐'};
-  const esc=v=>String(v??'').replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
-  const {data,error}=await c.from('official_groups').select('name,description,category,invite_url,image_url,avatar_url,highlight_phrase,highlight').eq('active',true).order('display_order',{ascending:true}).limit(6);
-  if(error){box.innerHTML='<div class="groups-empty"><strong>Não foi possível carregar os grupos oficiais.</strong></div>';return;}
-  box.innerHTML=(data||[]).map(g=>`<article class="official-card"><div class="official-media">${(g.image_url||g.avatar_url)?`<img src="${esc(g.image_url||g.avatar_url)}" alt="" loading="lazy">`:`<span>${icons[g.category]||'⭐'}</span>`}</div><h3>⭐ ${esc(g.name)}</h3><div class="group-promo">${esc(cats[g.category]||g.category)}</div><p>${esc(g.description)}</p>${(g.highlight_phrase||g.highlight)?`<div class="official-highlight">“${esc(g.highlight_phrase||g.highlight)}”</div>`:''}<a class="auth-primary official-btn" href="${esc(g.invite_url)}" target="_blank" rel="noopener noreferrer">ENTRAR NO GRUPO ↗</a></article>`).join('')||'<div class="groups-empty"><strong>Nenhum grupo oficial cadastrado.</strong><span>Os destaques aparecerão aqui quando a equipe adicionar os primeiros.</span></div>';
+  // Avisos, notícias e produtos
+  (async () => {
+    try {
+      const r = await Sora.fetchJson("/api/public-content?type=all");
+      if (!r.ok || !r.body?.ok) throw new Error("conteúdo público indisponível");
+      const d = r.body;
+      const notices = d.notices || [];
+      if (notices.length) {
+        const tipo = { info: "info", success: "success", warning: "", danger: "danger" };
+        $("homeNoticeArea").innerHTML = notices.map((n) => `<div class="notice-banner ${tipo[n.notice_type] ?? "info"}" role="note"><div><strong>${escapeHtml(n.title)}</strong>${escapeHtml(n.message)}</div></div>`).join("");
+        $("homeNoticeArea").hidden = false;
+      }
+      const news = d.news || [];
+      if (news.length) {
+        $("homeNewsGrid").innerHTML = news.slice(0, 3).map((n) => `<article class="news-row"><time datetime="${escapeHtml(n.publish_at)}">${fmtData(n.publish_at)}</time><div><div class="news-cat">${escapeHtml(n.category || "Novidade")}</div><h3>${escapeHtml(n.title)}</h3><p>${escapeHtml(n.summary || String(n.content || "").slice(0, 180))}</p></div><a class="btn btn-sm btn-ghost" href="/noticias#noticia-${n.id}">Ler</a></article>`).join("");
+        $("homeNewsArea").hidden = false;
+      }
+      const products = d.products || [];
+      if (products.length) {
+        $("homeProductsGrid").innerHTML = products.slice(0, 3).map((p) => {
+          const price = Number(p.promo_price ?? p.price);
+          const old = p.promo_price != null ? Number(p.price) : Number(p.previous_price || 0);
+          return `<article class="catalog-card">${p.image_url ? `<img src="${escapeHtml(p.image_url)}" alt="" loading="lazy">` : ""}<div class="catalog-card-body">${p.category ? `<span class="catalog-category">${escapeHtml(p.category)}</span>` : ""}<h3>${escapeHtml(p.name)}</h3>${old > price ? `<span class="catalog-old">${fmtMoeda(old)}</span>` : ""}<span class="catalog-price">${fmtMoeda(price)}</span>${p.description ? `<p>${escapeHtml(p.description)}</p>` : ""}</div></article>`;
+        }).join("");
+        $("homeProductsArea").hidden = false;
+      }
+    } catch (e) {
+      console.warn("[SORASAKI] Conteúdo da página inicial:", e);
+    }
+  })();
+
+  // Grupos oficiais
+  (async () => {
+    const box = $("officialHomeGrid");
+    const c = window.SorasakiAuth?.getClient?.();
+    const cats = { vendas: "Compra e venda", comunidade: "Comunidade", jogos: "Jogos", freefire: "Free Fire", divulgacao: "Divulgação", amizades: "Amizades", suporte: "Suporte", estudos: "Estudos", outros: "Outros" };
+    if (!c) { $("officialHomeSection").hidden = true; return; }
+    try {
+      const { data, error } = await c.from("official_groups").select("id,name,description,category,invite_url,image_url,avatar_url,highlight_phrase,highlight").eq("active", true).order("display_order", { ascending: true }).limit(6);
+      if (error) throw error;
+      if (!data?.length) { $("officialHomeSection").hidden = true; return; }
+      box.innerHTML = data.map((g) => {
+        const img = Sora.safeUrl(g.image_url || g.avatar_url);
+        const destaque = g.highlight_phrase || g.highlight;
+        return `<article class="official-card"><div class="official-card-top"><div class="official-icon">${img ? `<img src="${escapeHtml(img)}" alt="" loading="lazy">` : escapeHtml(Sora.initials(g.name))}</div><div class="group-title-block"><h3>${escapeHtml(g.name)}</h3><span>${escapeHtml(cats[g.category] || g.category)}</span></div></div>${destaque ? `<div class="official-highlight">${escapeHtml(destaque)}</div>` : ""}<p>${escapeHtml(g.description)}</p><a class="btn btn-primary" href="${escapeHtml(Sora.safeUrl(g.invite_url))}" target="_blank" rel="noopener noreferrer">Entrar no grupo <span aria-hidden="true">↗</span></a></article>`;
+      }).join("");
+    } catch (e) {
+      console.warn("[SORASAKI] Grupos oficiais:", e);
+      box.innerHTML = Sora.emptyState("Não foi possível carregar os grupos oficiais.", "Tente novamente em alguns instantes.");
+    }
+  })();
 })();
 </script>
-
 </body>
 </html>

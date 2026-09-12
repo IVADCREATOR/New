@@ -1,123 +1,142 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://ponte-m7br.onrender.com https://xwrsjfxsmpuqneriptfw.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests" />
-<meta http-equiv="X-Content-Type-Options" content="nosniff" />
-<meta name="referrer" content="strict-origin-when-cross-origin" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Uptime — Sorasaki</title>
-<link rel="stylesheet" href="style.css?v=20260907c" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self'; connect-src 'self' https://ponte-m7br.onrender.com https://xwrsjfxsmpuqneriptfw.supabase.co wss://xwrsjfxsmpuqneriptfw.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Disponibilidade — Sorasaki</title>
+<meta name="description" content="Histórico de conexão do bot Sorasaki: disponibilidade, quedas, reconexões e tempo fora do ar.">
+<link rel="canonical" href="https://www.sorasakiplatform.store/uptime">
+<meta name="theme-color" content="#0c0b10">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Sorasaki">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:url" content="https://www.sorasakiplatform.store/uptime">
+<meta property="og:title" content="Disponibilidade do Sorasaki">
+<meta property="og:description" content="Histórico de conexão do bot: disponibilidade, quedas e reconexões.">
+<meta property="og:image" content="https://www.sorasakiplatform.store/og-image.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://www.sorasakiplatform.store/og-image.jpg">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="preload" href="/fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/style.css?v=20260911">
 </head>
-<body>
+<body data-live="true">
 
-<div class="topbar">
-  <div class="brand">
-    <span class="dot" id="dotStatus"></span>
-    <div>Sorasaki<small>Central Sorasaki</small></div>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="/" aria-label="Sorasaki, página inicial"><span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.1 7.4 7.4 2.1-7.4 2.1L12 21.5l-2.1-7.4L2.5 12l7.4-2.1z" fill="currentColor"/></svg></span><span class="brand-name">SORASAKI</span></a>
+    <nav class="site-nav" aria-label="Principal"><a href="/grupos">Grupos</a><a href="/catalogo">Catálogo</a><a href="/noticias">Notícias</a><a href="/status">Status</a><a href="/estatisticas">Estatísticas</a><a href="/suporte">Suporte</a></nav>
+    <div class="topbar-actions">
+      <span class="bot-status" data-bot-status><span class="status-dot"></span><span data-bot-status-text>Verificando o bot</span></span>
+      <button class="sora-login-trigger" type="button" aria-label="Entrar ou criar conta"><span class="login-avatar" aria-hidden="true"></span><span class="login-trigger-label">Entrar</span></button>
+      <button class="menu-trigger" type="button" aria-label="Abrir menu" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg></button>
+    </div>
   </div>
-  <nav>
-    <a href="/catalogo">Catálogo</a><a href="/grupos">Grupos</a><a href="/noticias">Notícias</a>
-    <a href="/">Resumo</a>
-    <a href="/estatisticas">Estatísticas</a>
-    <a href="/status">Status</a>
-    <a href="/erros">Ocorrências</a>
-    <a href="/uptime" class="active">Uptime</a>
-    <a href="/sobre">Sobre</a>
-    <a href="/suporte">Suporte</a>
-  </nav>
-</div>
+</header>
 
-<main>
-  <div class="aviso" id="avisoConexao"></div>
-
-  <h1>Uptime e histórico</h1>
-  <p class="subtitle">Disponibilidade desde o último reinício do processo e histórico de quedas de conexão.</p>
-
-  <div class="grid">
-    <div class="card"><div class="label">Uptime da sessão atual</div><div class="value" id="valUptimeSessao">—</div></div>
-    <div class="card"><div class="label">Uptime do processo</div><div class="value" id="valUptimeProcesso">—</div></div>
-    <div class="card"><div class="label">Disponibilidade</div><div class="value" id="valDisponibilidade">—</div></div>
-    <div class="card"><div class="label">Total de quedas</div><div class="value" id="valQuedas">—</div></div>
-    <div class="card"><div class="label">Total de reconexões</div><div class="value" id="valReconexoes">—</div></div>
-    <div class="card"><div class="label">Tempo offline acumulado</div><div class="value" id="valOfflineAcumulado">—</div></div>
+<main id="conteudo">
+  <div class="page-head">
+    <span class="eyebrow">Disponibilidade</span>
+    <h1>Histórico de conexão.</h1>
+    <p class="lead">Quanto tempo o bot ficou conectado desde o último reinício, quantas vezes a conexão caiu e quanto demorou para voltar.</p>
   </div>
 
-  <div class="panel">
-    <h2>Últimas conexões</h2>
-    <table>
-      <thead><tr><th>Evento</th><th>Quando</th></tr></thead>
-      <tbody id="tabelaUltimasConexoes"></tbody>
-    </table>
+  <div class="aviso section-sm" id="avisoConexao" role="status"></div>
+
+  <div class="kpi-grid section-sm">
+    <div class="kpi"><span class="kpi-label">Disponibilidade</span><span class="kpi-value" id="valDisponibilidade">—</span><span class="kpi-foot">desde o último reinício</span></div>
+    <div class="kpi"><span class="kpi-label">Conectado há</span><span class="kpi-value" id="valUptimeSessao">—</span><span class="kpi-foot">sessão atual</span></div>
+    <div class="kpi"><span class="kpi-label">Em funcionamento há</span><span class="kpi-value" id="valUptimeProcesso">—</span><span class="kpi-foot">desde o último reinício</span></div>
+    <div class="kpi"><span class="kpi-label">Quedas</span><span class="kpi-value" id="valQuedas">—</span><span class="kpi-foot" id="valReconexoes">&nbsp;</span></div>
+    <div class="kpi"><span class="kpi-label">Tempo fora do ar</span><span class="kpi-value" id="valOfflineAcumulado">—</span><span class="kpi-foot">somado</span></div>
   </div>
 
-  <div class="panel">
-    <h2>Histórico de quedas</h2>
-    <table>
-      <thead><tr><th>Início</th><th>Motivo</th><th>Duração</th></tr></thead>
-      <tbody id="tabelaQuedas"></tbody>
-    </table>
+  <div class="two-col section-sm">
+    <section class="panel">
+      <h2 class="panel-title">Últimos eventos</h2>
+      <ul class="timeline" id="tabelaUltimasConexoes"><li class="empty">Carregando…</li></ul>
+    </section>
+    <section class="panel">
+      <h2 class="panel-title">Quedas recentes</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Quando</th><th>O que houve</th><th class="num">Duração</th></tr></thead>
+          <tbody id="tabelaQuedas"><tr><td colspan="3" class="empty">Carregando…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
   </div>
 </main>
 
-<div class="footer">Sorasaki — monitoramento atualizado automaticamente</div>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand"><a class="brand" href="/"><span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.1 7.4 7.4 2.1-7.4 2.1L12 21.5l-2.1-7.4L2.5 12l7.4-2.1z" fill="currentColor"/></svg></span><span class="brand-name">SORASAKI</span></a><p>Um bot que protege grupos de WhatsApp e uma vitrine para comunidades. Trocas, vendas e serviços.</p></div>
+    <div class="footer-col"><h4>Explorar</h4><a href="/grupos">Grupos</a><a href="/catalogo">Catálogo</a><a href="/noticias">Notícias</a><a href="/sobre">Sobre</a></div>
+    <div class="footer-col"><h4>Bot e ajuda</h4><a href="/status">Status</a><a href="/estatisticas">Estatísticas</a><a href="/suporte">Suporte</a><a href="/feedback">Avaliações e bugs</a></div>
+  </div>
+  <div class="footer-bottom"><span>© 2026 Sorasaki</span><span>Trocas · Vendas · Serviços</span></div>
+</footer>
 
-<script src="config.js"></script>
+<script src="/config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="app.js?v=20260909a"></script>
+<script src="/app.js?v=20260911"></script>
 <script>
-  onConnection((c) => {
-    const dot = document.getElementById("dotStatus");
-    if (!dot) return;
-    dot.style.background = !c.bridgeOnline ? "var(--danger)" : !c.botDataReceived ? "var(--warn)" : "var(--ok)";
-    dot.title = !c.bridgeOnline ? "Serviço indisponível" : !c.botDataReceived ? "Aguardando atualização" : "Tudo funcionando normalmente";
-  });
-</script>
-<script>
-  const MOTIVOS_LEGIVEIS = {
-    loggedOut: "Sessão desconectada pelo celular",
-    unauthorized: "Falha de autorização",
-    badSession: "Sessão corrompida",
-    conflict: "Conflito de sessão (outra instância ativa)",
-    connectionFailure405: "Rejeição do servidor (405)",
-    connectionRequired: "Nova conexão solicitada pelo servidor",
-    connectionLost: "Conexão de rede perdida",
-    connectionClosed: "WebSocket encerrado",
-    restartRequired: "Reinicialização de handshake exigida",
-    timedOut: "Tempo de ping excedido",
-    other: "Instabilidade genérica",
-    desconhecido: "Motivo não identificado"
+(function () {
+  const $ = (id) => document.getElementById(id);
+  // Motivos em linguagem simples (sem termos técnicos da conexão).
+  const MOTIVOS = {
+    loggedOut: "Sessão encerrada no celular do bot",
+    unauthorized: "Sessão precisou ser renovada",
+    badSession: "Sessão precisou ser refeita",
+    conflict: "Bot aberto em outro lugar",
+    connectionFailure405: "WhatsApp recusou a conexão",
+    connectionRequired: "WhatsApp pediu uma nova conexão",
+    connectionLost: "Internet do servidor oscilou",
+    connectionClosed: "Conexão reiniciada automaticamente",
+    restartRequired: "Reinício rápido da conexão",
+    timedOut: "Conexão demorou para responder",
+    other: "Instabilidade momentânea",
+    desconhecido: "Instabilidade momentânea"
   };
+  let recebeu = false;
 
   onStats((s) => {
-    document.getElementById("valUptimeSessao").textContent = fmtUptime(s.uptime?.uptimeSessaoMs);
-    document.getElementById("valUptimeProcesso").textContent = fmtUptime(s.uptime?.uptimeProcessoMs);
-    document.getElementById("valDisponibilidade").textContent = s.uptime?.disponibilidadePercentual != null ? `${s.uptime.disponibilidadePercentual}%` : "—";
-    document.getElementById("valQuedas").textContent = fmtNumero(s.uptime?.totalQuedas);
-    document.getElementById("valReconexoes").textContent = fmtNumero(s.uptime?.totalReconexoes);
-    document.getElementById("valOfflineAcumulado").textContent = fmtUptime(s.uptime?.tempoTotalOfflineMs);
+    recebeu = true;
+    const u = s.uptime || {};
+    $("valDisponibilidade").textContent = u.disponibilidadePercentual != null ? `${String(u.disponibilidadePercentual).replace(".", ",")}%` : "—";
+    $("valUptimeSessao").textContent = s.status === "online" ? fmtUptime(u.uptimeSessaoMs) : "—";
+    $("valUptimeProcesso").textContent = fmtUptime(u.uptimeProcessoMs);
+    $("valQuedas").textContent = fmtNumero(u.totalQuedas);
+    $("valReconexoes").textContent = `${fmtNumero(u.totalReconexoes)} reconexões automáticas`;
+    $("valOfflineAcumulado").textContent = fmtUptime(u.tempoTotalOfflineMs);
 
-    const ultimas = document.getElementById("tabelaUltimasConexoes");
-    ultimas.innerHTML = `
-      <tr><td>Última conexão</td><td>${fmtHora(s.uptime?.ultimaConexao)}</td></tr>
-      <tr><td>Última reconexão</td><td>${fmtHora(s.uptime?.ultimaReconexao)}</td></tr>
-      <tr><td>Última desconexão</td><td>${fmtHora(s.uptime?.ultimaDesconexao)}</td></tr>
-    `;
+    const eventos = [
+      ["Conectou", u.ultimaConexao],
+      ["Reconectou", u.ultimaReconexao],
+      ["Caiu", u.ultimaDesconexao]
+    ].filter((e) => e[1]).sort((a, b) => new Date(b[1]) - new Date(a[1]));
+    $("tabelaUltimasConexoes").innerHTML = eventos.length
+      ? eventos.map(([nome, ts]) => `<li><time>${fmtHora(ts)}</time><span>${nome}</span></li>`).join("")
+      : '<li class="empty">Nenhum evento registrado ainda.</li>';
 
-    const quedas = document.getElementById("tabelaQuedas");
-    quedas.innerHTML = "";
-    const listaQuedas = s.historico?.quedas || [];
-    if (!listaQuedas.length) {
-      quedas.innerHTML = `<tr><td colspan="3" class="empty">Nenhuma queda registrada 🎉</td></tr>`;
-    } else {
-      for (const q of listaQuedas) {
-        const duracao = q.duracaoMs != null ? fmtUptime(q.duracaoMs) : "em aberto";
-        const motivo = MOTIVOS_LEGIVEIS[q.motivo] || escapeHtml(q.motivo || "—");
-        quedas.innerHTML += `<tr><td>${fmtHora(q.inicio)}</td><td>${motivo}</td><td>${duracao}</td></tr>`;
-      }
-    }
+    const quedas = (s.historico?.quedas || []).slice().sort((a, b) => new Date(b.inicio) - new Date(a.inicio)).slice(0, 12);
+    $("tabelaQuedas").innerHTML = quedas.length
+      ? quedas.map((q) => `<tr><td>${fmtHora(q.inicio)}</td><td>${escapeHtml(MOTIVOS[q.motivo] || MOTIVOS.other)}</td><td class="num">${q.duracaoMs != null ? fmtUptime(q.duracaoMs) : "em andamento"}</td></tr>`).join("")
+      : '<tr><td colspan="3" class="empty">Nenhuma queda registrada.</td></tr>';
   });
-</script>
 
+  onFetchError(() => {
+    if (recebeu) return;
+    $("tabelaUltimasConexoes").innerHTML = '<li class="empty">Informações indisponíveis no momento.</li>';
+    $("tabelaQuedas").innerHTML = '<tr><td colspan="3" class="empty">Informações indisponíveis no momento.</td></tr>';
+  });
+})();
+</script>
 </body>
 </html>

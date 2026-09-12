@@ -1,5 +1,5 @@
-const crypto = require('crypto');
-const { supabaseRequest } = require('./_supabase');
+import crypto from 'node:crypto';
+import { supabaseRequest } from './_supabase.js';
 
 function safeEqual(a, b) {
   const x = Buffer.from(String(a || ''));
@@ -45,11 +45,12 @@ function mapStatus(status) {
   return 'pending';
 }
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   if (req.method !== 'POST' && req.method !== 'GET') return res.status(405).end();
 
-  const type = String(req.query?.type || req.body?.type || '');
-  const paymentId = String(req.query?.['data.id'] || req.query?.data?.id || req.body?.data?.id || '');
+  const body = req.body && typeof req.body === 'object' ? req.body : {};
+  const type = String(req.query?.type || body.type || '');
+  const paymentId = String(req.query?.['data.id'] || req.query?.data?.id || body.data?.id || '');
   if (type && type !== 'payment') return res.status(200).json({ ok: true });
 
   if (!paymentId || !validSignature(req, paymentId)) {
@@ -58,8 +59,7 @@ module.exports = async (req, res) => {
 
   try {
     const payment = await getPayment(paymentId);
-    const externalReference = String(payment.external_reference || '');
-    const orderId = Number(externalReference);
+    const orderId = Number(String(payment.external_reference || ''));
     if (!Number.isInteger(orderId) || orderId <= 0) return res.status(200).json({ ok: true });
 
     const orders = await supabaseRequest(`/rest/v1/orders?id=eq.${orderId}&select=id,user_id,group_id,plan_id,amount,status,coupon_id,discount_amount`);
@@ -70,15 +70,13 @@ module.exports = async (req, res) => {
     if (!amountMatches) return res.status(422).json({ ok: false });
 
     const status = mapStatus(payment.status);
-    const patch = {
-      status,
-      payment_id: String(payment.id),
-      paid_at: status === 'paid' ? new Date().toISOString() : null
-    };
-
     await supabaseRequest(`/rest/v1/orders?id=eq.${orderId}`, {
       method: 'PATCH',
-      body: JSON.stringify(patch)
+      body: JSON.stringify({
+        status,
+        payment_id: String(payment.id),
+        paid_at: status === 'paid' ? new Date().toISOString() : null
+      })
     });
 
     if (status === 'paid') {
@@ -120,7 +118,7 @@ module.exports = async (req, res) => {
     }
     return res.status(200).json({ ok: true });
   } catch (error) {
-    console.error('mercadopago-webhook error', error);
+    console.error('mercadopago-webhook error', error?.status || '', error?.data || error?.message || error);
     return res.status(500).json({ ok: false });
   }
-};
+}

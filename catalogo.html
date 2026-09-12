@@ -1,1 +1,152 @@
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self';"><meta name="robots" content="index,follow"><title>Sorasaki — Catálogo</title><link rel="stylesheet" href="style.css?v=20260909f"><style>.catalog-hero{margin-top:28px;padding:28px;border:1px solid rgba(255,255,255,.08);border-radius:22px;background:radial-gradient(circle at 15% 20%,rgba(150,80,255,.16),transparent 45%),rgba(255,255,255,.025)}.catalog-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:18px}.catalog-card{overflow:hidden;display:flex;flex-direction:column}.catalog-card img{width:100%;height:190px;object-fit:cover}.catalog-card-body{padding:18px}.catalog-category{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#8d829c}.catalog-card h2{margin:7px 0}.catalog-price{font-size:25px;font-weight:800}.catalog-old{text-decoration:line-through;color:#777080;font-size:11px}.catalog-card p{color:#92899b;line-height:1.6}.catalog-empty{text-align:center;padding:50px;color:#81798c}@media(max-width:900px){.catalog-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.catalog-grid{grid-template-columns:1fr}}</style></head><body><div class="topbar"><div class="brand"><span class="dot"></span><div>Sorasaki<small>Catálogo</small></div></div><nav><a href="/">Resumo</a><a href="/grupos">Grupos</a><a href="/catalogo" class="active">Catálogo</a><a href="/noticias">Notícias</a><a href="/suporte">Suporte</a></nav></div><main><section class="catalog-hero"><span class="eyebrow">💜 CATÁLOGO SORASAKI</span><h1>Produtos disponíveis.</h1><p class="subtitle">Confira as opções publicadas pela equipe do Sorasaki.</p></section><section><div id="catalogGrid" class="catalog-grid"><div class="catalog-empty">Carregando catálogo...</div></div></section></main><div class="footer">Sorasaki — produtos e serviços</div><script>function esc(v){return String(v??'').replace(/[&<>'"]/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[x]))}async function load(){const box=document.getElementById('catalogGrid');try{const r=await fetch('/api/public-content?type=products',{cache:'no-store',headers:{Accept:'application/json'}}),d=await r.json();if(!r.ok||!d?.ok)throw 0;const rows=d.products||[];box.innerHTML=rows.map(p=>{const price=Number(p.promo_price??p.price),old=p.promo_price!=null?Number(p.price):Number(p.previous_price||0);return `<article class="panel catalog-card">${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy">`:''}<div class="catalog-card-body">${p.category?`<div class="catalog-category">${esc(p.category)}</div>`:''}<h2>${esc(p.name)}</h2>${old>price?`<div class="catalog-old">R$ ${old.toFixed(2).replace('.',',')}</div>`:''}<div class="catalog-price">R$ ${price.toFixed(2).replace('.',',')}</div><p>${esc(p.description||'')}</p></div></article>`}).join('')||'<div class="catalog-empty">Nenhum produto disponível no momento.</div>'}catch(e){box.innerHTML='<div class="catalog-empty">Não foi possível carregar o catálogo agora.</div>';console.error(e)}}load();</script></body></html>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self'; connect-src 'self' https://ponte-m7br.onrender.com https://xwrsjfxsmpuqneriptfw.supabase.co wss://xwrsjfxsmpuqneriptfw.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Catálogo — Sorasaki</title>
+<meta name="description" content="Produtos e serviços do Sorasaki com preço aberto. Escolha, toque em “Tenho interesse” e fale direto com a equipe.">
+<link rel="canonical" href="https://www.sorasakiplatform.store/catalogo">
+<meta name="theme-color" content="#0c0b10">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Sorasaki">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:url" content="https://www.sorasakiplatform.store/catalogo">
+<meta property="og:title" content="Catálogo Sorasaki — trocas, vendas e serviços">
+<meta property="og:description" content="Produtos e serviços com preço aberto. Escolha e fale direto com a equipe.">
+<meta property="og:image" content="https://www.sorasakiplatform.store/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Catálogo Sorasaki — trocas, vendas e serviços">
+<meta name="twitter:description" content="Produtos e serviços com preço aberto. Escolha e fale direto com a equipe.">
+<meta name="twitter:image" content="https://www.sorasakiplatform.store/og-image.jpg">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="preload" href="/fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/style.css?v=20260911">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="/" aria-label="Sorasaki, página inicial"><span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.1 7.4 7.4 2.1-7.4 2.1L12 21.5l-2.1-7.4L2.5 12l7.4-2.1z" fill="currentColor"/></svg></span><span class="brand-name">SORASAKI</span></a>
+    <nav class="site-nav" aria-label="Principal"><a href="/grupos">Grupos</a><a href="/catalogo">Catálogo</a><a href="/noticias">Notícias</a><a href="/status">Status</a><a href="/estatisticas">Estatísticas</a><a href="/suporte">Suporte</a></nav>
+    <div class="topbar-actions">
+      <span class="bot-status" data-bot-status><span class="status-dot"></span><span data-bot-status-text>Verificando o bot</span></span>
+      <button class="sora-login-trigger" type="button" aria-label="Entrar ou criar conta"><span class="login-avatar" aria-hidden="true"></span><span class="login-trigger-label">Entrar</span></button>
+      <button class="menu-trigger" type="button" aria-label="Abrir menu" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<main id="conteudo">
+  <div class="page-head-row">
+    <div class="page-head">
+      <span class="eyebrow">Catálogo</span>
+      <h1>Trocas, vendas e serviços.</h1>
+      <p class="lead">Tudo com preço aberto. Encontrou o que procura? Toque em “Tenho interesse” e continue a conversa direto com a equipe no WhatsApp.</p>
+    </div>
+  </div>
+
+  <div class="stats-toolbar section-sm" id="catalogToolbar" hidden>
+    <div class="chip-row" id="catalogFilters" role="group" aria-label="Filtrar por categoria"></div>
+    <span class="updated-at" id="catalogCount"></span>
+  </div>
+
+  <section class="section-sm">
+    <div id="catalogGrid" class="catalog-grid" aria-busy="true">
+      <div class="catalog-card"><div class="skeleton" style="aspect-ratio:16/10;border-radius:0"></div><div class="catalog-card-body"><div class="skeleton" style="height:14px;width:40%"></div><div class="skeleton" style="height:20px;width:70%"></div><div class="skeleton" style="height:28px;width:35%"></div></div></div>
+      <div class="catalog-card"><div class="skeleton" style="aspect-ratio:16/10;border-radius:0"></div><div class="catalog-card-body"><div class="skeleton" style="height:14px;width:40%"></div><div class="skeleton" style="height:20px;width:60%"></div><div class="skeleton" style="height:28px;width:35%"></div></div></div>
+      <div class="catalog-card"><div class="skeleton" style="aspect-ratio:16/10;border-radius:0"></div><div class="catalog-card-body"><div class="skeleton" style="height:14px;width:40%"></div><div class="skeleton" style="height:20px;width:65%"></div><div class="skeleton" style="height:28px;width:35%"></div></div></div>
+    </div>
+  </section>
+
+  <section class="section cta-band">
+    <div><h2>Não achou o que procura?</h2><p>Conte o que você precisa. Se estiver ao nosso alcance, a equipe responde com uma proposta.</p></div>
+    <a class="btn btn-primary" href="/suporte">Falar com a equipe <span aria-hidden="true">→</span></a>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand"><a class="brand" href="/"><span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.1 7.4 7.4 2.1-7.4 2.1L12 21.5l-2.1-7.4L2.5 12l7.4-2.1z" fill="currentColor"/></svg></span><span class="brand-name">SORASAKI</span></a><p>Um bot que protege grupos de WhatsApp e uma vitrine para comunidades. Trocas, vendas e serviços.</p></div>
+    <div class="footer-col"><h4>Explorar</h4><a href="/grupos">Grupos</a><a href="/catalogo">Catálogo</a><a href="/noticias">Notícias</a><a href="/sobre">Sobre</a></div>
+    <div class="footer-col"><h4>Bot e ajuda</h4><a href="/status">Status</a><a href="/estatisticas">Estatísticas</a><a href="/suporte">Suporte</a><a href="/feedback">Avaliações e bugs</a></div>
+  </div>
+  <div class="footer-bottom"><span>© 2026 Sorasaki</span><span>Trocas · Vendas · Serviços</span></div>
+</footer>
+
+<script src="/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/app.js?v=20260911"></script>
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const whatsapp = String(window.SORASAKI_CONTACT?.whatsapp || "").replace(/\D/g, "");
+  let produtos = [];
+  let categoria = "todas";
+
+  function card(p) {
+    const price = Number(p.promo_price ?? p.price);
+    const old = p.promo_price != null ? Number(p.price) : Number(p.previous_price || 0);
+    const texto = encodeURIComponent(`Olá! Vi no catálogo do Sorasaki e tenho interesse em: ${p.name} (${fmtMoeda(price)}).`);
+    return `<article class="catalog-card">
+      ${p.image_url ? `<img src="${escapeHtml(p.image_url)}" alt="${escapeHtml(p.name)}" loading="lazy">` : ""}
+      <div class="catalog-card-body">
+        ${p.category ? `<span class="catalog-category">${escapeHtml(p.category)}</span>` : ""}
+        <h2>${escapeHtml(p.name)}</h2>
+        <div>${old > price ? `<span class="catalog-old">${fmtMoeda(old)}</span> ` : ""}<span class="catalog-price">${fmtMoeda(price)}</span></div>
+        ${p.description ? `<p>${escapeHtml(p.description)}</p>` : ""}
+        ${whatsapp ? `<a class="btn btn-primary" style="margin-top:6px" href="https://wa.me/${whatsapp}?text=${texto}" target="_blank" rel="noopener noreferrer">Tenho interesse <span aria-hidden="true">↗</span></a>` : ""}
+      </div>
+    </article>`;
+  }
+
+  function render() {
+    const lista = produtos.filter((p) => categoria === "todas" || (p.category || "Outros") === categoria);
+    $("catalogGrid").innerHTML = lista.map(card).join("") || Sora.emptyState("Nenhum produto nesta categoria.", "Escolha outra categoria acima.", { icon: "search" });
+    $("catalogCount").textContent = `${lista.length} ${lista.length === 1 ? "item" : "itens"}`;
+  }
+
+  async function load() {
+    const box = $("catalogGrid");
+    box.setAttribute("aria-busy", "true");
+    try {
+      const r = await Sora.fetchJson("/api/public-content?type=products");
+      if (!r.ok || !r.body?.ok) throw new Error("catálogo indisponível");
+      produtos = r.body.products || [];
+      if (!produtos.length) {
+        box.innerHTML = Sora.emptyState("Nenhum produto publicado no momento.", "Novidades aparecem aqui assim que a equipe cadastrar. Enquanto isso, fale com a gente pelo Suporte.");
+        return;
+      }
+      const cats = [...new Set(produtos.map((p) => p.category || "Outros"))];
+      if (cats.length > 1) {
+        $("catalogToolbar").hidden = false;
+        $("catalogFilters").innerHTML = ["todas", ...cats].map((c) => `<button class="chip ${c === "todas" ? "active" : ""}" type="button" data-cat="${escapeHtml(c)}" aria-pressed="${c === "todas"}">${c === "todas" ? "Todas" : escapeHtml(c)}</button>`).join("");
+        $("catalogFilters").querySelectorAll("[data-cat]").forEach((b) => {
+          b.onclick = () => {
+            categoria = b.dataset.cat;
+            $("catalogFilters").querySelectorAll("[data-cat]").forEach((x) => { x.classList.toggle("active", x === b); x.setAttribute("aria-pressed", String(x === b)); });
+            render();
+          };
+        });
+      }
+      render();
+    } catch (e) {
+      console.warn("[SORASAKI] Catálogo:", e);
+      box.innerHTML = Sora.emptyState("Não foi possível carregar o catálogo.", "Verifique sua conexão e tente novamente.", { retry: true });
+      box.querySelector("[data-retry]").onclick = load;
+    } finally {
+      box.setAttribute("aria-busy", "false");
+    }
+  }
+  load();
+})();
+</script>
+</body>
+</html>

@@ -1,15 +1,118 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://xwrsjfxsmpuqneriptfw.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self';">
-<title>Sorasaki — Notícias</title><link rel="stylesheet" href="style.css?v=20260908e">
-<style>.news-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.news-card{overflow:hidden}.news-card img{width:100%;height:190px;object-fit:cover;border-radius:12px}.news-card h2{margin:10px 0 6px}.news-card p{color:#92899b;line-height:1.6}.news-meta{font-size:9px;color:#756c80;text-transform:uppercase;letter-spacing:.08em}.news-alert{margin-bottom:14px}.news-empty{padding:35px;text-align:center;color:#81798c}@media(max-width:700px){.news-grid{grid-template-columns:1fr}}</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self'; connect-src 'self' https://ponte-m7br.onrender.com https://xwrsjfxsmpuqneriptfw.supabase.co wss://xwrsjfxsmpuqneriptfw.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Notícias — Sorasaki</title>
+<meta name="description" content="Novidades, atualizações do bot e avisos da equipe do Sorasaki.">
+<link rel="canonical" href="https://www.sorasakiplatform.store/noticias">
+<meta name="theme-color" content="#0c0b10">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Sorasaki">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:url" content="https://www.sorasakiplatform.store/noticias">
+<meta property="og:title" content="Novidades do Sorasaki">
+<meta property="og:description" content="Atualizações do bot, recursos novos e avisos da equipe.">
+<meta property="og:image" content="https://www.sorasakiplatform.store/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Novidades do Sorasaki">
+<meta name="twitter:description" content="Atualizações do bot, recursos novos e avisos da equipe.">
+<meta name="twitter:image" content="https://www.sorasakiplatform.store/og-image.jpg">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="preload" href="/fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/style.css?v=20260911">
 </head>
 <body>
-<div class="topbar"><div class="brand"><span class="dot"></span><div>Sorasaki<small>Novidades e atualizações</small></div></div><nav><a href="/">Resumo</a><a href="/grupos">Grupos</a><a href="/catalogo">Catálogo</a><a href="/noticias" class="active">Notícias</a><a href="/sobre">Sobre</a><a href="/suporte">Suporte</a></nav></div>
-<main><section class="groups-hero"><div><span class="eyebrow">📰 CENTRAL DE NOVIDADES</span><h1>Fique por dentro do <span>SORASAKI.</span></h1><p>Atualizações, recursos, avisos e novidades publicadas pela equipe.</p></div></section>
-<div id="notices"></div><section class="panel"><div class="section-heading"><div><span class="eyebrow">✦ ATUALIZAÇÕES</span><h2>Últimas notícias</h2></div></div><div id="newsGrid" class="news-grid"><div class="news-empty">Carregando novidades...</div></div></section></main>
-<script src="config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="app.js?v=20260909a"></script>
-<script>(async()=>{try{const r=await fetch('/api/public-content?type=all',{cache:'no-store',headers:{Accept:'application/json'}}),d=await r.json();if(!r.ok||!d?.ok)throw new Error('content');const esc=v=>String(v??'').replace(/[&<>'"]/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[x]));document.getElementById('notices').innerHTML=(d.notices||[]).map(x=>`<div class="aviso news-alert" style="display:block"><strong>📌 ${esc(x.title)}</strong><br>${esc(x.message)}</div>`).join('');document.getElementById('newsGrid').innerHTML=(d.news||[]).map(x=>`<article class="panel news-card">${x.image_url?`<img src="${esc(x.image_url)}" alt="" loading="lazy">`:''}<div class="news-meta">${esc(x.category)} · ${new Date(x.publish_at).toLocaleDateString('pt-BR')}</div><h2>${esc(x.title)}</h2><p>${esc(x.summary||String(x.content||'').slice(0,260))}</p><details><summary>Ver notícia completa</summary><p>${esc(x.content)}</p></details></article>`).join('')||'<div class="news-empty">Nenhuma novidade publicada ainda.</div>';}catch(e){document.getElementById('newsGrid').innerHTML='<div class="news-empty">Não foi possível carregar as novidades.</div>';console.error('[SORASAKI] Notícias:',e)}})();</script>
-</body></html>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="/" aria-label="Sorasaki, página inicial"><span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.1 7.4 7.4 2.1-7.4 2.1L12 21.5l-2.1-7.4L2.5 12l7.4-2.1z" fill="currentColor"/></svg></span><span class="brand-name">SORASAKI</span></a>
+    <nav class="site-nav" aria-label="Principal"><a href="/grupos">Grupos</a><a href="/catalogo">Catálogo</a><a href="/noticias">Notícias</a><a href="/status">Status</a><a href="/estatisticas">Estatísticas</a><a href="/suporte">Suporte</a></nav>
+    <div class="topbar-actions">
+      <span class="bot-status" data-bot-status><span class="status-dot"></span><span data-bot-status-text>Verificando o bot</span></span>
+      <button class="sora-login-trigger" type="button" aria-label="Entrar ou criar conta"><span class="login-avatar" aria-hidden="true"></span><span class="login-trigger-label">Entrar</span></button>
+      <button class="menu-trigger" type="button" aria-label="Abrir menu" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<main id="conteudo">
+  <div class="page-head">
+    <span class="eyebrow">Notícias</span>
+    <h1>O que há de novo.</h1>
+    <p class="lead">Atualizações do bot, recursos novos e avisos importantes, publicados pela equipe.</p>
+  </div>
+
+  <div id="notices" class="notice-list section-sm" hidden></div>
+
+  <section class="section-sm">
+    <div id="newsGrid" class="news-grid" aria-busy="true">
+      <div class="panel news-card"><div class="skeleton" style="aspect-ratio:16/9"></div><div class="skeleton" style="height:12px;width:30%"></div><div class="skeleton" style="height:22px;width:80%"></div><div class="skeleton" style="height:48px"></div></div>
+      <div class="panel news-card"><div class="skeleton" style="aspect-ratio:16/9"></div><div class="skeleton" style="height:12px;width:30%"></div><div class="skeleton" style="height:22px;width:70%"></div><div class="skeleton" style="height:48px"></div></div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand"><a class="brand" href="/"><span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.1 7.4 7.4 2.1-7.4 2.1L12 21.5l-2.1-7.4L2.5 12l7.4-2.1z" fill="currentColor"/></svg></span><span class="brand-name">SORASAKI</span></a><p>Um bot que protege grupos de WhatsApp e uma vitrine para comunidades. Trocas, vendas e serviços.</p></div>
+    <div class="footer-col"><h4>Explorar</h4><a href="/grupos">Grupos</a><a href="/catalogo">Catálogo</a><a href="/noticias">Notícias</a><a href="/sobre">Sobre</a></div>
+    <div class="footer-col"><h4>Bot e ajuda</h4><a href="/status">Status</a><a href="/estatisticas">Estatísticas</a><a href="/suporte">Suporte</a><a href="/feedback">Avaliações e bugs</a></div>
+  </div>
+  <div class="footer-bottom"><span>© 2026 Sorasaki</span><span>Trocas · Vendas · Serviços</span></div>
+</footer>
+
+<script src="/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/app.js?v=20260911"></script>
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  async function load() {
+    const grid = $("newsGrid");
+    grid.setAttribute("aria-busy", "true");
+    try {
+      const r = await Sora.fetchJson("/api/public-content?type=all");
+      if (!r.ok || !r.body?.ok) throw new Error("notícias indisponíveis");
+      const d = r.body;
+      const tipo = { info: "info", success: "success", warning: "", danger: "danger" };
+      const notices = d.notices || [];
+      $("notices").innerHTML = notices.map((n) => `<div class="notice-banner ${tipo[n.notice_type] ?? "info"}" role="note"><div><strong>${escapeHtml(n.title)}</strong>${escapeHtml(n.message)}</div></div>`).join("");
+      $("notices").hidden = !notices.length;
+      const news = d.news || [];
+      grid.innerHTML = news.map((n) => {
+        const resumo = n.summary || String(n.content || "").slice(0, 260);
+        const temMais = n.content && n.content.trim() !== resumo.trim();
+        return `<article class="panel news-card" id="noticia-${n.id}">
+          ${n.image_url ? `<img src="${escapeHtml(n.image_url)}" alt="" loading="lazy">` : ""}
+          <div class="news-meta">${escapeHtml(n.category || "Novidade")} · <time datetime="${escapeHtml(n.publish_at)}">${fmtData(n.publish_at)}</time></div>
+          <h2>${escapeHtml(n.title)}</h2>
+          <p>${escapeHtml(resumo)}</p>
+          ${temMais ? `<details><summary>Ler a notícia completa</summary><p>${escapeHtml(n.content)}</p></details>` : ""}
+        </article>`;
+      }).join("") || Sora.emptyState("Nenhuma notícia publicada ainda.", "Quando a equipe publicar uma novidade, ela aparece aqui.");
+      if (location.hash.startsWith("#noticia-")) {
+        const alvo = document.querySelector(location.hash);
+        if (alvo) { alvo.querySelector("details")?.setAttribute("open", ""); alvo.scrollIntoView({ block: "start" }); }
+      }
+    } catch (e) {
+      console.warn("[SORASAKI] Notícias:", e);
+      grid.innerHTML = Sora.emptyState("Não foi possível carregar as novidades.", "Verifique sua conexão e tente novamente.", { retry: true });
+      grid.querySelector("[data-retry]").onclick = load;
+    } finally {
+      grid.setAttribute("aria-busy", "false");
+    }
+  }
+  load();
+})();
+</script>
+</body>
+</html>

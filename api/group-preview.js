@@ -1,5 +1,8 @@
-const crypto = require('crypto');
-const { supabaseRequest, getUserFromAccessToken, bearerToken } = require('./_supabase');
+import crypto from 'node:crypto';
+import {
+  supabaseRequest, getUserFromAccessToken, bearerToken, readJsonBody, sendJson,
+  isActiveAdmin, supabaseUrl, serviceRoleKey
+} from './_supabase.js';
 
 const MAX_HTML = 1024 * 1024;
 const MAX_IMAGE = 5 * 1024 * 1024;
@@ -8,21 +11,28 @@ const ALLOWED_HOSTS = [
   't.me', 'telegram.me',
   'discord.gg', 'discord.com', 'www.discord.com'
 ];
-const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg','image/png','image/webp','image/gif']);
-const lookupRate = new Map();
-function allowLookup(userId){const now=Date.now(),windowMs=60_000,max=12;const list=(lookupRate.get(userId)||[]).filter(ts=>now-ts<windowMs);if(list.length>=max){lookupRate.set(userId,list);return false;}list.push(now);lookupRate.set(userId,list);return true;}
+const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+const USER_AGENT = 'SorasakiGroupPreview/1.0 (+https://sorasakiplatform.store)';
 
-function json(res, status, body) {
-  res.status(status).setHeader('Cache-Control', 'no-store').json(body);
+// Limite simples por instância para evitar abuso da consulta de convites.
+const lookupRate = new Map();
+function allowLookup(userId) {
+  const now = Date.now(), windowMs = 60_000, max = 12;
+  const list = (lookupRate.get(userId) || []).filter((ts) => now - ts < windowMs);
+  if (list.length >= max) { lookupRate.set(userId, list); return false; }
+  list.push(now);
+  lookupRate.set(userId, list);
+  return true;
 }
+
 function hostAllowed(host) {
-  const h = String(host || '').toLowerCase().replace(/^www\./,'');
-  return ALLOWED_HOSTS.some(x => h === x || h.endsWith('.' + x));
+  const h = String(host || '').toLowerCase().replace(/^www\./, '');
+  return ALLOWED_HOSTS.some((x) => h === x || h.endsWith('.' + x));
 }
 function normalizeUrl(value) {
   try {
     const u = new URL(String(value || '').trim());
-    if (!['http:','https:'].includes(u.protocol)) return null;
+    if (!['http:', 'https:'].includes(u.protocol)) return null;
     if (!hostAllowed(u.hostname)) return null;
     return u;
   } catch { return null; }
@@ -30,14 +40,14 @@ function normalizeUrl(value) {
 function providerFor(u) {
   const h = u.hostname.toLowerCase();
   if (h === 'chat.whatsapp.com' || h.endsWith('.whatsapp.com')) return 'whatsapp';
-  if (h === 't.me' || h.endsWith('.telegram.me')) return 'telegram';
+  if (h === 't.me' || h.endsWith('.telegram.me') || h === 'telegram.me') return 'telegram';
   if (h === 'discord.gg' || h === 'discord.com' || h === 'www.discord.com') return 'discord';
   return 'unknown';
 }
 function decodeEntities(s) {
   return String(s || '')
-    .replace(/&amp;/gi,'&').replace(/&quot;/gi,'"').replace(/&#39;/gi,"'")
-    .replace(/&lt;/gi,'<').replace(/&gt;/gi,'>');
+    .replace(/&amp;/gi, '&').replace(/&quot;/gi, '"').replace(/&#39;/gi, "'")
+    .replace(/&lt;/gi, '<').replace(/&gt;/gi, '>');
 }
 function meta(html, key) {
   const re = new RegExp(`<meta[^>]+(?:property|name)=["']${key}["'][^>]+content=["']([^"']+)["'][^>]*>|<meta[^>]+content=["']([^"']+)["'][^>]+(?:property|name)=["']${key}["'][^>]*>`, 'i');
@@ -68,7 +78,7 @@ async function readLimited(response, limit) {
   const chunks = [];
   let total = 0;
   while (true) {
-    const {done, value} = await reader.read();
+    const { done, value } = await reader.read();
     if (done) break;
     total += value.byteLength;
     if (total > limit) {
@@ -82,10 +92,8 @@ async function readLimited(response, limit) {
 async function fetchPage(url) {
   const response = await fetch(url, {
     redirect: 'follow',
-    headers: {
-      'user-agent': 'SorasakiGroupPreview/1.0 (+https://sorasakiplatform.store)',
-      accept: 'text/html,application/xhtml+xml'
-    }
+    headers: { 'user-agent': USER_AGENT, accept: 'text/html,application/xhtml+xml' },
+    signal: AbortSignal.timeout(8000)
   });
   if (!response.ok) throw new Error('page_unavailable');
   const finalUrl = new URL(response.url || url);
@@ -95,10 +103,11 @@ async function fetchPage(url) {
 }
 async function fetchImage(imageUrl) {
   const u = new URL(imageUrl);
-  if (!['http:','https:'].includes(u.protocol)) throw new Error('image_url_invalid');
+  if (!['http:', 'https:'].includes(u.protocol)) throw new Error('image_url_invalid');
   const response = await fetch(u, {
     redirect: 'follow',
-    headers: { 'user-agent': 'SorasakiGroupPreview/1.0 (+https://sorasakiplatform.store)', accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8' }
+    headers: { 'user-agent': USER_AGENT, accept: 'image/avif,image/webp,image/apng,image/*,*/*;q=0.8' },
+    signal: AbortSignal.timeout(8000)
   });
   if (!response.ok) throw new Error('image_unavailable');
   const contentType = String(response.headers.get('content-type') || '').split(';')[0].toLowerCase();
@@ -108,16 +117,17 @@ async function fetchImage(imageUrl) {
   return { body, contentType };
 }
 function extension(type) {
-  return ({'image/jpeg':'jpg','image/png':'png','image/webp':'webp','image/gif':'gif'})[type] || 'bin';
+  return ({ 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' })[type] || 'bin';
 }
 async function uploadImage(buffer, contentType, ownerId, scope, hash) {
   const path = `${scope}/${ownerId}/${hash}.${extension(contentType)}`;
-  const url = `${process.env.SUPABASE_URL.replace(/\/+$/,'')}/storage/v1/object/group-images/${path}`;
-  const response = await fetch(url, {
+  const base = supabaseUrl();
+  const key = serviceRoleKey();
+  const response = await fetch(`${base}/storage/v1/object/group-images/${path}`, {
     method: 'POST',
     headers: {
-      apikey: process.env.SUPABASE_SERVICE_ROLE_KEY,
-      Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+      apikey: key,
+      Authorization: `Bearer ${key}`,
       'Content-Type': contentType,
       'x-upsert': 'true',
       'cache-control': 'public,max-age=31536000,immutable'
@@ -125,36 +135,35 @@ async function uploadImage(buffer, contentType, ownerId, scope, hash) {
     body: buffer
   });
   if (!response.ok) throw new Error('storage_upload_failed');
-  const publicUrl = `${process.env.SUPABASE_URL.replace(/\/+$/,'')}/storage/v1/object/public/group-images/${path.split('/').map(encodeURIComponent).join('/')}`;
+  const publicUrl = `${base}/storage/v1/object/public/group-images/${path.split('/').map(encodeURIComponent).join('/')}`;
   return { path, publicUrl };
 }
-async function adminUser(userId) {
-  const rows = await supabaseRequest(`/rest/v1/profiles?user_id=eq.${encodeURIComponent(userId)}&select=role,account_status&limit=1`);
-  return rows?.[0]?.role === 'admin' && rows?.[0]?.account_status === 'active';
-}
 
-module.exports = async (req, res) => {
-  if (req.method !== 'POST') return json(res, 405, { ok:false, message:'Ação não disponível.' });
+export default async function handler(req, res) {
+  res.setHeader('Cache-Control', 'no-store');
+  if (req.method !== 'POST') {
+    res.setHeader('Allow', 'POST');
+    return sendJson(res, 405, { ok: false, message: 'Ação não disponível.' });
+  }
   try {
-    const token = bearerToken(req);
-    const user = await getUserFromAccessToken(token);
-    if (!user) return json(res, 401, { ok:false, message:'Sua sessão expirou. Entre novamente.' });
-    if(!allowLookup(user.id)) return json(res,429,{ok:false,message:'Muitas tentativas de identificação. Aguarde um pouco e tente novamente.'});
-    const body = req.body || {};
+    const user = await getUserFromAccessToken(bearerToken(req));
+    if (!user) return sendJson(res, 401, { ok: false, message: 'Sua sessão expirou. Entre novamente.' });
+    if (!allowLookup(user.id)) return sendJson(res, 429, { ok: false, message: 'Muitas tentativas seguidas. Aguarde um pouco e tente novamente.' });
+    const body = readJsonBody(req) || {};
     const inviteUrl = normalizeUrl(body.invite_url);
-    if (!inviteUrl) return json(res, 400, { ok:false, message:'Informe um link público de grupo compatível.' });
+    if (!inviteUrl) return sendJson(res, 200, { ok: true, found: false, image_status: 'not_found', message: 'A foto automática funciona com convites do WhatsApp, Telegram e Discord. Você pode adicionar uma imagem manualmente.' });
     const provider = providerFor(inviteUrl);
     const { html, finalUrl } = await fetchPage(inviteUrl.toString());
-    const name = meta(html,'og:title') || meta(html,'twitter:title') || '';
-    const description = meta(html,'og:description') || meta(html,'twitter:description') || '';
-    let image = meta(html,'og:image') || meta(html,'twitter:image') || firstImageFromJsonLd(html) || '';
+    const name = meta(html, 'og:title') || meta(html, 'twitter:title') || '';
+    const description = meta(html, 'og:description') || meta(html, 'twitter:description') || '';
+    let image = meta(html, 'og:image') || meta(html, 'twitter:image') || firstImageFromJsonLd(html) || '';
     if (image) image = new URL(image, finalUrl).toString();
 
     let imageUrl = '';
     let imagePath = '';
     let imageHash = '';
     let imageStatus = 'not_found';
-    let imageMessage = 'Não foi possível encontrar uma foto pública para este grupo.';
+    let imageMessage = 'Não encontramos uma foto pública para este grupo. Você pode adicionar uma imagem manualmente.';
     if (image) {
       try {
         const fetched = await fetchImage(image);
@@ -164,8 +173,9 @@ module.exports = async (req, res) => {
         imageUrl = uploaded.publicUrl;
         imagePath = uploaded.path;
         imageStatus = 'found';
-        imageMessage = 'Foto pública identificada e salva com sucesso.';
+        imageMessage = 'Foto pública identificada e salva.';
       } catch (error) {
+        console.warn('group-preview: imagem não salva', error?.message);
         imageStatus = 'error';
         imageMessage = 'A foto pública não pôde ser salva. Você pode adicionar uma imagem manualmente.';
       }
@@ -174,28 +184,33 @@ module.exports = async (req, res) => {
     const entity = body.entity === 'official' ? 'official' : 'group';
     const id = Number(body.id || 0);
     if (id > 0) {
-      const isAdmin = await adminUser(user.id);
+      const isAdmin = await isActiveAdmin(user.id);
       let allowed = isAdmin;
       if (!allowed && entity === 'group') {
         const owned = await supabaseRequest(`/rest/v1/groups?id=eq.${id}&owner_id=eq.${encodeURIComponent(user.id)}&select=id&limit=1`);
         allowed = Boolean(owned?.length);
       }
-      if (!allowed) return json(res, 403, { ok:false, message:'Você não pode alterar esta divulgação.' });
-      const table = entity === 'official' ? 'official_groups' : 'groups';
-      const patch = entity === 'official'
-        ? { image_url:imageUrl || null, avatar_url:imageUrl || null, image_source:imageUrl ? 'auto':'fallback', image_status:imageStatus, image_checked_at:new Date().toISOString(), image_hash:imageHash || null }
-        : { avatar_url:imageUrl || null, avatar_source:imageUrl ? 'auto':'fallback', avatar_status:imageStatus, avatar_checked_at:new Date().toISOString(), avatar_hash:imageHash || null, avatar_path:imagePath || null };
-      await supabaseRequest(`/rest/v1/${table}?id=eq.${id}`, { method:'PATCH', body:JSON.stringify(patch) });
+      if (!allowed) return sendJson(res, 403, { ok: false, message: 'Você não pode alterar esta divulgação.' });
+      // Só grava a imagem quando uma foi encontrada — uma falha na busca não
+      // deve apagar a foto que a divulgação já tinha.
+      if (imageUrl) {
+        const table = entity === 'official' ? 'official_groups' : 'groups';
+        const patch = entity === 'official'
+          ? { image_url: imageUrl, avatar_url: imageUrl, image_source: 'auto', image_status: imageStatus, image_checked_at: new Date().toISOString(), image_hash: imageHash || null }
+          : { avatar_url: imageUrl, avatar_source: 'auto', avatar_status: imageStatus, avatar_checked_at: new Date().toISOString(), avatar_hash: imageHash || null, avatar_path: imagePath || null };
+        await supabaseRequest(`/rest/v1/${table}?id=eq.${id}`, { method: 'PATCH', body: JSON.stringify(patch) });
+      }
     }
 
-    return json(res, 200, {
-      ok:true, provider, found:Boolean(imageUrl), name:name.slice(0,100), description:description.slice(0,800),
-      image_url:imageUrl, image_path:imagePath, image_hash:imageHash, image_status:imageStatus, message:imageMessage
+    return sendJson(res, 200, {
+      ok: true, provider, found: Boolean(imageUrl), name: name.slice(0, 100), description: description.slice(0, 800),
+      image_url: imageUrl, image_path: imagePath, image_hash: imageHash, image_status: imageStatus, message: imageMessage
     });
   } catch (error) {
-    const publicMessage = error?.message === 'page_unavailable' || error?.message === 'redirect_not_allowed'
-      ? 'Não foi possível consultar as informações públicas desse convite.'
-      : error?.message === 'too_large' ? 'O conteúdo retornado é maior do que o permitido.' : 'Não foi possível identificar as informações públicas agora.';
-    return json(res, 200, { ok:true, found:false, image_status:'error', message:publicMessage });
+    console.warn('group-preview error', error?.status || '', error?.message || error);
+    const publicMessage = error?.message === 'too_large'
+      ? 'Não foi possível ler este convite. Você pode adicionar uma imagem manualmente.'
+      : 'Não foi possível consultar este convite agora. Você pode continuar e adicionar uma imagem manualmente.';
+    return sendJson(res, 200, { ok: true, found: false, image_status: 'error', message: publicMessage });
   }
-};
+}
