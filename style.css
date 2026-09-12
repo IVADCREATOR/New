@@ -72,6 +72,7 @@
   --fast: .16s;
   --normal: .26s;
 
+  --z-borboleta: 5;
   --z-assistant: 60;
   --z-header: 50;
   --z-overlay: 80;
@@ -351,6 +352,13 @@ main {
 .btn-ghost:hover { color: var(--text); background: rgba(255, 255, 255, .05); border-color: transparent; }
 .danger-button, .btn-danger { border-color: rgba(242, 131, 131, .35); color: var(--danger); background: transparent; }
 .danger-button:hover, .btn-danger:hover { background: var(--danger-soft); border-color: var(--danger); }
+.btn-google { background: var(--text); border-color: var(--text); color: #121018; }
+.btn-google:hover { background: #ffffff; border-color: #ffffff; }
+.btn-google svg { flex: none; }
+.auth-divider { display: flex; align-items: center; gap: 10px; margin: 14px 0; color: var(--faint); font-size: 12.5px; }
+.auth-divider::before, .auth-divider::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.turnstile-box { margin: 4px 0 14px; min-height: 1px; }
+.turnstile-box:empty { margin: 0; }
 .btn-sm { min-height: 36px; padding: 0 13px; font-size: 13.5px; }
 .btn-block { width: 100%; }
 .auth-link {
@@ -1506,3 +1514,29 @@ details.form-block > .form-block-body { display: grid; gap: 16px; }
 .reduce-motion *, .reduce-motion *::before, .reduce-motion *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
 .reduce-motion { scroll-behavior: auto; }
 .reduce-motion .reveal { opacity: 1; transform: none; }
+
+/* ===== Borboleta roxa — detalhe de identidade do Sorasaki ===== */
+.sora-borboleta-camada { position: fixed; inset: 0; z-index: var(--z-borboleta); pointer-events: none; overflow: hidden; }
+.sora-borboleta {
+  position: absolute; top: 0; left: 0; width: 30px; height: 30px;
+  pointer-events: auto; cursor: default; opacity: 0;
+  offset-rotate: 0deg;
+  animation-name: sbVoo; animation-timing-function: linear; animation-fill-mode: forwards;
+  filter: drop-shadow(0 2px 8px rgba(185, 161, 255, .35));
+  will-change: offset-distance, opacity;
+}
+.sora-borboleta svg { display: block; width: 100%; height: 100%; }
+.sora-borboleta .asa { transform-box: fill-box; transform-origin: center; animation: sbAsa .3s ease-in-out infinite alternate; }
+.sora-borboleta .asa-dir { animation-delay: .04s; }
+.sora-borboleta.ir-embora { animation: sbSumir .45s var(--ease) forwards; }
+@keyframes sbVoo {
+  0% { offset-distance: 0%; opacity: 0; }
+  6% { opacity: .9; }
+  90% { opacity: .9; }
+  100% { offset-distance: 100%; opacity: 0; }
+}
+@keyframes sbAsa { from { transform: scaleX(1); } to { transform: scaleX(.5); } }
+@keyframes sbSumir { to { opacity: 0; transform: scale(.6); } }
+@media (prefers-reduced-motion: reduce) { .sora-borboleta-camada { display: none; } }
+.reduce-motion .sora-borboleta-camada { display: none; }
+@media (max-width: 480px) { .sora-borboleta { width: 24px; height: 24px; } }

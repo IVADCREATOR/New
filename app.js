@@ -11,6 +11,63 @@
    Páginas usam window.Sora (utilidades) e window.SorasakiAuth (conta).
    ========================================================================= */
 
+/* ===== 0. Analytics e proteção contra robôs (config vem do Supabase, não do código) ===== */
+(function () {
+  try {
+    if (!sessionStorage.getItem("sora_entry_page")) {
+      sessionStorage.setItem("sora_entry_page", location.pathname + location.search);
+      sessionStorage.setItem("sora_entry_ref", document.referrer || "");
+    }
+  } catch {}
+})();
+
+let configPublicaPromise = null;
+function carregarConfigPublica() {
+  if (!configPublicaPromise) {
+    configPublicaPromise = fetch("/api/public-settings", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .catch(() => null);
+  }
+  return configPublicaPromise;
+}
+
+function ligarGoogleAnalytics(id) {
+  if (!id || window.__soraGaLigado) return;
+  window.__soraGaLigado = true;
+  const s = document.createElement("script");
+  s.async = true;
+  s.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(id);
+  document.head.appendChild(s);
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function () { window.dataLayer.push(arguments); };
+  window.gtag("js", new Date());
+  // anonymize_ip: a localização detalhada já é registrada à parte (no
+  // cadastro, via cabeçalhos do servidor); aqui o GA fica só com o
+  // comportamento de navegação, sem precisar do IP completo.
+  window.gtag("config", id, { anonymize_ip: true });
+}
+
+let turnstileScriptPromise = null;
+function garantirScriptTurnstile() {
+  if (!turnstileScriptPromise) {
+    turnstileScriptPromise = new Promise((resolve) => {
+      if (window.turnstile) return resolve(true);
+      const s = document.createElement("script");
+      s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+      s.async = true;
+      s.defer = true;
+      s.onload = () => resolve(true);
+      s.onerror = () => resolve(false);
+      document.head.appendChild(s);
+    });
+  }
+  return turnstileScriptPromise;
+}
+
+function iniciarConfigPublica() {
+  carregarConfigPublica().then((cfg) => { if (cfg?.ga_measurement_id) ligarGoogleAnalytics(cfg.ga_measurement_id); });
+}
+
 /* ===== 1. Utilidades ===== */
 const MAPA_ESCAPE_HTML = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
 function escapeHtml(valor) {
@@ -470,6 +527,7 @@ const ICONE_GOOGLE = '<svg viewBox="0 0 18 18" aria-hidden="true" width="18" hei
       const antes = currentUser?.id;
       currentUser = session?.user || null;
       if (event === "PASSWORD_RECOVERY") { openLogin("reset"); }
+      if (event === "SIGNED_IN") registrarContextoCadastro(session);
       if (antes !== currentUser?.id || event !== "TOKEN_REFRESHED") notify(event);
     });
     try {
@@ -482,6 +540,25 @@ const ICONE_GOOGLE = '<svg viewBox="0 0 18 18" aria-hidden="true" width="18" hei
     resolveReady();
     notify("INITIAL");
     tratarRetornoDeEmail();
+  }
+
+  // Manda pro servidor o contexto de quando a conta foi criada (IP e
+  // localização vêm do servidor, não do navegador). Idempotente: pode
+  // rodar em todo login que o backend só grava na primeira vez.
+  function registrarContextoCadastro(session) {
+    try {
+      if (!session?.access_token) return;
+      if (sessionStorage.getItem("sora_signup_tracked")) return;
+      sessionStorage.setItem("sora_signup_tracked", "1");
+      fetch("/api/track-signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({
+          entry_page: sessionStorage.getItem("sora_entry_page") || location.pathname,
+          referrer: sessionStorage.getItem("sora_entry_ref") || document.referrer || ""
+        })
+      }).catch(() => {});
+    } catch {}
   }
 
   function tratarRetornoDeEmail() {
@@ -585,6 +662,7 @@ const ICONE_GOOGLE = '<svg viewBox="0 0 18 18" aria-hidden="true" width="18" hei
               <label>E-mail<input id="registerEmail" type="email" autocomplete="email" inputmode="email" required placeholder="voce@exemplo.com"></label>
               <label>Senha<div class="password-wrap"><input id="registerPassword" type="password" autocomplete="new-password" minlength="8" required placeholder="Mínimo de 8 caracteres"><button type="button" class="password-toggle" data-toggle-password="registerPassword">Mostrar</button></div></label>
               <label>Confirmar senha<input id="registerConfirm" type="password" autocomplete="new-password" required placeholder="Digite a senha novamente"></label>
+              <div id="turnstileBox" class="turnstile-box"></div>
               <button class="btn btn-primary btn-block" id="authRegister" type="submit">Criar conta</button>
               <div class="auth-result" id="registerResult" aria-live="polite"></div>
             </form>
@@ -646,6 +724,30 @@ const ICONE_GOOGLE = '<svg viewBox="0 0 18 18" aria-hidden="true" width="18" hei
     const show = (id, ok, msg) => Sora.showResult($(id), ok === true ? "ok" : ok === "info" ? "info" : "error", msg);
     const validEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
 
+    // Turnstile (anti-robô) no cadastro: só é ativado se houver uma site key
+    // configurada no Supabase. Sem ela, o cadastro continua funcionando
+    // normalmente — o Turnstile é uma camada extra, não uma trava dura.
+    let turnstileWidgetId = null;
+    let turnstileToken = "";
+    function resetTurnstile() {
+      turnstileToken = "";
+      if (turnstileWidgetId !== null && window.turnstile) { try { window.turnstile.reset(turnstileWidgetId); } catch {} }
+    }
+    carregarConfigPublica().then(async (cfg) => {
+      const siteKey = cfg?.turnstile_site_key;
+      const box = $("turnstileBox");
+      if (!siteKey || !box) return;
+      const ok = await garantirScriptTurnstile();
+      if (!ok || !window.turnstile) return;
+      turnstileWidgetId = window.turnstile.render(box, {
+        sitekey: siteKey,
+        theme: "dark",
+        callback: (token) => { turnstileToken = token; },
+        "expired-callback": () => { turnstileToken = ""; },
+        "error-callback": () => { turnstileToken = ""; }
+      });
+    });
+
     // Login com Google: o Supabase cuida do OAuth e da volta para o site
     // (detectSessionInUrl já está ligado no cliente). Se a conta ainda não
     // existir, ela é criada automaticamente pelo mesmo trigger que cria o
@@ -700,13 +802,14 @@ const ICONE_GOOGLE = '<svg viewBox="0 0 18 18" aria-hidden="true" width="18" hei
       if (!validEmail(email)) return show("registerResult", false, "Confira o e-mail digitado.");
       if (password.length < 8) return show("registerResult", false, "A senha precisa ter pelo menos 8 caracteres.");
       if (password !== confirm) return show("registerResult", false, "As senhas não coincidem.");
+      if (turnstileWidgetId !== null && !turnstileToken) return show("registerResult", false, "Confirme que você não é um robô antes de continuar.");
       const btn = $("authRegister");
       Sora.setBusy(btn, true, "Criando conta…");
       show("registerResult", null, "");
       try {
         const { data, error } = await c.auth.signUp({
           email, password,
-          options: { emailRedirectTo: location.origin + location.pathname, data: { username, display_name: username } }
+          options: { emailRedirectTo: location.origin + location.pathname, data: { username, display_name: username }, captchaToken: turnstileToken || undefined }
         });
         if (error) return show("registerResult", false, traduzAuthError(error));
         pendingSignupEmail = email;
@@ -722,7 +825,7 @@ const ICONE_GOOGLE = '<svg viewBox="0 0 18 18" aria-hidden="true" width="18" hei
       } catch (err) {
         console.error("[SORASAKI] Cadastro:", err);
         show("registerResult", false, traduzAuthError(err));
-      } finally { Sora.setBusy(btn, false); }
+      } finally { Sora.setBusy(btn, false); resetTurnstile(); }
     };
 
     $("authResendSignup").onclick = async () => {
@@ -1333,6 +1436,7 @@ function iniciarSorasaki() {
   criarAssistente();
   ligarRevelacao();
   criarBorboleta();
+  iniciarConfigPublica();
 
   const aviso = document.getElementById("avisoConexao");
   if (aviso) {
