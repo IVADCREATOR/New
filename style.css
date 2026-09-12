@@ -1527,28 +1527,44 @@ details.form-block > .form-block-body { display: grid; gap: 16px; }
 .reduce-motion { scroll-behavior: auto; }
 .reduce-motion .reveal { opacity: 1; transform: none; }
 
-/* ===== Borboleta roxa — detalhe de identidade do Sorasaki ===== */
+/* ===== Borboletas roxas — detalhe de identidade do Sorasaki =====
+   Voam atrás do conteúdo, em três planos de profundidade (longe/média/perto).
+   O "sumiço" do fundo preto das imagens é feito com mix-blend-mode: screen —
+   como o site já é quase preto, o preto da imagem some e só a borboleta fica
+   visível, sem precisar de recorte/transparência manual. */
 .sora-borboleta-camada { position: fixed; inset: 0; z-index: var(--z-borboleta); pointer-events: none; overflow: hidden; }
 .sora-borboleta {
-  position: absolute; top: 0; left: 0; width: 30px; height: 30px;
-  pointer-events: auto; cursor: default; opacity: 0;
-  offset-rotate: 0deg;
-  animation-name: sbVoo; animation-timing-function: linear; animation-fill-mode: forwards;
-  filter: drop-shadow(0 2px 8px rgba(185, 161, 255, .35));
-  will-change: offset-distance, opacity;
+  position: absolute; top: 0; left: 0;
+  offset-rotate: 0deg; animation-name: sbVoo; animation-fill-mode: forwards; animation-timing-function: linear;
+  opacity: 0; will-change: offset-distance, opacity;
 }
-.sora-borboleta svg { display: block; width: 100%; height: 100%; }
-.sora-borboleta .asa { transform-box: fill-box; transform-origin: center; animation: sbAsa .3s ease-in-out infinite alternate; }
-.sora-borboleta .asa-dir { animation-delay: .04s; }
-.sora-borboleta.ir-embora { animation: sbSumir .45s var(--ease) forwards; }
+.sora-b-bob { animation: sbBob ease-in-out infinite alternate; }
+.sora-b-img { display: block; width: 100%; height: auto; mix-blend-mode: screen; -webkit-mix-blend-mode: screen; animation: sbAsa ease-in-out infinite alternate; }
+
+.sora-borboleta.plano-longe { width: 26px; }
+.sora-borboleta.plano-longe .sora-b-img { opacity: .38; filter: blur(1px) saturate(1.05); }
+.sora-borboleta.plano-media { width: 40px; }
+.sora-borboleta.plano-media .sora-b-img { opacity: .62; filter: blur(.3px) saturate(1.05); }
+.sora-borboleta.plano-perto { width: 56px; }
+.sora-borboleta.plano-perto .sora-b-img { opacity: .88; filter: saturate(1.08) drop-shadow(0 3px 10px rgba(150, 110, 255, .25)); }
+
 @keyframes sbVoo {
   0% { offset-distance: 0%; opacity: 0; }
-  6% { opacity: .9; }
-  90% { opacity: .9; }
+  6% { opacity: 1; }
+  15% { offset-distance: 18%; }
+  38% { offset-distance: 46%; }
+  60% { offset-distance: 63%; }
+  86% { offset-distance: 92%; }
+  93% { opacity: 1; }
   100% { offset-distance: 100%; opacity: 0; }
 }
-@keyframes sbAsa { from { transform: scaleX(1); } to { transform: scaleX(.5); } }
-@keyframes sbSumir { to { opacity: 0; transform: scale(.6); } }
+@keyframes sbBob { from { transform: translateY(-5px) rotate(-2.5deg); } to { transform: translateY(6px) rotate(2.5deg); } }
+@keyframes sbAsa { from { transform: scaleX(1); } to { transform: scaleX(.86); } }
+
 @media (prefers-reduced-motion: reduce) { .sora-borboleta-camada { display: none; } }
 .reduce-motion .sora-borboleta-camada { display: none; }
-@media (max-width: 480px) { .sora-borboleta { width: 24px; height: 24px; } }
+@media (max-width: 480px) {
+  .sora-borboleta.plano-longe { width: 20px; }
+  .sora-borboleta.plano-media { width: 30px; }
+  .sora-borboleta.plano-perto { width: 42px; }
+}

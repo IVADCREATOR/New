@@ -1219,13 +1219,15 @@ function ligarRevelacao() {
   });
 }
 
-// Borboleta roxa — detalhe de identidade. Atravessa a tela de vez em quando,
-// sem atrapalhar: não bloqueia cliques, some com toque/clique nela, e
-// respeita a preferência de movimento reduzido (do sistema e da página
-// Configurações). Some totalmente se o navegador não suportar offset-path.
+// Borboletas roxas — usam as imagens em /img/borboleta-*.webp. O fundo quase
+// preto de cada imagem "some" contra o fundo do site com mix-blend-mode:
+// screen (nenhum recorte manual necessário). Voam atrás do conteúdo, sem
+// bloquear cliques, e respeitam a preferência de movimento reduzido.
 function motionReduzido() {
   return document.documentElement.classList.contains("reduce-motion") || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
+
+const SORA_BORBOLETA_SPRITES = ["/img/borboleta-1.webp", "/img/borboleta-2.webp", "/img/borboleta-3.webp", "/img/borboleta-4.webp"];
 
 function criarBorboleta() {
   if (motionReduzido()) return;
@@ -1235,55 +1237,78 @@ function criarBorboleta() {
   camada.className = "sora-borboleta-camada";
   document.body.appendChild(camada);
 
+  // Trajetória: uma curva única (bezier cúbica) com pontos de controle
+  // aleatórios acima/abaixo da linha reta — isso já cria naturalmente subida,
+  // descida e mudança de direção ao longo do voo.
   function caminhoAleatorio() {
     const w = window.innerWidth, h = window.innerHeight;
     const daEsquerda = Math.random() < 0.5;
-    const y0 = h * (0.12 + Math.random() * 0.35);
-    const y1 = h * (0.15 + Math.random() * 0.5);
-    const yMeio = h * (0.05 + Math.random() * 0.55);
-    const x0 = daEsquerda ? -60 : w + 60;
-    const x1 = daEsquerda ? w + 60 : -60;
-    const xm1 = w * (0.25 + Math.random() * 0.2);
-    const xm2 = w * (0.55 + Math.random() * 0.2);
-    return `path('M ${x0} ${y0} C ${xm1} ${yMeio}, ${xm2} ${yMeio}, ${x1} ${y1}')`;
+    const y0 = h * (0.12 + Math.random() * 0.68);
+    const y1 = h * (0.12 + Math.random() * 0.68);
+    const cp1y = h * (0.04 + Math.random() * 0.75);
+    const cp2y = h * (0.04 + Math.random() * 0.75);
+    const x0 = daEsquerda ? -70 : w + 70;
+    const x1 = daEsquerda ? w + 70 : -70;
+    const cp1x = w * (0.16 + Math.random() * 0.22);
+    const cp2x = w * (0.58 + Math.random() * 0.24);
+    return `path('M ${x0.toFixed(0)} ${y0.toFixed(0)} C ${cp1x.toFixed(0)} ${cp1y.toFixed(0)}, ${cp2x.toFixed(0)} ${cp2y.toFixed(0)}, ${x1.toFixed(0)} ${y1.toFixed(0)}')`;
   }
 
-  function ciclo() {
-    const espera = 24000 + Math.random() * 40000; // entre 24s e 64s
-    setTimeout(() => { document.hidden ? ciclo() : voar(); }, espera);
+  // Três planos de profundidade — cada um mantém no máximo uma borboleta por
+  // vez, para não empilhar elementos. As mais distantes voam mais devagar.
+  const pequena = window.matchMedia("(max-width: 640px)").matches;
+  const planos = pequena
+    ? [
+        { classe: "plano-media", min: 22000, max: 34000, pausaMin: 8000, pausaMax: 26000 },
+        { classe: "plano-longe", min: 34000, max: 50000, pausaMin: 14000, pausaMax: 34000 }
+      ]
+    : [
+        { classe: "plano-perto", min: 13000, max: 19000, pausaMin: 6000, pausaMax: 20000 },
+        { classe: "plano-media", min: 19000, max: 28000, pausaMin: 9000, pausaMax: 26000 },
+        { classe: "plano-longe", min: 30000, max: 46000, pausaMin: 14000, pausaMax: 34000 }
+      ];
+
+  function loopPlano(info, atrasoInicial) {
+    function ciclo() {
+      const espera = info.pausaMin + Math.random() * (info.pausaMax - info.pausaMin);
+      setTimeout(() => { document.hidden ? ciclo() : voar(); }, espera);
+    }
+
+    function voar() {
+      const el = document.createElement("div");
+      el.className = "sora-borboleta " + info.classe;
+      const bob = document.createElement("div");
+      bob.className = "sora-b-bob";
+      const img = document.createElement("img");
+      img.className = "sora-b-img";
+      img.src = SORA_BORBOLETA_SPRITES[Math.floor(Math.random() * SORA_BORBOLETA_SPRITES.length)];
+      img.alt = "";
+      img.loading = "eager";
+      img.decoding = "async";
+      img.setAttribute("aria-hidden", "true");
+      bob.appendChild(img);
+      el.appendChild(bob);
+
+      const duracao = (info.min + Math.random() * (info.max - info.min)) / 1000;
+      el.style.offsetPath = caminhoAleatorio();
+      el.style.animationDuration = duracao.toFixed(1) + "s";
+      bob.style.animationDuration = (3 + Math.random() * 2.4).toFixed(1) + "s";
+      img.style.animationDuration = (0.9 + Math.random() * 0.7).toFixed(1) + "s";
+      // pequeno atraso aleatório entre o bater de asas e o balanço, pra não
+      // ficarem sincronizados entre borboletas diferentes.
+      img.style.animationDelay = (Math.random() * -1).toFixed(2) + "s";
+      camada.appendChild(el);
+
+      let saiu = false;
+      const remover = () => { if (saiu) return; saiu = true; el.remove(); ciclo(); };
+      el.addEventListener("animationend", (e) => { if (e.target === el) remover(); });
+      setTimeout(remover, (duracao + 2) * 1000); // rede de segurança
+    }
+
+    setTimeout(ciclo, atrasoInicial);
   }
 
-  function voar() {
-    const id = "sbg" + Math.random().toString(36).slice(2, 8);
-    const el = document.createElement("div");
-    el.className = "sora-borboleta";
-    el.innerHTML = `<svg viewBox="0 0 32 32" aria-hidden="true">
-      <defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="var(--accent)"/><stop offset="1" stop-color="var(--accent-2)"/>
-      </linearGradient></defs>
-      <g class="asa asa-esq"><path d="M16 16C10 6 2 6 2 14c0 7 8 9 14 4z" fill="url(#${id})"/></g>
-      <g class="asa asa-dir"><path d="M16 16c6-10 14-10 14-2 0 7-8 9-14 4z" fill="url(#${id})"/></g>
-      <ellipse cx="16" cy="16" rx="1.2" ry="5" fill="#2a2733"/>
-    </svg>`;
-    const duracao = 10 + Math.random() * 6;
-    el.style.offsetPath = caminhoAleatorio();
-    el.style.animationDuration = `${duracao}s`;
-    camada.appendChild(el);
-
-    let saiu = false;
-    const remover = () => {
-      if (saiu) return;
-      saiu = true;
-      el.classList.add("ir-embora");
-      setTimeout(() => el.remove(), 450);
-      ciclo();
-    };
-    el.addEventListener("pointerenter", remover, { once: true });
-    el.addEventListener("animationend", remover, { once: true });
-    setTimeout(remover, (duracao + 1.5) * 1000); // rede de segurança
-  }
-
-  ciclo();
+  planos.forEach((info, i) => loopPlano(info, i * 3500 + Math.random() * 4000));
 }
 
 /* ===== 6. Assistente (perguntas frequentes) ===== */
