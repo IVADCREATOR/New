@@ -664,6 +664,7 @@ const ICONE_GOOGLE = '<svg viewBox="0 0 18 18" aria-hidden="true" width="18" hei
               <label>Confirmar senha<input id="registerConfirm" type="password" autocomplete="new-password" required placeholder="Digite a senha novamente"></label>
               <div id="turnstileBox" class="turnstile-box"></div>
               <button class="btn btn-primary btn-block" id="authRegister" type="submit">Criar conta</button>
+              <p class="field-hint">Ao criar sua conta, você concorda com os <a class="text-link" href="/termos" target="_blank" rel="noopener">Termos de Uso</a> e a <a class="text-link" href="/privacidade" target="_blank" rel="noopener">Política de Privacidade</a>.</p>
               <div class="auth-result" id="registerResult" aria-live="polite"></div>
             </form>
           </div>

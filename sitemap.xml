@@ -12,4 +12,6 @@
   <url><loc>https://www.sorasakiplatform.store/feedback</loc><changefreq>monthly</changefreq><priority>0.4</priority></url>
   <url><loc>https://www.sorasakiplatform.store/uptime</loc><changefreq>daily</changefreq><priority>0.3</priority></url>
   <url><loc>https://www.sorasakiplatform.store/erros</loc><changefreq>daily</changefreq><priority>0.3</priority></url>
+  <url><loc>https://www.sorasakiplatform.store/termos</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>
+  <url><loc>https://www.sorasakiplatform.store/privacidade</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>
 </urlset>
