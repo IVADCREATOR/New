@@ -429,6 +429,7 @@ function criarMenuSorasaki() {
 }
 
 /* ===== 4. Conta: login, cadastro, recuperação de senha, perfil ===== */
+const ICONE_GOOGLE = '<svg viewBox="0 0 18 18" aria-hidden="true" width="18" height="18"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84c-.21 1.13-.85 2.09-1.8 2.73v2.27h2.92c1.71-1.57 2.68-3.88 2.68-6.64z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.17l-2.92-2.27c-.81.54-1.85.86-3.04.86-2.34 0-4.32-1.58-5.03-3.71H.98v2.34C2.46 15.98 5.48 18 9 18z"/><path fill="#FBBC05" d="M3.97 10.71A5.4 5.4 0 0 1 3.68 9c0-.59.1-1.17.29-1.71V4.95H.98A9 9 0 0 0 0 9c0 1.45.35 2.83.98 4.05z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.46 2.02.98 4.95l2.99 2.34C4.68 5.16 6.66 3.58 9 3.58z"/></svg>';
 (function () {
   const SUPA_URL = window.SORASAKI_SUPABASE_URL || "";
   const SUPA_KEY = window.SORASAKI_SUPABASE_KEY || "";
@@ -563,6 +564,8 @@ function criarMenuSorasaki() {
 
         <section class="auth-panel" data-auth-panel="login">
           <div class="login-intro"><h3>Bem-vindo de volta</h3><p>Navegar pelo site não exige conta. Para divulgar grupos, avaliar, relatar ou comprar, entre com seu e-mail.</p></div>
+          <button class="btn btn-google btn-block" type="button" data-google-login>${ICONE_GOOGLE} Continuar com Google</button>
+          <div class="auth-divider">ou com e-mail</div>
           <form id="authLoginForm" novalidate>
             <label>E-mail<input id="authEmail" type="email" autocomplete="email" inputmode="email" required placeholder="voce@exemplo.com"></label>
             <label>Senha<div class="password-wrap"><input id="authPassword" type="password" autocomplete="current-password" required placeholder="Sua senha"><button type="button" class="password-toggle" data-toggle-password="authPassword">Mostrar</button></div></label>
@@ -575,6 +578,8 @@ function criarMenuSorasaki() {
         <section class="auth-panel hidden" data-auth-panel="register">
           <div id="registerFormFields" class="auth-panel" style="animation:none">
             <div class="login-intro"><h3>Crie sua conta</h3><p>Leva menos de um minuto. Depois, confirme pelo link que enviaremos ao seu e-mail.</p></div>
+            <button class="btn btn-google btn-block" type="button" data-google-login>${ICONE_GOOGLE} Cadastrar com Google</button>
+            <div class="auth-divider">ou com e-mail</div>
             <form id="authRegisterForm" novalidate>
               <label>Nome de usuário<input id="registerUsername" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="24" required placeholder="ex.: sorasakifan"><span class="field-hint">3 a 24 caracteres: letras, números ou _</span></label>
               <label>E-mail<input id="registerEmail" type="email" autocomplete="email" inputmode="email" required placeholder="voce@exemplo.com"></label>
@@ -618,7 +623,7 @@ function criarMenuSorasaki() {
           </form>
         </section>
 
-        <div class="login-privacy">Seus dados de acesso são protegidos pelo Supabase Auth. Nunca pedimos sua senha por WhatsApp ou e-mail.</div>
+        <div class="login-privacy">A gente nunca vai pedir sua senha por WhatsApp ou e-mail — desconfie se isso acontecer.</div>
       </div>`;
     document.body.append(loginOverlay, loginDrawer);
 
@@ -640,6 +645,24 @@ function criarMenuSorasaki() {
     loginOverlay.onclick = closeLogin;
     const show = (id, ok, msg) => Sora.showResult($(id), ok === true ? "ok" : ok === "info" ? "info" : "error", msg);
     const validEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+
+    // Login com Google: o Supabase cuida do OAuth e da volta para o site
+    // (detectSessionInUrl já está ligado no cliente). Se a conta ainda não
+    // existir, ela é criada automaticamente pelo mesmo trigger que cria o
+    // perfil no cadastro por e-mail.
+    loginDrawer.querySelectorAll("[data-google-login]").forEach((btn) => {
+      btn.onclick = async () => {
+        const c = ensureClient();
+        if (!c) return Sora.toast("Não foi possível acessar sua conta agora. Recarregue a página e tente novamente.", "error");
+        Sora.setBusy(btn, true, "Redirecionando…");
+        const { error } = await c.auth.signInWithOAuth({
+          provider: "google",
+          options: { redirectTo: location.origin + location.pathname, queryParams: { prompt: "select_account" } }
+        });
+        if (error) { Sora.setBusy(btn, false); Sora.toast("Não foi possível continuar com o Google agora. Tente novamente.", "error"); }
+        // Sem erro: o navegador já está saindo para o Google, nada mais a fazer aqui.
+      };
+    });
 
     $("authLoginForm").onsubmit = async (e) => {
       e.preventDefault();
@@ -1102,6 +1125,73 @@ function ligarRevelacao() {
   });
 }
 
+// Borboleta roxa — detalhe de identidade. Atravessa a tela de vez em quando,
+// sem atrapalhar: não bloqueia cliques, some com toque/clique nela, e
+// respeita a preferência de movimento reduzido (do sistema e da página
+// Configurações). Some totalmente se o navegador não suportar offset-path.
+function motionReduzido() {
+  return document.documentElement.classList.contains("reduce-motion") || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function criarBorboleta() {
+  if (motionReduzido()) return;
+  if (!window.CSS || !CSS.supports("offset-path", "path('M0 0')")) return;
+
+  const camada = document.createElement("div");
+  camada.className = "sora-borboleta-camada";
+  document.body.appendChild(camada);
+
+  function caminhoAleatorio() {
+    const w = window.innerWidth, h = window.innerHeight;
+    const daEsquerda = Math.random() < 0.5;
+    const y0 = h * (0.12 + Math.random() * 0.35);
+    const y1 = h * (0.15 + Math.random() * 0.5);
+    const yMeio = h * (0.05 + Math.random() * 0.55);
+    const x0 = daEsquerda ? -60 : w + 60;
+    const x1 = daEsquerda ? w + 60 : -60;
+    const xm1 = w * (0.25 + Math.random() * 0.2);
+    const xm2 = w * (0.55 + Math.random() * 0.2);
+    return `path('M ${x0} ${y0} C ${xm1} ${yMeio}, ${xm2} ${yMeio}, ${x1} ${y1}')`;
+  }
+
+  function ciclo() {
+    const espera = 24000 + Math.random() * 40000; // entre 24s e 64s
+    setTimeout(() => { document.hidden ? ciclo() : voar(); }, espera);
+  }
+
+  function voar() {
+    const id = "sbg" + Math.random().toString(36).slice(2, 8);
+    const el = document.createElement("div");
+    el.className = "sora-borboleta";
+    el.innerHTML = `<svg viewBox="0 0 32 32" aria-hidden="true">
+      <defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="var(--accent)"/><stop offset="1" stop-color="var(--accent-2)"/>
+      </linearGradient></defs>
+      <g class="asa asa-esq"><path d="M16 16C10 6 2 6 2 14c0 7 8 9 14 4z" fill="url(#${id})"/></g>
+      <g class="asa asa-dir"><path d="M16 16c6-10 14-10 14-2 0 7-8 9-14 4z" fill="url(#${id})"/></g>
+      <ellipse cx="16" cy="16" rx="1.2" ry="5" fill="#2a2733"/>
+    </svg>`;
+    const duracao = 10 + Math.random() * 6;
+    el.style.offsetPath = caminhoAleatorio();
+    el.style.animationDuration = `${duracao}s`;
+    camada.appendChild(el);
+
+    let saiu = false;
+    const remover = () => {
+      if (saiu) return;
+      saiu = true;
+      el.classList.add("ir-embora");
+      setTimeout(() => el.remove(), 450);
+      ciclo();
+    };
+    el.addEventListener("pointerenter", remover, { once: true });
+    el.addEventListener("animationend", remover, { once: true });
+    setTimeout(remover, (duracao + 1.5) * 1000); // rede de segurança
+  }
+
+  ciclo();
+}
+
 /* ===== 6. Assistente (perguntas frequentes) ===== */
 const SORASAKI_FAQ = [
   { pergunta: "O que é o Sorasaki?", resposta: "O Sorasaki é um bot para grupos de WhatsApp que ajuda na proteção, organização e administração dos grupos.\n\nEste site reúne o status do bot ao vivo, a vitrine de comunidades, o catálogo e as novidades do projeto." },
@@ -1242,6 +1332,7 @@ function iniciarSorasaki() {
   ligarIndicadorDoBot();
   criarAssistente();
   ligarRevelacao();
+  criarBorboleta();
 
   const aviso = document.getElementById("avisoConexao");
   if (aviso) {
